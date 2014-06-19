@@ -116,9 +116,9 @@ _initially(Node, _nodeInfo(numterms, NumTerms))			:-	_makePolyWithTerms(Node, Nu
 
 % fractions also have numer/denom fields to alias first and second child
 _initially(Node, _nodeInfo(numer, FirstChild))	:-	_initially(Node, _nodeInfo(operation, div)),
-													_initially(Node, _treeInfo(childNum, _num(1, FirstChild))).
+													_initially(Node, _treeInfo(childnum, _num(1, FirstChild))).
 _initially(Node, _nodeInfo(denom, SndChild))	:-	_initially(Node, _nodeInfo(operation, div)),
-													_initially(Node, _treeInfo(childNum, _num(2, SndChild))).
+													_initially(Node, _treeInfo(childnum, _num(2, SndChild))).
 
 
 #show _initially/2.
