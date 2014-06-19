@@ -13,6 +13,7 @@
 % is part of the current expression tree, and has some associated data.
 %
 
+% I don't want these constants to be changed, so they're not in gen_param.lp
 #const numLayers 	=	5.
 #const maxChildren	=	3.	% limit on children of operator nodes
 #const maxDepth		=	3.	% limits number of layers used during generation
@@ -122,5 +123,3 @@ _initially(Node, _nodeInfo(denom, SndChild))	:-	_initially(Node, _nodeInfo(opera
 
 
 #show _initially/2.
-% TODO: delete this
-:- not _initially(_id(1,2), _nodeInfo(operation, mul)).
