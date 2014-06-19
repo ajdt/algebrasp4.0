@@ -75,22 +75,12 @@ _initially(Child, _nodeInfo(active))	:-	_initially(Parent, _treeInfo(activechild
 _numPolyTerms(1..5).
 % 
 % generate polynomials
-1 { _makePolyWithDeg(Node, Deg) : _degree(Deg) } 1 	:-	_initially(Node, _nodeInfo(type, poly)).
-1 { _makePolyWithCoeff(Node, Coeff) : _coeff(Coeff) } 1 	:-	_initially(Node, _nodeInfo(type, poly)).
+1 { _makePolyWithDeg(Node, Deg) : _degree(Deg), Deg <= maxAssignableDegree } 1 	:-	_initially(Node, _nodeInfo(type, poly)).
+1 { _makePolyWithCoeff(Node, Coeff) : _coeff(Coeff), Coeff <= maxAssignableCoeff } 1 	:-	_initially(Node, _nodeInfo(type, poly)).
 1 { _makePolyWithTerms(Node, NumTerms) : _numPolyTerms(NumTerms) } 1 	:-	_initially(Node, _nodeInfo(type, poly)).
 
-_initially(Node, _nodeInfo(mono, Mono)) :- _hasMonom(Node, Mono).
+_initially(Node, _nodeInfo(mono, _monoInfo(Num, Mono))) :- _hasMonom(Node, Num, Mono).
 
 
 
 #show _initially/2.
-
-
-
-
-
-
-
-
-
-
