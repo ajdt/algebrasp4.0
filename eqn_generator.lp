@@ -79,7 +79,7 @@ _numPolyTerms(1..5).
 1 { _makePolyWithCoeff(Node, Coeff) : _coeff(Coeff) } 1 	:-	_initially(Node, _nodeInfo(type, poly)).
 1 { _makePolyWithTerms(Node, NumTerms) : _numPolyTerms(NumTerms) } 1 	:-	_initially(Node, _nodeInfo(type, poly)).
 
-_initially(Node, _nodeInfo(mono, _data(Num, Mono))) :- _hasMonom(Node, Num, Mono).
+_initially(Node, _nodeInfo(mono, Mono)) :- _hasMonom(Node, Mono).
 
 
 
