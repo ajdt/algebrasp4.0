@@ -28,6 +28,14 @@ _layerNodes(5, 20).
 % define nodes based on layers and nodes in each layer
 _node(_id(Layer, Number))	:-	_layer(Layer), _layerNodes(Layer, NumNodes), Number = 1..NumNodes.
 
+% define a set of temp nodes used for intermediate results
+_tempLayer(1..3).
+_tempLayerNodes(1,1).
+_tempLayerNodes(2,4).
+_tempLayerNodes(3,6).
+% purposely give temp nodes arity 2, so they're not accidentally used where regular nodes would be
+_node(_id(temp, Layer, Number))	:- _tempLayerNodes(Layer, NumNodes), Number = 1..NumNodes.
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% expression tree properties %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % root nodes are all in first layer, and count as depth 1
 _root(_id(1, Number)) :- _node(_id(1, Number)).
@@ -36,6 +44,11 @@ _depth(_id(Layer, Number), Layer)	:- _node(_id(Layer, Number)).
 % a node can only be a parent of nodes in succeeding layer
 _validChild(_id(Layer1, Num1), _id(Layer2, Num2))	:-	_node(_id(Layer1, Num1)),
 														_node(_id(Layer2, Num2)),
+														Layer1 = Layer2 - 1.
+% temp  nodes have children too...
+_validChild(_id(temp, Layer1, Num1), _id(temp, Layer2, Num2))	
+													:-	_node(_id(temp, Layer1, Num1)),
+														_node(_id(temp, Layer2, Num2)),
 														Layer1 = Layer2 - 1.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% node properties %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
