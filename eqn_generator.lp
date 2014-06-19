@@ -49,12 +49,12 @@ _side(_id(1,2), right).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% PROBLEM GENERATION %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-_initially(Node, _nodeInfo(active))	:-	_root(Node).
+_initially(Node, _nodeInfo(active,yes))	:-	_root(Node).
 
 % assigning type to a node, if we're at max depth node must be a polynomial
-1 { _initially(Node, _nodeInfo(type, Type)) : _type(Type) } 1		:-	_initially(Node, _nodeInfo(active)),
+1 { _initially(Node, _nodeInfo(type, Type)) : _type(Type) } 1		:-	_initially(Node, _nodeInfo(active,yes)),
 																		_depth(Node, Depth), Depth < maxDepth.
- _initially(Node, _nodeInfo(type, poly))							:-	_initially(Node, _nodeInfo(active)),
+ _initially(Node, _nodeInfo(type, poly))							:-	_initially(Node, _nodeInfo(active,yes)),
 																		_depth(Node, Depth), Depth = maxDepth.
 
 1 { _initially(Node, _nodeInfo(operation, Op)) : _operator(Op) } 1	:-	_initially(Node, _nodeInfo(type, oper)).
@@ -85,7 +85,7 @@ _initially(Parent, _treeInfo(activechild, Child))	:-	_initially(Parent, _treeInf
 	not Num { _initially(Node, _treeInfo(activechild, Child)) : _node(Child) } Num.
 
 % indicate child is active also
-_initially(Child, _nodeInfo(active))	:-	_initially(Parent, _treeInfo(activechild, Child)).
+_initially(Child, _nodeInfo(active,yes))	:-	_initially(Parent, _treeInfo(activechild, Child)).
 
 % generate polynomials
 _numPolyTerms(1..5).
