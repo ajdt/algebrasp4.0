@@ -22,9 +22,9 @@
 _layer(1..numLayers).
 _layerNodes(1, 2).
 _layerNodes(2, 6).
-_layerNodes(3, 10).
+_layerNodes(3, 20).
 _layerNodes(4, 20).
-_layerNodes(5, 20).
+_layerNodes(5, 10).
 
 % define nodes based on layers and nodes in each layer
 _node(_id(Layer, Number))	:-	_layer(Layer), _layerNodes(Layer, NumNodes), Number = 1..NumNodes.
@@ -80,46 +80,33 @@ _initially(Node, _nodeInfo(active,yes))	:-	_root(Node).
 												Op != div.
 _initially(Node, _nodeInfo(numchildren, 2))						:-	_initially(Node, _nodeInfo(operation, div)).
 
-% generate children for parent node and assign ordering
-1 { _initially(Parent, _treeInfo(childnum, _num(ChildNo, FreeNode))) 
-	: _validChild(Parent, FreeNode)
-}	1 
-	:-	_initially(Parent, _nodeInfo(numchildren, Num)), ChildNo = 1..Num.
-
-% every numbered child is also an "active child"
-_initially(Parent, _treeInfo(activechild, Child))	:-	_initially(Parent, _treeInfo(childnum, _num(ChildNo, Child))).
-
-% each child can have at most one parent
-% TODO: figure out if this is the best way to write this rule (write visualizer first)
-		%maybe this should be a test
-:- 2 { _initially(Parent, _treeInfo(activechild, Child)) : _node(Parent) }, _node(Child).
-
-% each node must have exactly N children
-:- _initially(Node, _nodeInfo(numchildren, Num)), 
-	not Num { _initially(Node, _treeInfo(activechild, Child)) : _node(Child) } Num.
+% generate children for parent node 
+_initially(_id(Layer, ParentNum), _treeInfo(activechild, _id(Layer+1, (ParentNum - 1)*maxChilden + ChildNo)))
+					:-	_initially(_id(Layer, ParentNum), 
+						_nodeInfo(numchildren, Num)), ChildNo = 1..Num.
 
 % indicate child is active also
 _initially(Child, _nodeInfo(active,yes))	:-	_initially(Parent, _treeInfo(activechild, Child)).
 
-% generate polynomials
+										% GENERATE POLYNOMIALS
 _numPolyTerms(1..5).
 % NOTE: degree and leading coef are decided here, so that we can create leadingCoef, and degree predicates for 
 % poly nodes if necessary
 1 { _makePolyWithDeg(Node, Deg) : _degree(Deg), Deg <= maxAssignableDegree } 1 	
-										:-	_initially(Node, _nodeInfo(type, poly)).
+					:-	_initially(Node, _nodeInfo(type, poly)).
 1 { _makePolyWithCoeff(Node, Coeff) : _coeff(Coeff), Coeff <= maxAssignableCoeff } 1 	
-										:-	_initially(Node, _nodeInfo(type, poly)).
+					:-	_initially(Node, _nodeInfo(type, poly)).
 1 { _makePolyWithTerms(Node, NumTerms) : _numPolyTerms(NumTerms) } 1 	
-										:-	_initially(Node, _nodeInfo(type, poly)).
+					:-	_initially(Node, _nodeInfo(type, poly)).
 
-_initially(Node, _nodeInfo(mono, _monoInfo(Num, Mono))) :- _hasMonom(Node, Num, Mono).
+_initially(Node, _nodeInfo(mono, Mono)) :- _hasMonom(Node, Num, Mono).
 _initially(Node, _nodeInfo(numterms, NumTerms))			:-	_makePolyWithTerms(Node, NumTerms).
 
 % fractions also have numer/denom fields to alias first and second child
-_initially(Node, _nodeInfo(numer, FirstChild))	:-	_initially(Node, _nodeInfo(operation, div)),
-													_initially(Node, _treeInfo(childnum, _num(1, FirstChild))).
-_initially(Node, _nodeInfo(denom, SndChild))	:-	_initially(Node, _nodeInfo(operation, div)),
-													_initially(Node, _treeInfo(childnum, _num(2, SndChild))).
+%_initially(Node, _nodeInfo(numer, FirstChild))	:-	_initially(Node, _nodeInfo(operation, div)),
+%													_initially(Node, _treeInfo(childnum, _num(1, FirstChild))).
+%_initially(Node, _nodeInfo(denom, SndChild))	:-	_initially(Node, _nodeInfo(operation, div)),
+%													_initially(Node, _treeInfo(childnum, _num(2, SndChild))).
 
 
 #show _initially/2.
