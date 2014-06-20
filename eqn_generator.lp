@@ -81,7 +81,7 @@ _initially(Node, _nodeInfo(active,yes))	:-	_root(Node).
 _initially(Node, _nodeInfo(numchildren, 2))						:-	_initially(Node, _nodeInfo(operation, div)).
 
 % generate children for parent node 
-_initially(_id(Layer, ParentNum), _treeInfo(activechild, _id(Layer+1, (ParentNum - 1)*maxChilden + ChildNo)))
+_initially(_id(Layer, ParentNum), _treeInfo(activechild, _id(Layer+1, (ParentNum - 1)*maxChildren + ChildNo)))
 					:-	_initially(_id(Layer, ParentNum), _nodeInfo(numchildren, Num)), 
 						ChildNo = 1..Num.
 
