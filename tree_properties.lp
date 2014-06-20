@@ -23,55 +23,33 @@ _canGrowTreeFromNode(_id(Layer, Number), Step)
 % 
 _remove(Polynomial, _nodeInfo(monom, Monom), Step)
 					:-	_deleteMonomial(Polynomial, Monom, Step).
-% shift down all monomials
-_shiftDownMonom(Parent, Num +1, 1, Step)
-					:-	_deleteMonomial(Parent, Term, Step),
-						_holds(Parent, _child(Num, Term), Step).
-_remove(Parent, _term(Num, Term), Step)
-					:-	_shiftDownMonom(Parent, Start, Delta, Step),
-						_holds(Parent, _term(Num, Term), Step), Num >=Start.
-_introduce(Parent, _term(Num - Delta, Term), Step)
-					:-	_shiftDownMonom(Parent, Start, Delta, Step),
-						_holds(Parent, _term(Num, Term), Step), Num >=Start.
-
 % update the number of terms
 _update(Poly, _nodeInfo(numterms, NumTerms - 1), Step)
 					:-	_deleteMonomial(Poly, Mono, Step),
 						_holds(Poly, _nodeInfo(numterms, NumTerms), Step).
 
 % canceling a term
-_deleteNode(Term, Step)	:-	_cancelTerm(Term, Step).
-_deleteMonomial(Polynomial, Monom, Step)		% TODO: write this
-					:-	_cancelTerm(Monom, Step),
-						_polyTerm(Polynomial, Monom, Step).
+_deleteNode(Term, Step)	
+					:-	_cancelTerm(Expr, Term, Step),
+						_node(Term).
+_deleteMonomial(Poly, Term, Step)		
+					:-	_cancelTerm(Poly, Term, Step),
+						not _node(Term).
 
 % deleting a node means to remove all parent pointers, and the entire subtree rooted at that node
 % to remove node properties use _clearNode(...)
 
 _deleteChildProperties(Parent, Child, Step)
-						:-	_deleteNode(Child, Step),
-							_termOf(Parent, Child, Step).	
+					:-	_deleteNode(Child, Step),
+						_termOf(Parent, Child, Step).	
 
 % update parent's child count
 _update(Parent, _nodeInfo(numchildren, NumKids - 1), Step)
 					:-	_deleteChildProperties(Parent, Node, Step),
 						_holds(Parent, _nodeInfo(numchildren, NumKids), Step).
-% remove parent pointers to child
+% remove parent pointer to child
 _remove(Parent, _nodeInfo(activechild, Term), Step)
 					:-	_deleteChildProperties(Parent, Term, Step).
-_remove(Parent, _child(Num, Term), Step)
-					:-	_deleteChildProperties(Parent, Term, Step),
-						_holds(Parent, _child(Num, Term), Step).
-% shift down all remaining children
-_shiftDownChildren(Parent, Num +1, 1)
-					:-	_deleteChildProperties(Parent, Term, Step),
-						_holds(Parent, _child(Num, Term), Step).
-_remove(Parent, _child(Num, Term), Step)
-					:-	_shiftDownChildren(Parent, Start, Delta),
-						_holds(Parent, _child(Num, Term), Step), Num >=Start.
-_introduce(Parent, _child(Num - Delta, Term), Step)
-					:-	_shiftDownChildren(Parent, Start, Delta),
-						_holds(Parent, _child(Num, Term), Step), Num >=Start.
 % delete the node
 _remove(Node, Info, Step)
 					:-	_deleteNode(Node, Step),

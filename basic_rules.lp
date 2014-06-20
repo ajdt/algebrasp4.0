@@ -18,18 +18,18 @@ _swapTerms(Term1, Term2, Step)
 % addIdentity: a*x^b + 0 ----> a*x^b 
 %================================================================================
 
-_applicable(_action(addIdent, _data(ZeroTerm)), Step)
+_applicable(_action(addIdent, _data(Plus, ZeroTerm)), Step)
 			:-	_isAdd(Plus, Step),
 				_termOf(Plus, ZeroTerm, Step),
 				_isZero(ZeroTerm, Step).
 
-_applicable(_action(addIdent, _data(ZeroTerm)), Step)
+_applicable(_action(addIdent, _data(Poly, ZeroTerm)), Step)
 			:-	_isPolynomial(Poly, Step),
 				_polyTerm(Poly, ZeroTerm, Step),
 				_isZeroMonomial(ZeroTerm).
 
-_cancelTerm(ZeroTerm, Step) 
-			:-	_doAction(_action(addIdent, _data(ZeroTerm)), Step).
+_cancelTerm(Plus, ZeroTerm, Step) 
+			:-	_doAction(_action(addIdent, _data(Plus, ZeroTerm)), Step).
 
 % TODO: delete this, only for debugging purposes
 :- not action(addIdent).

@@ -28,7 +28,7 @@ def wrapFact(parser, left='initially(', right=')'):
 	return wrapWithPredicate( node_parser + ',' + parser, left, right)
 
 node_parser		=	'id(' + Word(nums) + ',' + Word(nums) + ')'
-mono_parser		=	Word(alphas) + ',' + 'monomial('+ Word(nums) + ',' + Word(nums) + ')' 
+mono_parser		=	Word(alphas) + ',' + 'monomial('+ Word(nums + '-') + ',' + Word(nums) + ')' # NOTE: added '-' to recognize negative numbers
 
 type_parser		=	wrapFact(wrapWithPredicate(Word(alphas) + ',' + Word(alphas)))
 oper_parser		=	wrapFact(wrapWithPredicate(Word(alphas) + ',' + Word(alphas)))
