@@ -22,10 +22,10 @@ from pyparsing import Word, alphas, nums, ParseException
 # values is a list of dictionaries, each dictionary contains one solution.
 # each dictionary has one key called 'Value' which refers to a list of predicates and their values
 
-def wrapWithPredicate(parser, pred='nodeInfo('):
-	return pred + parser + ')'
-def wrapFact(parser):
-	return wrapWithPredicate( node_parser + ',' + parser, 'initially(')
+def wrapWithPredicate(parser, left='nodeInfo(', right=')'):
+	return left + parser + right
+def wrapFact(parser, left='initially(', right=')'):
+	return wrapWithPredicate( node_parser + ',' + parser, left, right)
 
 node_parser		=	'id(' + Word(nums) + ',' + Word(nums) + ')'
 mono_parser		=	Word(alphas) + ',' + 'monomial('+ Word(nums) + ',' + Word(nums) + ')' 
@@ -40,8 +40,15 @@ op_symbols 		= 	{'add' : '+' , 'div' : '/' , 'mul' : '*' }
 
 all_parsers = [ node_parser, mono_parser, type_parser, oper_parser,	child_parser, poly_parser ]
 
-def findParserMatchingPredicate(predicate):
-	for parser in all_parsers:
+step_type_parser		=	wrapFact(wrapWithPredicate(Word(alphas) + ',' + Word(alphas)), 'holds(', ',' + Word(nums) + ')' )
+step_oper_parser		=	wrapFact(wrapWithPredicate(Word(alphas) + ',' + Word(alphas)), 'holds(', ',' + Word(nums) + ')' )
+step_child_parser 		= 	wrapFact(wrapWithPredicate(Word(alphas) + ',' + node_parser, 'treeInfo('), 'holds(', ',' + Word(nums) + ')' )
+step_poly_parser		=	wrapFact(wrapWithPredicate(mono_parser ), 'holds(', ',' + Word(nums) + ')' )
+
+step_parsers = [ step_type_parser, step_oper_parser, step_child_parser, step_poly_parser ]
+
+def findParserMatchingPredicate(predicate, parser_list=all_parsers):
+	for parser in parser_list:
 		try:
 			parse_output = parser.parseString(predicate)
 		except ParseException:
@@ -56,8 +63,50 @@ def parseNodeAndInfo(tokens):
 	field		=	node_info[0]
 	data		=	node_info[2:]
 	return (node, field, data)
+def parseStepInfo(tokens):
+	step = int(tokens[-2])
+	node, field, data = parseNodeAndInfo(tokens[:-2])
+	return (node, field, data, step)
 def parseMonoInfo(tokens):
 	return tokens[1], tokens[3]
+
+# used as constructor to defaultdict that returns another default dict
+def makeDefDict():
+	return defaultdict(list)
+def formSolutionString(predicates_list):
+	# one dictionary per predicate type
+	types, operator			= defaultdict(dict), defaultdict(dict)
+	mono					= defaultdict(makeDefDict)
+	children 				= defaultdict(makeDefDict)
+
+	# parse predicate list for info first
+	for predicate in predicates_list:
+		parser, tokens = findParserMatchingPredicate(predicate, step_parsers)
+		if parser == None or tokens == [] :
+			continue
+		node, field, data, step = parseStepInfo(tokens)
+
+		if field == 'type':
+			types[step][node] = ''.join(data)
+		elif field == 'operation':
+			operator[step][node] = ''.join(data)
+		elif field == 'activechild':
+			child = ''.join(data)
+			children[step][node].append(child)
+		elif field == 'monom':
+			coef, deg = parseMonoInfo(data)
+			mono[step][node].append(coef + 'x^' + deg)
+		else :
+			continue
+	#print 'types', types, '\n\n'
+	#print 'operator', operator, '\n\n'
+	#print 'mono', mono, '\n\n'
+	#print 'children', children, '\n\n'
+	# print 
+	all_steps = []
+	for solve_step in sorted(types.keys()):
+		all_steps.append( str(solve_step) + ': ' + eqnString(types[solve_step], operator[solve_step], mono[solve_step], children[solve_step]))
+	return '\n'.join(all_steps) 
 
 def formEqnString(predicates_list):
 	# one dictionary per predicate type
@@ -115,12 +164,20 @@ def formPolyString(types, operator, mono, children, root):
 def makePolynomial(nodeName, mono):
 	return '+'.join(mono[nodeName])
 
+def printEqns(all_soln):
+	for solution in all_soln:
+		print formEqnString(solution['Value'])
+def printEqnSolns(all_soln):
+	for solution in all_soln:
+		print formSolutionString(solution['Value'])
 def main():
 	clasp_output = ''.join(sys.stdin.xreadlines())
 	decoded = json.loads(clasp_output)
 	all_soln = decoded['Call'][0]['Witnesses']
-	for solution in all_soln:
-		print formEqnString(solution['Value'])
+	if len(sys.argv) > 1 and sys.argv[1] == '--steps':
+		printEqnSolns(all_soln)
+	else:
+		printEqns(all_soln)
 
 if __name__ == "__main__":
 	main()
