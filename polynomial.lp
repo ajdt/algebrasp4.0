@@ -45,6 +45,8 @@ _monoType(sameDeg;diffDeg).
 			:-	_makePolyWithTerms(Node, NumTerms), Num = 1..NumTerms.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% POLYNOMIAL PROPERTIES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+_polyTerm(Poly, Mono, Step)	:-	_holds(Poly, _nodeInfo(monom, Mono), Step).
+_isPolynomial(Poly, Step)	:-	_holds(Poly, _nodeInfo(type, poly), Step).
 _isMonomial(Poly, Step)	:-	_holds(Poly, _nodeInfo(numterms, 1), Step).
 _isBinomial(Poly, Step)	:-	_holds(Poly, _nodeInfo(numterms, 2), Step).
 _isTrinomial(Poly, Step)	:-	_holds(Poly, _nodeInfo(numterms, 3), Step).
@@ -55,14 +57,14 @@ _hasHighDegreeTerms(Poly, Step)	:-	_holds(Poly, _nodeInfo(mono, _monoInfo(Num, _
 										Coeff != 0, Deg > 3.
 
 _isZero(Poly, Step)	:-	_isMonomial(Poly, Step),
-						_holds(Poly, _nodeInfo(mono, _monoInfo(1, Mono))),
+						_holds(Poly, _nodeInfo(monom, Mono), Step),
 						_isZeroMonomial(Mono).
 
 _isOne(Poly, Step)	:-	_isMonomial(Poly, Step),
-						_holds(Poly, _nodeInfo(mono, _monoInfo(1, Mono))),
+						_holds(Poly, _nodeInfo(monom, Mono), Step),
 						_isUnitMonomial(Mono).
 _isConst(Poly, Step)	:-	_isMonomial(Poly, Step),
-						_holds(Poly, _nodeInfo(mono, _monoInfo(1, Mono))),
+						_holds(Poly, _nodeInfo(mono, Mono), Step),
 						_isConstMonomial(Mono).
 
 % XXX: assumes max assignable degree is 3

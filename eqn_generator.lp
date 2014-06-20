@@ -15,8 +15,8 @@
 
 % I don't want these constants to be changed, so they're not in gen_param.lp
 #const numLayers 	=	5.
-#const maxChildren	=	3.	% limit on children of operator nodes
-#const maxDepth		=	3.	% limits number of layers used during generation
+#const maxChildren	=	2.	% limit on children of operator nodes
+#const maxDepth		=	2.	% limits number of layers used during generation
 
 % define number of nodes per layer
 _layer(1..numLayers).
@@ -82,8 +82,8 @@ _initially(Node, _nodeInfo(numchildren, 2))						:-	_initially(Node, _nodeInfo(o
 
 % generate children for parent node 
 _initially(_id(Layer, ParentNum), _treeInfo(activechild, _id(Layer+1, (ParentNum - 1)*maxChilden + ChildNo)))
-					:-	_initially(_id(Layer, ParentNum), 
-						_nodeInfo(numchildren, Num)), ChildNo = 1..Num.
+					:-	_initially(_id(Layer, ParentNum), _nodeInfo(numchildren, Num)), 
+						ChildNo = 1..Num.
 
 % indicate child is active also
 _initially(Child, _nodeInfo(active,yes))	:-	_initially(Parent, _treeInfo(activechild, Child)).
