@@ -103,10 +103,14 @@ _initially(Node, _nodeInfo(mono, Mono)) :- _hasMonom(Node, Num, Mono).
 _initially(Node, _nodeInfo(numterms, NumTerms))			:-	_makePolyWithTerms(Node, NumTerms).
 
 % fractions also have numer/denom fields to alias first and second child
-%_initially(Node, _nodeInfo(numer, FirstChild))	:-	_initially(Node, _nodeInfo(operation, div)),
-%													_initially(Node, _treeInfo(childnum, _num(1, FirstChild))).
-%_initially(Node, _nodeInfo(denom, SndChild))	:-	_initially(Node, _nodeInfo(operation, div)),
-%													_initially(Node, _treeInfo(childnum, _num(2, SndChild))).
+_initially(_id(ParentLayer, ParentNum), _nodeInfo(numer, _id(ChildLayer, FstChildNum)))	
+					:-	_initially(_id(ParentLayer, ParentNum), _nodeInfo(operation, div)),
+						FstChildNum = (ParentNum -1)*maxChildren + 1,
+						ChildLayer = ParentLayer + 1.
+_initially(_id(ParentLayer, ParentNum), _nodeInfo(denom, _id(ChildLayer, SndChildNum)))	
+					:-	_initially(_id(ParentLayer, ParentNum), _nodeInfo(operation, div)),
+						SndChildNum = (ParentNum -1)*maxChildren + 2,
+						ChildLayer = ParentLayer + 1.
 
 
 #show _initially/2.

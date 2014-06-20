@@ -47,12 +47,12 @@ _monoType(sameDeg;diffDeg).
 
 % generate monomial of lesser degree than leading term
 1 { _hasMonom(Node, MonoNum, _monomial(C,D)) 
-	: _baseMonom(C,D), D < PolyDeg } 1	:-	_hasMonoType(Node, MonoNum, diffDeg), _makePolyWithDeg(Node, PolyDeg).
+	: _baseMonom(C,D), D < PolyDeg } 1	:-	_hasMonomType(Node, MonoNum, diffDeg), _makePolyWithDeg(Node, PolyDeg).
 
 % generate monomial of elsser coefficient than leading term
 1 { _hasMonom(Node, MonoNum, _monomial(C,D)) 
 	: _baseMonom(C,D), C < LeadCoeff , D == PolyDeg} 1	
-										:-	_hasMonoType(Node, MonoNum, sameDeg), _makePolyWithDeg(Node, PolyDeg),
+										:-	_hasMonomType(Node, MonoNum, sameDeg), _makePolyWithDeg(Node, PolyDeg),
 											_makePolyWithCoeff(Node, LeadCoeff).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% POLYNOMIAL PROPERTIES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
