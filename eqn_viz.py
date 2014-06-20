@@ -28,12 +28,12 @@ def wrapFact(parser):
 	return wrapWithPredicate( node_parser + ',' + parser, 'initially(')
 
 node_parser		=	'id(' + Word(nums) + ',' + Word(nums) + ')'
-mono_parser		=	'monoInfo(' + Word(nums) +',' +'monomial(' + Word(nums) + ',' + Word(nums) + ')' + ')'
+mono_parser		=	Word(alphas) + ',' + 'monomial('+ Word(nums) + ',' + Word(nums) + ')' 
 
 type_parser		=	wrapFact(wrapWithPredicate(Word(alphas) + ',' + Word(alphas)))
 oper_parser		=	wrapFact(wrapWithPredicate(Word(alphas) + ',' + Word(alphas)))
 child_parser 	= 	wrapFact(wrapWithPredicate(Word(alphas) + ',' + node_parser, 'treeInfo('))
-poly_parser		=	wrapFact(wrapWithPredicate(Word(alphas) +',' + mono_parser ))
+poly_parser		=	wrapFact(wrapWithPredicate(mono_parser ))
 op_symbols 		= 	{'add' : '+' , 'div' : '/' , 'mul' : '*' }
 
 
@@ -57,7 +57,7 @@ def parseNodeAndInfo(tokens):
 	data		=	node_info[2:]
 	return (node, field, data)
 def parseMonoInfo(tokens):
-	return tokens[4], tokens[6]
+	return tokens[1], tokens[3]
 
 def formEqnString(predicates_list):
 	# one dictionary per predicate type
@@ -79,7 +79,7 @@ def formEqnString(predicates_list):
 		elif field == 'activechild':
 			child = ''.join(data)
 			children[node].append(child)
-		elif field == 'mono':
+		elif field == 'monom':
 			coef, deg = parseMonoInfo(data)
 			mono[node].append(coef + 'x^' + deg)
 		else :

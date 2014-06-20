@@ -99,7 +99,7 @@ _numPolyTerms(1..5).
 1 { _makePolyWithTerms(Node, NumTerms) : _numPolyTerms(NumTerms) } 1 	
 					:-	_initially(Node, _nodeInfo(type, poly)).
 
-_initially(Node, _nodeInfo(mono, Mono)) :- _hasMonom(Node, Num, Mono).
+_initially(Node, _nodeInfo(monom, Mono)) :- _hasMonom(Node, Num, Mono).
 _initially(Node, _nodeInfo(numterms, NumTerms))			:-	_makePolyWithTerms(Node, NumTerms).
 
 % fractions also have numer/denom fields to alias first and second child

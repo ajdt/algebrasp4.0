@@ -41,19 +41,8 @@ _hasMonom(Node, 1, _monomial(LeadCoeff, Deg))	:-	_makePolyWithDeg(Node, Deg),
 _monoType(sameDeg;diffDeg).
 
 % generate a number for each monomial to be generated
-1 { _hasMonomType(Node, MonoNum, Type) : _monoType(Type) } 1
-											:-	_makePolyWithTerms(Node, NumTerms),
-												MonoNum = 2..NumTerms-1.
-
-% generate monomial of lesser degree than leading term
-1 { _hasMonom(Node, MonoNum, _monomial(C,D)) 
-	: _baseMonom(C,D), D < PolyDeg } 1	:-	_hasMonomType(Node, MonoNum, diffDeg), _makePolyWithDeg(Node, PolyDeg).
-
-% generate monomial of elsser coefficient than leading term
-1 { _hasMonom(Node, MonoNum, _monomial(C,D)) 
-	: _baseMonom(C,D), C < LeadCoeff , D == PolyDeg} 1	
-										:-	_hasMonomType(Node, MonoNum, sameDeg), _makePolyWithDeg(Node, PolyDeg),
-											_makePolyWithCoeff(Node, LeadCoeff).
+1 { _hasMonom(Node, Num, _monomial(C,D)) : _baseMonom(C,D) } 1 
+			:-	_makePolyWithTerms(Node, NumTerms), Num = 1..NumTerms.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% POLYNOMIAL PROPERTIES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 _isMonomial(Poly, Step)	:-	_holds(Poly, _nodeInfo(numterms, 1), Step).
