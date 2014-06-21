@@ -74,3 +74,24 @@ _isZeroDegree(Poly, Step)	:-	not _hasHighDegreeTerms(Poly, Step),
 								not _hasTermWithDeg(Poly, 2, Step),
 								not _hasTermWithDeg(Poly, 1, Step),
 								_hasTermWithDeg(Poly, 0, Step).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% DEFINED POLYNOMIAL CONSTANTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+_introduce(Node, _nodeInfo(type, poly), Step)
+							:-	_setToUnitPoly(Node, Step).
+_introduce(Node, _nodeInfo(numterms, 1), Step)
+							:-	_setToUnitPoly(Node, Step).
+_introduce(Node, _nodeInfo(monom, _monomial(1,0)), Step)
+							:-	_setToUnitPoly(Node, Step).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% POLYNOMS EQUALITY %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+_unequal(Poly1, Poly2, Step)
+							:-	_holds(Poly1, _nodeInfo(monom, Monom), Step),
+								_holds(Poly2, _nodeInfo(type, poly), Step),
+								not _holds(Poly2, _nodeInfo(monom, Monom), Step).
+_unequal(Poly2, Poly1, Step)
+							:-	_unequal(Poly1, Poly2, Step).
+_equal(Poly1, Poly2, Step)
+							:-	_holds(Poly1, _nodeInfo(type, poly), Step),
+								_holds(Poly2, _nodeInfo(type, poly), Step),
+								Poly1 != Poly2,
+								not _unequal(Poly1, Poly2, Step).

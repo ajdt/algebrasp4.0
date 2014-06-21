@@ -8,6 +8,10 @@ _numSubExpressions(Node, NumKids, Step)
 					:-	_holds(Node, _nodeInfo(numchildren, NumKids), Step).
 _termOf(Parent, Child, Step)	
 					:-	_holds(Parent, _treeInfo(activechild, Child), Step).
+_numerOf(Fraction, Numer, Step)
+					:-	_holds(Fraction, _nodeInfo(numer, Numer), Step).
+_denomOf(Fraction, Denom, Step)
+					:-	_holds(Fraction, _nodeInfo(denom, Denom), Step).
 
 
 
@@ -54,6 +58,13 @@ _remove(Parent, _treeInfo(activechild, Term), Step)
 _remove(Node, Info, Step)
 					:-	_deleteNode(Node, Step),
 						_holds(Node, Info, Step).
+% 'recursively' delete all children
+_deleteChildrenOf(Node, Step)
+					:-	_deleteNode(Node, Step).
+_deleteNode(Child, Step)
+					:-	_deleteChildrenOf(Parent, Step),
+						_termOf(Parent, Child, Step).
+
 
 % swap node (shallow copy of nodes
 _shallowCopy(Node1, Node2, Step)
@@ -63,7 +74,28 @@ _shallowCopy(Node2, Node1, Step)
 _update(Copy, Info, Step)
 					:-	_shallowCopy(Copy, ToCopy, Step),
 						_holds(ToCopy, Info, Step).
-% delete a subtree
+
+% clear a node's values
+_remove(Node, Info, Step)
+					:-	_clearNode(Node, Step),
+						_holds(Node, Info, Step).
+_introduce(Node, _nodeInfo(active, yes), Step)		% cleared node is still active
+					:-	_clearNode(Node, Step).
+_clearNode(Node, Step)
+					:- _clearRecursive(Node, Step).
+_clearRecursive(Child, Step)
+					:-	_clearRecursive(Node, Step),
+						_holds(Node, _nodeInfo(activechild, Child), Step).
+% setToOne
+_deleteChildrenOf(Node, Step)
+					:-	_setToOne(Node, Step).
+_clearNode(Node, Step)	
+					:-	_setToOne(Node, Step).
+_setToUnitPoly(Node, Step)	% defined in polynomial class
+					:-	_setToOne(Node, Step).
+% activateNode
+_introduce(Node, _nodeInfo(active, yes), Step)
+					:-	_activate(Node, Step).
 % copy a node
 % copy entire subtree
 % acquire a free node

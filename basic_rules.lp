@@ -55,6 +55,29 @@ ruleParam(mulIdent, exprSize, 1)
 			:-	_doAction(_action(mulIdent, _data(Mul, UnitTerm)), Step),
 				_numSubExpressions(Mul, Num, Step), Num > 2.
 
+%================================================================================
+% divIdentity: A / A ----> 1
+%================================================================================
+
+_applicable(_action(divIdent, _data(Div)), Step)
+			:-	_isDiv(Div, Step),
+				_numerOf(Div, Numer, Step),
+				_denomOf(Div, Denom, Step),
+				_equal(Numer, Denom, Step).
+
+
+_setToOne(Fraction, Step) 
+			:-	_doAction(_action(divIdent, _data(Fraction)), Step).
+% problem parameters
+ruleParam(divIdent, cancelType, 0) 
+			:-	_doAction(_action(divIdent, _data(Fraction)), Step),
+				_numerOf(Div, Numer, Step),
+				_isPolynomial(Numer, Step).
+ruleParam(divIdent, cancelType, 1) 
+			:-	_doAction(_action(divIdent, _data(Fraction)), Step),
+				_numerOf(Div, Numer, Step),
+				not _isPolynomial(Numer, Step).
 % TODO: delete this, only for debugging purposes
-%:- not action(mulIdent).
-%:- action(addIdent).
+:- not action(divIdent).
+:- action(addIdent).
+:- action(mulIdent).
