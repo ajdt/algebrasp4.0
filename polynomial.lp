@@ -32,7 +32,8 @@ _isUnitMonomial(_monomial(1, Deg))		:-	_monomial(1, Deg).
 _isConstMonomial(_monomial(Coeff, 0))	:-	_monomial(Coeff, 0).
 _sameDegree(_monomial(Coeff1, Deg), _monomial(Coeff2, Deg))
 							:-	_monomial(Coeff1, Deg),
-								_monomial(Coeff2, Deg).
+								_monomial(Coeff2, Deg),
+								Coeff1 <= Coeff2.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% GENERATING POLYNOMIALS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % pick a monomial at random from set of base monomials
@@ -105,10 +106,30 @@ _equal(Poly1, Poly2, Step)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% POLYNOMIAL OPERATIONS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-_introduce(Poly, _nodeInfo(monom, _monomial(Coeff1+Coeff2, Deg)), Step)
+_appendMonoToPoly(Poly, _monomial(Coeff1+Coeff2, Deg), Step)
 							:-	_addTerms(Poly, _monomial(Coeff1, Deg), _monomial(Coeff2, Deg), Step).
-_cancelTerm(Poly, Mono1, Step)
-							:-	_addTerms(Poly, Mono1, Mono2, Step).
-_cancelTerm(Poly, Mono2, Step)
-							:-	_addTerms(Poly, Mono1, Mono2, Step).
+
+_update(Poly, _nodeInfo(Monom, Multiplicity+1), Step)
+							:-	_appendMonoToPoly(Poly, Monom, Step),
+								_holds(Poly, _nodeInfo(Monom, Multiplicity), Step).
+_introduce(Poly, _nodeInfo(Monom, 1), Step)
+							:-	_appendMonoToPoly(Poly, Monom, Step),
+								not _holds(Poly, _nodeInfo(monom, Monom), Step).
+_introduce(Poly, _nodeInfo(monom, Monom), Step)
+							:-	_appendMonoToPoly(Poly, Monom, Step),
+								not _holds(Poly, _nodeInfo(monom, Monom), Step).
+_update(Poly, _nodeInfo(numterms, Num+1), Step)
+							:-	_appendMonoToPoly(Poly, Monom, Step),
+								_holds(Poly, _nodeInfo(numterms, Num), Step).
+
+
+_deleteMonomial(Poly, Mono1, 1, Step)
+							:-	_addTerms(Poly, Mono1, Mono2, Step),
+								Mono1 != Mono2.
+_deleteMonomial(Poly, Mono1, 1, Step)
+							:-	_addTerms(Poly, Mono1, Mono2, Step),
+								Mono1 != Mono2.
+% both monomials are the same
+_deleteMonomial(Poly, Mono, 2, Step)
+							:-	_addTerms(Poly, Mono, Mono, Step).
 

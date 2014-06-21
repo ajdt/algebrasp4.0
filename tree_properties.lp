@@ -25,18 +25,29 @@ _canGrowTreeFromNode(_id(Layer, Number), Step)
 
 % deleting a monomial
 % 
-_remove(Polynomial, _nodeInfo(monom, Monom), Step)
-					:-	_deleteMonomial(Polynomial, Monom, Step).
+_update(Polynomial, _nodeInfo(Monom, Multiplicity - NumTimes), Step)
+					:-	_deleteMonomial(Polynomial, Monom, NumTimes, Step),
+						_holds(Poly, _nodeInfo(Monom, Multiplicity), Step),
+						Multiplicity > NumTimes.
+_destroyMonomial(Polynomial, Monom, Step)
+					:-	_deleteMonomial(Polynomial, Monom, NumTimes, Step),
+						_holds(Poly, _nodeInfo(Monom, Multiplicity), Step),
+						Multiplicity <= NumTimes.
+_remove(Poly, _nodeInfo(monom, Monom), Step)
+					:-	_destroyMonomial(Poly, Monom, Step).
+_remove(Poly, _nodeInfo(Monom, Num), Step)
+					:-	_destroyMonomial(Poly, Monom, Step),
+						_holds(Poly, _nodeInfo(Monom, Num), Step).
 % update the number of terms
-_update(Poly, _nodeInfo(numterms, NumTerms - 1), Step)
-					:-	_deleteMonomial(Poly, Mono, Step),
+_update(Poly, _nodeInfo(numterms, NumTerms - NumTimes), Step)
+					:-	_deleteMonomial(Poly, Mono, NumTimes, Step),
 						_holds(Poly, _nodeInfo(numterms, NumTerms), Step).
 
 % canceling a term
 _deleteNode(Term, Step)	
 					:-	_cancelTerm(Expr, Term, Step),
 						_node(Term).
-_deleteMonomial(Poly, Term, Step)		
+_deleteMonomial(Poly, Term, 1, Step)		
 					:-	_cancelTerm(Poly, Term, Step),
 						not _node(Term).
 

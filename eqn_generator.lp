@@ -99,8 +99,9 @@ _numPolyTerms(1..2).
 1 { _makePolyWithTerms(Node, NumTerms) : _numPolyTerms(NumTerms) } 1 	
 					:-	_initially(Node, _nodeInfo(type, poly)).
 
-_initially(Node, _nodeInfo(monom, Mono)) :- _hasMonom(Node, Num, Mono).
-_initially(Node, _nodeInfo(numterms, NumTerms))			:-	_makePolyWithTerms(Node, NumTerms).
+_initially(Node, _nodeInfo(monom, Mono))	:-	_hasMonom(Node, Num, Mono).
+_initially(Node, _nodeInfo(Mono, 1))		:-	_hasMonom(Node, Num, Mono).	% denotes monomial multiplicity
+_initially(Node, _nodeInfo(numterms, NumTerms))			:-	_makePolyWithTerms(Node, NumTerms).	% TODO: may be inaccurate, fix this!
 
 % fractions also have numer/denom fields to alias first and second child
 _initially(_id(ParentLayer, ParentNum), _nodeInfo(numer, _id(ChildLayer, FstChildNum)))	
