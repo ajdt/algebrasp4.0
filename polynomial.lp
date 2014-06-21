@@ -85,6 +85,10 @@ _introduce(Node, _nodeInfo(monom, _monomial(1,0)), Step)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% POLYNOMS EQUALITY %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 _unequal(Poly1, Poly2, Step)
+							:-	_holds(Poly1, _nodeInfo(numterms, Terms1), Step),
+								_holds(Poly2, _nodeInfo(numterms, Terms2), Step),
+								Terms1 != Terms2.
+_unequal(Poly1, Poly2, Step)
 							:-	_holds(Poly1, _nodeInfo(monom, Monom), Step),
 								_holds(Poly2, _nodeInfo(type, poly), Step),
 								not _holds(Poly2, _nodeInfo(monom, Monom), Step).
