@@ -32,15 +32,7 @@ _isUnitMonomial(_monomial(1, Deg))		:-	_monomial(1, Deg).
 _isConstMonomial(_monomial(Coeff, 0))	:-	_monomial(Coeff, 0).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% GENERATING POLYNOMIALS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% generate a polynomial given the leading coefficient and degree of polynomial
-
-_hasMonom(Node, 1, _monomial(LeadCoeff, Deg))	:-	_makePolyWithDeg(Node, Deg), 
-													_makePolyWithCoeff(Node, LeadCoeff).
-
-% ensures successive monoms have a lesser degree or lesser coefficient to the leading monomial
-_monoType(sameDeg;diffDeg).
-
-% generate a number for each monomial to be generated
+% pick a monomial at random from set of base monomials
 1 { _hasMonom(Node, Num, _monomial(C,D)) : _baseMonom(C,D) } 1 
 			:-	_makePolyWithTerms(Node, NumTerms), Num = 1..NumTerms.
 
