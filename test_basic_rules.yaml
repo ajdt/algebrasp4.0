@@ -54,5 +54,43 @@ Test can apply addIdent to polynomial:
 # Arguments: -c num_nodes=4 -c max_coef_value=3 -c max_exp_value=1
 # Expect: SAT
 
+Test can apply mulIdent:
+  Modules: [solver, basic_rules, polynomial, tree_properties, gen_param]
+  Program: |
+    % problem instance is (1x^1)*(0x^2)=(0x^2)/(0x^1)
+    _initially(_id(1,1),_nodeInfo(active,yes)).
+    _initially(_id(1,2),_nodeInfo(active,yes)).
+    _initially(_id(1,1),_nodeInfo(numchildren,2)).
+    _initially(_id(1,2),_nodeInfo(numchildren,2)).
+    _initially(_id(1,2),_nodeInfo(operation,div)).
+    _initially(_id(1,1),_treeInfo(activechild,_id(2,1))).
+    _initially(_id(1,1),_treeInfo(activechild,_id(2,2))).
+    _initially(_id(1,2),_treeInfo(activechild,_id(2,4))).
+    _initially(_id(1,2),_treeInfo(activechild,_id(2,5))).
+    _initially(_id(2,1),_nodeInfo(active,yes)).
+    _initially(_id(2,2),_nodeInfo(active,yes)).
+    _initially(_id(2,4),_nodeInfo(active,yes)).
+    _initially(_id(2,5),_nodeInfo(active,yes)).
+    _initially(_id(2,1),_nodeInfo(type,poly)).
+    _initially(_id(2,2),_nodeInfo(type,poly)).
+    _initially(_id(2,4),_nodeInfo(type,poly)).
+    _initially(_id(2,5),_nodeInfo(type,poly)).
+    _initially(_id(2,1),_nodeInfo(monom,_monomial(1,1))).
+    _initially(_id(2,2),_nodeInfo(monom,_monomial(0,2))).
+    _initially(_id(2,4),_nodeInfo(monom,_monomial(0,2))).
+    _initially(_id(2,5),_nodeInfo(monom,_monomial(0,1))).
+    _initially(_id(2,1),_nodeInfo(numterms,1)).
+    _initially(_id(2,2),_nodeInfo(numterms,1)).
+    _initially(_id(2,4),_nodeInfo(numterms,1)).
+    _initially(_id(2,5),_nodeInfo(numterms,1)).
+    _initially(_id(1,2),_nodeInfo(numer,_id(2,4))).
+    _initially(_id(1,2),_nodeInfo(denom,_id(2,5))).
+    _initially(_id(1,1),_nodeInfo(type,oper)).
+    _initially(_id(1,2),_nodeInfo(type,oper)).
+    _initially(_id(1,1),_nodeInfo(operation,mul)).
+    :- not action(mulIdent).
+    :- action(addIdent).
+  Expect: SAT
+
 
 

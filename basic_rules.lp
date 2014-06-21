@@ -1,10 +1,11 @@
 %================================================================================
 % swap terms
 %================================================================================
-_applicable(_action(swap, _data(Term1, Term2)), Step)	
-			:-	_termOf(Expr, Term1, Step),
-				_termOf(Expr, Term2, Step),
-				Term1 != Term2.
+% Don't want solver to use this rule except as a subrecipe
+%_applicable(_action(swap, _data(Term1, Term2)), Step)	
+%			:-	_termOf(Expr, Term1, Step),
+%				_termOf(Expr, Term2, Step),
+%				Term1 != Term2.
 
 % no features for this, it's a pretty straightfoward rule (not difficult)
 %probParam(group, num_grouped, StopIndex - StartIndex)	
@@ -33,5 +34,27 @@ _applicable(_action(addIdent, _data(Poly, ZeroTerm)), Step)
 _cancelTerm(Plus, ZeroTerm, Step) 
 			:-	_doAction(_action(addIdent, _data(Plus, ZeroTerm)), Step).
 
+%================================================================================
+% multIdentity: a*x^b * 1 ----> a*x^b 
+%================================================================================
+
+_applicable(_action(mulIdent, _data(Mul, UnitTerm)), Step)
+			:-	_isMul(Mul, Step),
+				_termOf(Mul, UnitTerm, Step),
+				_numSubExpressions(Mul, Num, Step), Num >= 2,
+				_isOne(UnitTerm, Step).
+
+
+_cancelTerm(Mul, UnitTerm, Step) 
+			:-	_doAction(_action(mulIdent, _data(Mul, UnitTerm)), Step).
+% problem parameters
+ruleParam(mulIdent, exprSize, 0) 
+			:-	_doAction(_action(mulIdent, _data(Mul, UnitTerm)), Step),
+				_numSubExpressions(Mul, 2, Step).
+ruleParam(mulIdent, exprSize, 1) 
+			:-	_doAction(_action(mulIdent, _data(Mul, UnitTerm)), Step),
+				_numSubExpressions(Mul, Num, Step), Num > 2.
+
 % TODO: delete this, only for debugging purposes
-:- not action(addIdent).
+%:- not action(mulIdent).
+%:- action(addIdent).

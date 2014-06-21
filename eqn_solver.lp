@@ -44,3 +44,5 @@ action(Name) :- _doAction(_action(Name, Data), S).
 
 #show _holds/3.
 #show _doAction/2.
+#show action/1.
+#show ruleParam/3.
