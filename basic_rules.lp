@@ -78,6 +78,6 @@ ruleParam(divIdent, cancelType, 1)
 				_numerOf(Div, Numer, Step),
 				not _isPolynomial(Numer, Step).
 % TODO: delete this, only for debugging purposes
-:- not action(divIdent).
-:- action(addIdent).
-:- action(mulIdent).
+%:- not action(divIdent).
+%:- action(addIdent).
+%:- action(mulIdent).

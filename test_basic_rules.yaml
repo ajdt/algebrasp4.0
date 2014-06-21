@@ -27,6 +27,7 @@ Definitions:
       _initially(_id(1,2),_nodeInfo(operation,add)).
 
       :- not action(addIdent).
+      :- action(Name), Name != addIdent.
   addIdentWithPoly: |
       _initially(_id(1,1),_nodeInfo(active,yes)).
       _initially(_id(1,2),_nodeInfo(active,yes)).
@@ -39,6 +40,7 @@ Definitions:
       _initially(_id(1,2),_nodeInfo(type,poly)).
 
       :- not action(addIdent).
+      :- action(Name), Name != addIdent.
 
 #Program: "#hide."
 
@@ -89,8 +91,35 @@ Test can apply mulIdent:
     _initially(_id(1,2),_nodeInfo(type,oper)).
     _initially(_id(1,1),_nodeInfo(operation,mul)).
     :- not action(mulIdent).
-    :- action(addIdent).
+    :- action(Name), Name != mulIdent.
   Expect: SAT
 
+Test can apply divIdent:
+  Modules: [solver, basic_rules, polynomial, tree_properties, gen_param]
+  Program: |
+    % problem instance is 1x^0=(1x^0)/(1x^0)
+    _initially(_id(1,1),_nodeInfo(active,yes)).
+    _initially(_id(1,2),_nodeInfo(active,yes)).
+    _initially(_id(1,2),_nodeInfo(numchildren,2)).
+    _initially(_id(1,2),_nodeInfo(operation,div)).
+    _initially(_id(1,2),_treeInfo(activechild,_id(2,4))).
+    _initially(_id(1,2),_treeInfo(activechild,_id(2,5))).
+    _initially(_id(2,4),_nodeInfo(active,yes)).
+    _initially(_id(2,5),_nodeInfo(active,yes)).
+    _initially(_id(2,4),_nodeInfo(type,poly)).
+    _initially(_id(2,5),_nodeInfo(type,poly)).
+    _initially(_id(1,1),_nodeInfo(monom,_monomial(1,0))).
+    _initially(_id(2,4),_nodeInfo(monom,_monomial(1,0))).
+    _initially(_id(2,5),_nodeInfo(monom,_monomial(1,0))).
+    _initially(_id(1,1),_nodeInfo(numterms,1)).
+    _initially(_id(2,4),_nodeInfo(numterms,1)).
+    _initially(_id(2,5),_nodeInfo(numterms,1)).
+    _initially(_id(1,2),_nodeInfo(numer,_id(2,4))).
+    _initially(_id(1,2),_nodeInfo(denom,_id(2,5))).
+    _initially(_id(1,1),_nodeInfo(type,poly)).
+    _initially(_id(1,2),_nodeInfo(type,oper)).
+    :- not action(divIdent).
+    :- action(Name), Name != divIdent.
+  Expect: SAT
 
 
