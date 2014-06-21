@@ -7,7 +7,7 @@ _isDiv(Node, Step)	:-	_holds(Node, _nodeInfo(operation, div), Step).
 _numChildren(Node, NumKids, Step)	
 					:-	_holds(Node, _nodeInfo(numchildren, NumKids), Step).
 _termOf(Parent, Child, Step)	
-					:-	_holds(Parent, _nodeInfo(activechild, Child), Step).
+					:-	_holds(Parent, _treeInfo(activechild, Child), Step).
 
 
 
@@ -48,7 +48,7 @@ _update(Parent, _nodeInfo(numchildren, NumKids - 1), Step)
 					:-	_deleteChildProperties(Parent, Node, Step),
 						_holds(Parent, _nodeInfo(numchildren, NumKids), Step).
 % remove parent pointer to child
-_remove(Parent, _nodeInfo(activechild, Term), Step)
+_remove(Parent, _treeInfo(activechild, Term), Step)
 					:-	_deleteChildProperties(Parent, Term, Step).
 % delete the node
 _remove(Node, Info, Step)
