@@ -4,7 +4,7 @@ _isMul(Node, Step)	:-	_holds(Node, _nodeInfo(operation, mul), Step).
 _isAdd(Node, Step)	:-	_holds(Node, _nodeInfo(operation, add), Step).
 _isDiv(Node, Step)	:-	_holds(Node, _nodeInfo(operation, div), Step).
 
-_numChildren(Node, NumKids, Step)	
+_numSubExpressions(Node, NumKids, Step)	
 					:-	_holds(Node, _nodeInfo(numchildren, NumKids), Step).
 _termOf(Parent, Child, Step)	
 					:-	_holds(Parent, _treeInfo(activechild, Child), Step).

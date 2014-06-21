@@ -1,0 +1,58 @@
+Definitions:
+  generator:            {filename: equation_generator.lp}
+  solver:               {filename: eqn_solver.lp}
+  basic_rules:          {filename: basic_rules.lp}
+  tree_properties:      {filename: tree_properties.lp}
+  polynomial:           {filename: polynomial.lp}
+  gen_param:            {filename: gen_param.lp}
+  
+  addIdentWithAddNode: |
+      _initially(_id(1,1),_nodeInfo(active,yes)).
+      _initially(_id(1,2),_nodeInfo(active,yes)).
+      _initially(_id(1,2),_nodeInfo(numchildren,2)).
+      _initially(_id(1,2),_treeInfo(activechild,_id(2,3))).
+      _initially(_id(1,2),_treeInfo(activechild,_id(2,4))).
+      _initially(_id(2,3),_nodeInfo(active,yes)).
+      _initially(_id(2,4),_nodeInfo(active,yes)).
+      _initially(_id(2,3),_nodeInfo(type,poly)).
+      _initially(_id(2,4),_nodeInfo(type,poly)).
+      _initially(_id(1,1),_nodeInfo(monom,_monomial(1,2))).
+      _initially(_id(2,3),_nodeInfo(monom,_monomial(0,0))).
+      _initially(_id(2,4),_nodeInfo(monom,_monomial(0,1))).
+      _initially(_id(1,1),_nodeInfo(numterms,1)).
+      _initially(_id(2,3),_nodeInfo(numterms,1)).
+      _initially(_id(2,4),_nodeInfo(numterms,1)).
+      _initially(_id(1,1),_nodeInfo(type,poly)).
+      _initially(_id(1,2),_nodeInfo(type,oper)).
+      _initially(_id(1,2),_nodeInfo(operation,add)).
+
+      :- not action(addIdent).
+  addIdentWithPoly: |
+      _initially(_id(1,1),_nodeInfo(active,yes)).
+      _initially(_id(1,2),_nodeInfo(active,yes)).
+      _initially(_id(1,1),_nodeInfo(monom,_monomial(0,2))).
+      _initially(_id(1,2),_nodeInfo(monom,_monomial(0,1))).
+      _initially(_id(1,2),_nodeInfo(monom,_monomial(0,0))).
+      _initially(_id(1,1),_nodeInfo(numterms,1)).
+      _initially(_id(1,2),_nodeInfo(numterms,2)).
+      _initially(_id(1,1),_nodeInfo(type,poly)).
+      _initially(_id(1,2),_nodeInfo(type,poly)).
+
+      :- not action(addIdent).
+
+#Program: "#hide."
+
+Test can apply addident to add node:
+  Modules: [addIdentWithAddNode, solver, basic_rules, polynomial, tree_properties, gen_param]
+  Expect: SAT
+
+Test can apply addIdent to polynomial:
+  Modules: [addIdentWithPoly, solver, basic_rules, polynomial, tree_properties, gen_param]
+  Expect: SAT
+#Test x+1=3 is a valid equation:
+# Modules: [x_plus_one_equals_three, generator]
+# Arguments: -c num_nodes=4 -c max_coef_value=3 -c max_exp_value=1
+# Expect: SAT
+
+
+

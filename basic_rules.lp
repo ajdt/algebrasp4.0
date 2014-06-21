@@ -21,11 +21,13 @@ _swapTerms(Term1, Term2, Step)
 _applicable(_action(addIdent, _data(Plus, ZeroTerm)), Step)
 			:-	_isAdd(Plus, Step),
 				_termOf(Plus, ZeroTerm, Step),
+				_numSubExpressions(Plus, Num, Step), Num >= 2,
 				_isZero(ZeroTerm, Step).
 
 _applicable(_action(addIdent, _data(Poly, ZeroTerm)), Step)
 			:-	_isPolynomial(Poly, Step),
 				_polyTerm(Poly, ZeroTerm, Step),
+				not _isMonomial(Poly, Step),
 				_isZeroMonomial(ZeroTerm).
 
 _cancelTerm(Plus, ZeroTerm, Step) 
