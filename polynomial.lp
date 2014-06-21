@@ -41,22 +41,23 @@ _sameDegree(_monomial(Coeff1, Deg), _monomial(Coeff2, Deg))
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% POLYNOMIAL PROPERTIES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 _polyTerm(Poly, Mono, Step)	:-	_holds(Poly, _nodeInfo(monom, Mono), Step).
+_monomOf(Poly, _monomial(C,D), Step)	:-	_holds(Poly, _nodeInfo(monom, _monomial(C,D,Num)), Step).
 _isPolynomial(Poly, Step)	:-	_holds(Poly, _nodeInfo(type, poly), Step).
 _isMonomial(Poly, Step)	:-	_holds(Poly, _nodeInfo(numterms, 1), Step).
 _isBinomial(Poly, Step)	:-	_holds(Poly, _nodeInfo(numterms, 2), Step).
 _isTrinomial(Poly, Step)	:-	_holds(Poly, _nodeInfo(numterms, 3), Step).
 
-_hasTermWithDeg(Poly, Deg, Step)	:-	_holds(Poly, _nodeInfo(mono, _monoInfo(Num, _monomial(Coeff, Deg))), Step),
+_hasTermWithDeg(Poly, Deg, Step)	:-	_holds(Poly, _nodeInfo(mono, _monomial(Coeff, Deg, TermNo)), Step),
 										Coeff != 0.
-_hasHighDegreeTerms(Poly, Step)	:-	_holds(Poly, _nodeInfo(mono, _monoInfo(Num, _monomial(Coeff, Deg))), Step),
+_hasHighDegreeTerms(Poly, Step)	:-	_holds(Poly, _nodeInfo(mono, _monomial(Coeff, Deg, TermNo)), Step),
 										Coeff != 0, Deg > 3.
 
 _isZero(Poly, Step)	:-	_isMonomial(Poly, Step),
-						_holds(Poly, _nodeInfo(monom, Mono), Step),
+						_monomOf(Poly, Mono, Step),
 						_isZeroMonomial(Mono).
 
 _isOne(Poly, Step)	:-	_isMonomial(Poly, Step),
-						_holds(Poly, _nodeInfo(monom, Mono), Step),
+						_monomOf(Poly, Mono, Step),
 						_isUnitMonomial(Mono).
 _isConst(Poly, Step)	:-	_isMonomial(Poly, Step),
 						_holds(Poly, _nodeInfo(mono, Mono), Step),
@@ -78,12 +79,14 @@ _isZeroDegree(Poly, Step)	:-	not _hasHighDegreeTerms(Poly, Step),
 								not _hasTermWithDeg(Poly, 1, Step),
 								_hasTermWithDeg(Poly, 0, Step).
 
+_termToMono(_monomial(C,D,N), _monomial(C,D), Step)
+							:-	_holds(Poly, _nodeInfo(monom, _monomial(C,D,N)), Step).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% DEFINED POLYNOMIAL CONSTANTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 _introduce(Node, _nodeInfo(type, poly), Step)
 							:-	_setToUnitPoly(Node, Step).
 _introduce(Node, _nodeInfo(numterms, 1), Step)
 							:-	_setToUnitPoly(Node, Step).
-_introduce(Node, _nodeInfo(monom, _monomial(1,0)), Step)
+_introduce(Node, _nodeInfo(monom, _monomial(1,0,1)), Step)
 							:-	_setToUnitPoly(Node, Step).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% POLYNOMS EQUALITY %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -92,23 +95,30 @@ _unequal(Poly1, Poly2, Step)
 								_holds(Poly2, _nodeInfo(numterms, Terms2), Step),
 								Terms1 != Terms2.
 _unequal(Poly1, Poly2, Step)
-							:-	_holds(Poly1, _nodeInfo(monom, Monom), Step),
-								_holds(Poly2, _nodeInfo(type, poly), Step),
-								not _holds(Poly2, _nodeInfo(monom, Monom), Step).
+							:-	_monomOf(Poly1, Monom, Step),
+								_isPolynomial(Poly2, Step),
+								not _monomOf(Poly2, Monom, Step).
 _unequal(Poly2, Poly1, Step)
 							:-	_unequal(Poly1, Poly2, Step).
 _equal(Poly1, Poly2, Step)
-							:-	_holds(Poly1, _nodeInfo(type, poly), Step),
-								_holds(Poly2, _nodeInfo(type, poly), Step),
+							:-	_isPolynomial(Poly1, Step),
+								_isPolynomial(Poly2, Step),
 								Poly1 != Poly2,
 								not _unequal(Poly1, Poly2, Step).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% POLYNOMIAL OPERATIONS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-_introduce(Poly, _nodeInfo(monom, _monomial(Coeff1+Coeff2, Deg)), Step)
-							:-	_addTerms(Poly, _monomial(Coeff1, Deg), _monomial(Coeff2, Deg), Step).
-_cancelTerm(Poly, Mono1, Step)
-							:-	_addTerms(Poly, Mono1, Mono2, Step).
-_cancelTerm(Poly, Mono2, Step)
-							:-	_addTerms(Poly, Mono1, Mono2, Step).
+% order the polynomials so lowest numbered is first 
+_addSecondToFirstMonom(Poly, _monomial(Coeff1, Deg, Num1), _monomial(Coeff2, Deg, Num2), Step)
+							:-	_addTerms(Poly, _monomial(Coeff1, Deg, Num1), _monomial(Coeff2, Deg, Num2), Step),
+								Num1 < Num2.
+_addSecondToFirstMonom(Poly, _monomial(Coeff2, Deg, Num2), _monomial(Coeff1, Deg, Num1), Step)
+							:-	_addTerms(Poly, _monomial(Coeff1, Deg, Num1), _monomial(Coeff2, Deg, Num2), Step),
+								Num1 > Num2.
+_cancelTerm(Poly, Second, Step)
+							:-	_addSecondToFirstMonom(Poly, First, Second, Step).
+_clearMonomial(Poly, First, Step)
+							:-	_addSecondToFirstMonom(Poly, First, Second, Step).
+_introduce(Poly, _nodeInfo(monom, _monomial(Coeff1+Coeff2, Deg, Num1)), Step)
+							:-	_addSecondToFirstMonom(Poly, _monomial(Coeff1, Deg, Num1), _monomial(Coeff2, Deg, Num2), Step).	
 

@@ -85,12 +85,15 @@ _applicable(_action(addCommTerms, _data(Poly, Term1, Term2)), Step)
 			:-	_isPolynomial(Poly, Step),
 				_polyTerm(Poly, Term1, Step),
 				_polyTerm(Poly, Term2, Step),
-				_sameDegree(Term1, Term2).
+				Term1 != Term2,
+				_termToMono(Term1, Mono1, Step),
+				_termToMono(Term2, Mono2, Step),
+				_sameDegree(Mono1, Mono2).
 
 
 % TODO: delete this, only for debugging purposes
 _addTerms(Poly, Term1, Term2, Step)
 			:-	_doAction(_action(addCommTerms, _data(Poly, Term1, Term2)), Step).
-%:- not action(divIdent).
-%:- action(addIdent).
+:- not action(addCommTerms).
+%:- action(Name), Name != addCommTerms.
 %:- action(mulIdent).

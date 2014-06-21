@@ -99,8 +99,13 @@ _numPolyTerms(1..2).
 1 { _makePolyWithTerms(Node, NumTerms) : _numPolyTerms(NumTerms) } 1 	
 					:-	_initially(Node, _nodeInfo(type, poly)).
 
-_initially(Node, _nodeInfo(monom, Mono)) :- _hasMonom(Node, Num, Mono).
-_initially(Node, _nodeInfo(numterms, NumTerms))			:-	_makePolyWithTerms(Node, NumTerms).
+% adding polynomial facts
+% NOTE: predicates exist both to assign an ordering to monomials
+% and to simply indicate that a monomial is part of a polynomial
+_initially(Node, _nodeInfo(monom, _monomial(C,D,Num))) 
+					:- _hasMonom(Node, Num, _monomial(C,D)).
+_initially(Node, _nodeInfo(numterms, NumTerms))			
+					:-	_makePolyWithTerms(Node, NumTerms).
 
 % fractions also have numer/denom fields to alias first and second child
 _initially(_id(ParentLayer, ParentNum), _nodeInfo(numer, _id(ChildLayer, FstChildNum)))	

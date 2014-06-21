@@ -31,6 +31,20 @@ _remove(Polynomial, _nodeInfo(monom, Monom), Step)
 _update(Poly, _nodeInfo(numterms, NumTerms - 1), Step)
 					:-	_deleteMonomial(Poly, Mono, Step),
 						_holds(Poly, _nodeInfo(numterms, NumTerms), Step).
+% clearing a monomial
+_remove(Poly, _nodeInfo(monom, Monom), Step)
+					:-	_clearMonomial(Poly, Monom, Step).
+
+% update the term number for succeeding terms
+% shiftDown() must be generated elsewhere in case we delete multiple monomials
+_introduce(Poly, _nodeInfo(monom, _monomial(C,D, TermNum - Delta)), Step)
+					:-	_shiftDown(Poly, Start, Delta, Step),
+						_polyTerm(Poly, _monomial(C,D, TermNum), Step),
+						TermNum >= Start.
+_remove(Poly, _nodeInfo(monom, _monomial(C,D, TermNum)), Step)
+					:- _shiftDown(Poly, Start, Delta, Step),
+						_polyTerm(Poly, _monomial(C,D, TermNum), Step),
+						TermNum >= Start.
 
 % canceling a term
 _deleteNode(Term, Step)	
