@@ -30,9 +30,9 @@ _monomial(Coeff, Deg)		:-	_coeff(Coeff),
 _isZeroMonomial(_monomial(0, Deg))		:-	_monomial(0, Deg).
 _isUnitMonomial(_monomial(1, Deg))		:-	_monomial(1, Deg).
 _isConstMonomial(_monomial(Coeff, 0))	:-	_monomial(Coeff, 0).
-_sameDegree(_monomial(Coeff1, Deg), _monomial(Coeff2, Deg))
-							:-	_monomial(Coeff1, Deg),
-								_monomial(Coeff2, Deg).
+%_sameDegree(_monomial(Coeff1, Deg), _monomial(Coeff2, Deg)) 			% unnecessary??
+%							:-	_monomial(Coeff1, Deg),
+%								_monomial(Coeff2, Deg).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% GENERATING POLYNOMIALS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % pick a monomial at random from set of base monomials
@@ -40,27 +40,33 @@ _sameDegree(_monomial(Coeff1, Deg), _monomial(Coeff2, Deg))
 			:-	_makePolyWithTerms(Node, NumTerms), Num = 1..NumTerms.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% POLYNOMIAL PROPERTIES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-_polyTerm(Poly, Mono, Step)	:-	_holds(Poly, _nodeInfo(monom, Mono), Step).
+_sameDegree(Poly, Term1, Term2, Step)
+							:-	_holds(Poly, _nodeInfo(degof(Term1), _degree(Deg)), Step),
+								_holds(Poly, _nodeInfo(degof(Term2), _degree(Deg)), Step),
+								Term1 < Term2. % note all predicates that provide a set of polynomials will list the smallest first
+
+_polyTerm(Poly, Term, Step)	:-	_holds(Poly, _nodeInfo(numterms, Num), Step),
+								_numPolyTerms(Term),
+								Term <= Num.
 _isPolynomial(Poly, Step)	:-	_holds(Poly, _nodeInfo(type, poly), Step).
 _isMonomial(Poly, Step)	:-	_holds(Poly, _nodeInfo(numterms, 1), Step).
 _isBinomial(Poly, Step)	:-	_holds(Poly, _nodeInfo(numterms, 2), Step).
 _isTrinomial(Poly, Step)	:-	_holds(Poly, _nodeInfo(numterms, 3), Step).
 
-_hasTermWithDeg(Poly, Deg, Step)	:-	_holds(Poly, _nodeInfo(mono, _monoInfo(Num, _monomial(Coeff, Deg))), Step),
+_hasTermWithDeg(Poly, Deg, Step)	:-	_holds(Poly, _nodeInfo(degof(Term), _degree(Deg)), Step),
+										_holds(Poly, _nodeInfo(coeffof(Term), _coeff(Coeff)), Step),
 										Coeff != 0.
-_hasHighDegreeTerms(Poly, Step)	:-	_holds(Poly, _nodeInfo(mono, _monoInfo(Num, _monomial(Coeff, Deg))), Step),
-										Coeff != 0, Deg > 3.
+_hasHighDegreeTerms(Poly, Step)	:-	_hasTermWithDeg(Poly, Deg, Step),
+									Deg > 3.
 
 _isZero(Poly, Step)	:-	_isMonomial(Poly, Step),
-						_holds(Poly, _nodeInfo(monom, Mono), Step),
-						_isZeroMonomial(Mono).
+						_holds(Poly, _nodeInfo(coeffof(Term), _coeff(0)), Step). % remove _isZeroMonomial?
 
 _isOne(Poly, Step)	:-	_isMonomial(Poly, Step),
-						_holds(Poly, _nodeInfo(monom, Mono), Step),
-						_isUnitMonomial(Mono).
+						_holds(Poly, _nodeInfo(coeffof(Term), _coeff(1)), Step), % remove _isUnitMonomial?
+						_holds(Poly, _nodeInfo(degof(Term), _degree(0)), Step). 
 _isConst(Poly, Step)	:-	_isMonomial(Poly, Step),
-						_holds(Poly, _nodeInfo(mono, Mono), Step),
-						_isConstMonomial(Mono).
+						_holds(Poly, _nodeInfo(degof(Term), _degree(0)), Step). % remove _isConstMonomial?
 
 % XXX: assumes max assignable degree is 3
 _isQuadratic(Poly, Step)	:-	not _hasHighDegreeTerms(Poly, Step),
@@ -83,7 +89,9 @@ _introduce(Node, _nodeInfo(type, poly), Step)
 							:-	_setToUnitPoly(Node, Step).
 _introduce(Node, _nodeInfo(numterms, 1), Step)
 							:-	_setToUnitPoly(Node, Step).
-_introduce(Node, _nodeInfo(monom, _monomial(1,0)), Step)
+_introduce(Node, _nodeInfo(coeffof(1), _coeff(1)), Step)
+							:-	_setToUnitPoly(Node, Step).
+_introduce(Node, _nodeInfo(degof(1), _degree(0)), Step)
 							:-	_setToUnitPoly(Node, Step).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% POLYNOMS EQUALITY %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -91,10 +99,16 @@ _unequal(Poly1, Poly2, Step)
 							:-	_holds(Poly1, _nodeInfo(numterms, Terms1), Step),
 								_holds(Poly2, _nodeInfo(numterms, Terms2), Step),
 								Terms1 != Terms2.
+% adjacent terms don't match on coefficients
 _unequal(Poly1, Poly2, Step)
-							:-	_holds(Poly1, _nodeInfo(monom, Monom), Step),
-								_holds(Poly2, _nodeInfo(type, poly), Step),
-								not _holds(Poly2, _nodeInfo(monom, Monom), Step).
+							:-	_holds(Poly1, _nodeInfo(coeffof(Term), _coeff(Coeff1)), Step),
+								_holds(Poly2, _nodeInfo(coeffof(Term), _coeff(Coeff2)), Step),
+								Coeff1 != Coeff2.
+% adjacent terms don't match on degrees
+_unequal(Poly1, Poly2, Step)
+							:-	_holds(Poly1, _nodeInfo(degof(Term), _degree(Deg1)), Step),
+								_holds(Poly2, _nodeInfo(degof(Term), _degree(Deg2)), Step),
+								Deg1 != Deg2.
 _unequal(Poly2, Poly1, Step)
 							:-	_unequal(Poly1, Poly2, Step).
 _equal(Poly1, Poly2, Step)
@@ -105,10 +119,10 @@ _equal(Poly1, Poly2, Step)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% POLYNOMIAL OPERATIONS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-_introduce(Poly, _nodeInfo(monom, _monomial(Coeff1+Coeff2, Deg)), Step)
-							:-	_addTerms(Poly, _monomial(Coeff1, Deg), _monomial(Coeff2, Deg), Step).
-_cancelTerm(Poly, Mono1, Step)
-							:-	_addTerms(Poly, Mono1, Mono2, Step).
-_cancelTerm(Poly, Mono2, Step)
-							:-	_addTerms(Poly, Mono1, Mono2, Step).
+_update(Poly, _nodeInfo(coeffof(Term1), _coeff(Coeff1+Coeff2)), Step)
+							:-	_addTerms(Poly, Term1, Term2, Step),
+								_holds(Poly, _nodeInfo(coeffof(Term1), _coeff(Coeff1)), Step),
+								_holds(Poly, _nodeInfo(coeffof(Term2), _coeff(Coeff2)), Step).
+_cancelTerm(Poly, Term2, Step)
+							:-	_addTerms(Poly, Term1, Term2, Step).
 

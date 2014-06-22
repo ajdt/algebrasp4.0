@@ -82,15 +82,13 @@ ruleParam(divIdent, cancelType, 1)
 %================================================================================
 
 _applicable(_action(addCommTerms, _data(Poly, Term1, Term2)), Step)
-			:-	_isPolynomial(Poly, Step),
-				_polyTerm(Poly, Term1, Step),
-				_polyTerm(Poly, Term2, Step),
-				_sameDegree(Term1, Term2).
+			:-	_sameDegree(Poly, Term1, Term2, Step).
 
 
 % TODO: delete this, only for debugging purposes
 _addTerms(Poly, Term1, Term2, Step)
 			:-	_doAction(_action(addCommTerms, _data(Poly, Term1, Term2)), Step).
-%:- not action(divIdent).
+:- not action(addCommTerms).
 %:- action(addIdent).
 %:- action(mulIdent).
+

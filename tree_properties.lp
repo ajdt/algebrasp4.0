@@ -25,8 +25,16 @@ _canGrowTreeFromNode(_id(Layer, Number), Step)
 
 % deleting a monomial
 % 
-_remove(Polynomial, _nodeInfo(monom, Monom), Step)
-					:-	_deleteMonomial(Polynomial, Monom, Step).
+% NOTE: deleteMonomialOnly does not update numterms; useful if multiple deletes occur 
+% leading to multiple updatesto numterms (and a race condition)
+_remove(Polynomial, _nodeInfo(coeffof(Term), Coeff), Step)
+					:-	_deleteMonomialOnly(Polynomial, Term, Step),
+						_holds(Polynomial, _nodeInfo(coeffof(Term), Coeff), Step).
+_remove(Polynomial, _nodeInfo(degof(Term), Deg), Step)
+					:-	_deleteMonomialOnly(Polynomial, Term, Step),
+						_holds(Polynomial, _nodeInfo(degof(Term), Deg), Step).
+
+_deleteMonomialOnly(Poly, Mono, Step)	:-	_deleteMonomial(Poly, Mono, Step).
 % update the number of terms
 _update(Poly, _nodeInfo(numterms, NumTerms - 1), Step)
 					:-	_deleteMonomial(Poly, Mono, Step),
