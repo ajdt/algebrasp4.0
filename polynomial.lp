@@ -95,26 +95,35 @@ _introduce(Node, _nodeInfo(degof(1), _degree(0)), Step)
 							:-	_setToUnitPoly(Node, Step).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% POLYNOMS EQUALITY %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% when two polynomials have the same value for a term
+_equalOnTerm(Poly1, Poly2, Term, Step)
+							:-	_holds(Poly1, _nodeInfo(coeffof(Term), _coeff(Coeff)), Step),
+								_holds(Poly1, _nodeInfo(degof(Term), _degree(Deg)), Step),
+								_holds(Poly2, _nodeInfo(coeffof(Term), _coeff(Coeff)), Step),
+								_holds(Poly2, _nodeInfo(degof(Term), _degree(Deg)), Step),
+								Poly1 < Poly2.
+% unequal if have different values at the same term position
+_unequal(Poly1, Poly2, Step)
+							:-	_numPolyTerm(Term),
+								_isPolynomial(Poly1, Step),
+								_isPolynomial(Poly2, Step),
+								_holds(Poly1, _nodeInfo(numterms, TermCount), Step),
+								_holds(Poly2, _nodeInfo(numterms, TermCount), Step),
+								Term <= TermCount,
+								not _equalOnTerm(Poly1, Poly2, Term, Step),
+								Poly1 < Poly2.
+
+% unequal if different numbers of terms
 _unequal(Poly1, Poly2, Step)
 							:-	_holds(Poly1, _nodeInfo(numterms, Terms1), Step),
 								_holds(Poly2, _nodeInfo(numterms, Terms2), Step),
+								Poly1 < Poly2,
 								Terms1 != Terms2.
-% adjacent terms don't match on coefficients
-_unequal(Poly1, Poly2, Step)
-							:-	_holds(Poly1, _nodeInfo(coeffof(Term), _coeff(Coeff1)), Step),
-								_holds(Poly2, _nodeInfo(coeffof(Term), _coeff(Coeff2)), Step),
-								Coeff1 != Coeff2.
-% adjacent terms don't match on degrees
-_unequal(Poly1, Poly2, Step)
-							:-	_holds(Poly1, _nodeInfo(degof(Term), _degree(Deg1)), Step),
-								_holds(Poly2, _nodeInfo(degof(Term), _degree(Deg2)), Step),
-								Deg1 != Deg2.
 _unequal(Poly2, Poly1, Step)
 							:-	_unequal(Poly1, Poly2, Step).
 _equal(Poly1, Poly2, Step)
 							:-	_holds(Poly1, _nodeInfo(type, poly), Step),
 								_holds(Poly2, _nodeInfo(type, poly), Step),
-								Poly1 != Poly2,
 								not _unequal(Poly1, Poly2, Step).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% POLYNOMIAL OPERATIONS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
