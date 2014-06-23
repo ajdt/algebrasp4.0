@@ -35,6 +35,22 @@ _remove(Polynomial, _nodeInfo(degof(Term), Deg), Step)
 						_holds(Polynomial, _nodeInfo(degof(Term), Deg), Step).
 
 _deleteMonomialOnly(Poly, Mono, Step)	:-	_deleteMonomial(Poly, Mono, Step).
+
+% shift down monomial term numbers by 1
+_shiftDown(Poly, Term+1, 1, Step)			:-	_deleteMonomial(Poly, Term, Step).
+
+% shifting term numbers for polynomials
+_introduce(Poly, _nodeInfo(coeffof(Term - Delta), Coeff), Step)
+					:-	_shiftDown(Poly, Start, Delta, Step),
+						_holds(Poly, _nodeInfo(coeffof(Term), Coeff), Step).
+_introduce(Poly, _nodeInfo(degof(Term - Delta), Deg), Step)
+					:-	_shiftDown(Poly, Start, Delta, Step),
+						_holds(Poly, _nodeInfo(degof(Term), Deg), Step).
+_deleteMonomialOnly(Poly, Term, Step)
+					:-	_shiftDown(Poly, Start, Delta, Step),
+						_holds(Poly, _nodeInfo(coeffof(Term), Coeff), Step),
+						Term >= Start.
+
 % update the number of terms
 _update(Poly, _nodeInfo(numterms, NumTerms - 1), Step)
 					:-	_deleteMonomial(Poly, Mono, Step),
