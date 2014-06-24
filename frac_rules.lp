@@ -35,4 +35,29 @@ _convertDivToMul(RootFrac, Step)
 			:-	_doAction(_action(fracDiv, _data(RootFrac, DenomFrac)), Step).
 
 
-:- not action(fracDiv).
+%================================================================================
+% multFrac: a/b * c/d --> (a*c)/(b*d)
+%================================================================================
+_applicable(_action(multFrac, _data(LeftFrac, RightFrac)), Step)
+			:-	_isMul(RootMul, Step),
+				_isDiv(LeftFrac, Step),
+				_isDiv(RightFrac, Step),
+				_termOf(RootMul, LeftFrac, Step),
+				_termOf(RootMul, RightFrac, Step),
+				LeftFrac < RightFrac,
+				_numSubExpressions(RootMul, 2, Step).
+
+%	performing action
+_mulToDiv(RootExpr, LeftFrac, RightFrac, Step)
+			:-	_doAction(_action(multFrac, _data(LeftFrac, RightFrac)), Step),
+				_termOf(RootExpr, LeftFrac, Step).
+_swapTerms(LeftDenom, RightNumer, Step)
+			:-	_doAction(_action(multFrac, _data(LeftFrac, RightFrac)), Step),
+				_denomOf(LeftFrac, LeftDenom, Step),
+				_numerOf(RightFrac, RightNumer, Step).
+_convertDivToMul(LeftFrac, Step)
+			:-	_doAction(_action(multFrac, _data(LeftFrac, RightFrac)), Step).
+_convertDivToMul(RightFrac, Step)
+			:-	_doAction(_action(multFrac, _data(LeftFrac, RightFrac)), Step).
+:- not action(multFrac).
+:- action(Name), Name != multFrac.

@@ -138,6 +138,13 @@ _remove(DivNode, _nodeInfo(numer, X), Step)
 _remove(DivNode, _nodeInfo(denom, X), Step)
 					:-	_removeFracFields(DivNode, Step),
 						_holds(DivNode, _nodeInfo(denom, X), Step).
+% mul node to div node
+_introduce(Node, _nodeInfo(numer, Numer), Step)
+					:-	_mulToDiv(Node, Numer, Denom, Step).
+_introduce(Node, _nodeInfo(denom, Denom), Step)
+					:-	_mulToDiv(Node, Numer, Denom, Step).
+_update(Node, _nodeInfo(operation, div), Step)
+					:-	_mulToDiv(Node, Numer, Denom, Step).
 % copy a node
 % copy entire subtree
 % acquire a free node
