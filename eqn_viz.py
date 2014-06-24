@@ -29,7 +29,7 @@ def wrapFact(parser, left='initially(', right=')'):
 
 node_parser		=	'id(' + Word(nums) + ',' + Word(nums) + ')'
 mono_parser		=	Word(alphas) + ',' + 'monomial('+ Word(nums + '-') + ',' + Word(nums) + ')' # NOTE: added '-' to recognize negative numbers
-coeff			=	'coeffof(' + Word(nums) + '),coeff(' + Word(nums) + ')'
+coeff			=	'coeffof(' + Word(nums) + '),coeff(' + Word(nums+'-') + ')'
 deg				=	'degof(' + Word(nums) + '),degree(' + Word(nums) + ')'
 
 type_parser		=	wrapFact(wrapWithPredicate(Word(alphas) + ',' + Word(alphas)))

@@ -101,6 +101,7 @@ _update(Copy, Info, Step)
 					:-	_shallowCopy(Copy, ToCopy, Step),
 						_holds(ToCopy, Info, Step).
 
+
 % clear a node's values
 _remove(Node, Info, Step)
 					:-	_clearNode(Node, Step),
@@ -122,6 +123,21 @@ _setToUnitPoly(Node, Step)	% defined in polynomial class
 % activateNode
 _introduce(Node, _nodeInfo(active, yes), Step)
 					:-	_activate(Node, Step).
+% swap numerator and denom
+_swapTerms(Numer, Denom, Step)
+					:-	_swapNumerDenom(Frac, Step),
+						_numerOf(Frac, Numer, Step),
+						_denomOf(Frac, Denom, Step).
+_update(DivNode, _nodeInfo(operation, mul), Step)
+					:-	_convertDivToMul(DivNode, Step).
+_removeFracFields(DivNode, Step)
+					:-	_convertDivToMul(DivNode, Step).
+_remove(DivNode, _nodeInfo(numer, X), Step)
+					:-	_removeFracFields(DivNode, Step),
+						_holds(DivNode, _nodeInfo(numer, X), Step).
+_remove(DivNode, _nodeInfo(denom, X), Step)
+					:-	_removeFracFields(DivNode, Step),
+						_holds(DivNode, _nodeInfo(denom, X), Step).
 % copy a node
 % copy entire subtree
 % acquire a free node
