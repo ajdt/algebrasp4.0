@@ -176,7 +176,15 @@ def formPolyString(types, operator, coeff, deg, children, root):
 def makePolynomial(nodeName, coeff, deg):
 	all_terms = []
 	for term in coeff[nodeName].keys():
-		all_terms.append( coeff[nodeName][term] + 'x^' + deg[nodeName][term])
+		mono_term = ''
+		if coeff[nodeName][term] == '0':
+			mono_term = '0'
+		elif deg[nodeName][term] == '0':
+			mono_term = coeff[nodeName][term]
+		else:
+			mono_term =  coeff[nodeName][term] + 'x^' + deg[nodeName][term]
+
+		all_terms.append(mono_term)
 	return '+'.join(all_terms)
 
 

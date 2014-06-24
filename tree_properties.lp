@@ -60,6 +60,8 @@ _update(Poly, _nodeInfo(numterms, NumTerms - 1), Step)
 _deleteNode(Term, Step)	
 					:-	_cancelTerm(Expr, Term, Step),
 						_node(Term).
+_deleteNode(Term, Step)	
+					:-	_cancelTerm(Term, Step).	% TODO: want both versions of cancelTerm for now 
 _deleteMonomial(Poly, Term, Step)		
 					:-	_cancelTerm(Poly, Term, Step),
 						not _node(Term).
