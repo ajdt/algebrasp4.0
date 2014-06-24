@@ -96,15 +96,21 @@ _introduce(Node, _nodeInfo(degof(1), _degree(0)), Step)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% POLYNOMS EQUALITY %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % when two polynomials have the same value for a term
-_equalOnTerm(Poly1, Poly2, Term, Step)
-							:-	_holds(Poly1, _nodeInfo(coeffof(Term), _coeff(Coeff)), Step),
-								_holds(Poly1, _nodeInfo(degof(Term), _degree(Deg)), Step),
-								_holds(Poly2, _nodeInfo(coeffof(Term), _coeff(Coeff)), Step),
+_equalTermDeg(Poly1, Poly2, Term, Step)
+							:-	_holds(Poly1, _nodeInfo(degof(Term), _degree(Deg)), Step),
 								_holds(Poly2, _nodeInfo(degof(Term), _degree(Deg)), Step),
+								Poly1 < Poly2.
+_equalTermCoeff(Poly1, Poly2, Term, Step)
+							:-	_holds(Poly1, _nodeInfo(coeffof(Term), _coeff(Coeff)), Step),
+								_holds(Poly2, _nodeInfo(coeffof(Term), _coeff(Coeff)), Step),
+								Poly1 < Poly2.
+_equalOnTerm(Poly1, Poly2, Term, Step)
+							:-	_equalTermCoeff(Poly1, Poly2, Term, Step),
+								_equalTermDeg(Poly1, Poly2, Term, Step),
 								Poly1 < Poly2.
 % unequal if have different values at the same term position
 _unequal(Poly1, Poly2, Step)
-							:-	_numPolyTerm(Term),
+							:-	_numPolyTerms(Term),
 								_isPolynomial(Poly1, Step),
 								_isPolynomial(Poly2, Step),
 								_holds(Poly1, _nodeInfo(numterms, TermCount), Step),
