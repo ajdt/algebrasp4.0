@@ -145,9 +145,30 @@ _introduce(Node, _nodeInfo(denom, Denom), Step)
 					:-	_mulToDiv(Node, Numer, Denom, Step).
 _update(Node, _nodeInfo(operation, div), Step)
 					:-	_mulToDiv(Node, Numer, Denom, Step).
-% copy a node
-% copy entire subtree
-% acquire a free node
+% deallocate recursive
+_deleteNode(Node, Step)
+					:-	_deallocate(Node, Step).
+_deallocate(Node, Step)
+					:-	_deallocateRec(Node, Step).
+_deallocateRec(Child, Step)
+					:-	_deallocateRec(Node, Step),
+						_termOf(Node, Child, Step).
+% copy a node, recursively recreate same structure as original node
+_deallocateRec(Orig, Step)
+					:-	_deepCopy(Orig, ToCopy, Step).
+% TODO: ensure this doesn't use temp nodes
+% acquire free nodes
+_mapRec(Orig, Step)
+					:-	_deepCopy(Orig, ToCopy, Step).
+_mapNode(Node, Step)
+					:-	_mapRec(Node, Step).
+_mapRec(Child, Step)
+					:-	_mapRec(Node, Step),
+						_termOf(Node, Child, Step).
+% perform the copy
+_copyOver(Orig, ToCopy, Step)
+					:-	_deepCopy(Orig, ToCopy, Step).
+% unfinished, requires numbering original's children, and ToCopy's children
 
 % move subtree down, 
 % move children down

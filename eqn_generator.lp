@@ -115,4 +115,17 @@ _initially(_id(ParentLayer, ParentNum), _nodeInfo(denom, _id(ChildLayer, SndChil
 						ChildLayer = ParentLayer + 1.
 
 
+% code for allocating unused nodes
+_freeNode(Node, Step)
+				:-	_node(Node),
+					_step(Step),
+					not _holds(Node, _field(active, yes), Step).
+_freeNode(Node, Step)
+				:-	_deallocated(Node, Step).
+_mapto(OldNode, NewNode, Step)
+				:-	_freeNode(NewNode, Step),
+					_mapNode(OldNode, Step).
+
+:- _freeNode(FreeNode), _step(Step), 2 {_mapto(Node, FreeNode, Step) : _node(Node) }.
+
 #show _initially/2.
