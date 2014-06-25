@@ -91,6 +91,23 @@ _deleteNode(Child, Step)
 					:-	_deleteChildrenOf(Parent, Step),
 						_termOf(Parent, Child, Step).
 
+% NOTE: shiftChildren should only be called once per step for a node,
+% to avoid race condition on updating the children
+% 
+_shiftChildren(Parent, ChildNum+1, 1, Step)	
+					:-	_cancelTerm(Parent, Child, Step),
+						_termOf(Parent, Child, Step),
+						not _deleteNode(Parent, Step),
+						_holds(Parent, _childnum(ChildNum, Child), Step).
+_remove(Parent, _childnum(ChildNo, Child), Step)
+					:-	_shiftChildren(Parent, Start, Delta, Step),
+						_holds(Parent, _childnum(ChildNo, Child), Step),
+						ChildNo >= Start.
+_introduce(Parent, _childnum(ChildNo - Delta, Child), Step)
+					:-	_shiftChildren(Parent, Start, Delta, Step),
+						_holds(Parent, _childnum(ChildNo, Child), Step),
+						ChildNo >= Start.
+
 
 % swap node (shallow copy of nodes
 _shallowCopy(Node1, Node2, Step)
