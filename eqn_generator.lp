@@ -124,9 +124,8 @@ _freeNode(Node, Step)
 					not _holds(Node, _field(active, yes), Step).
 _freeNode(Node, Step)
 				:-	_deallocated(Node, Step).
-_mapto(OldNode, NewNode, Step)
-				:-	_freeNode(NewNode, Step),
-					_mapNode(OldNode, Step).
+1 { _mapto(OldNode, NewNode, Step) : _freeNode(NewNode, Step) } 1
+				:-	_mapNode(OldNode, Step).
 
 :- _freeNode(FreeNode), _step(Step), 2 {_mapto(Node, FreeNode, Step) : _node(Node) }.
 

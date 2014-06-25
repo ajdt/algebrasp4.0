@@ -109,7 +109,7 @@ _introduce(Parent, _childnum(ChildNo - Delta, Child), Step)
 						ChildNo >= Start.
 
 
-% swap node (shallow copy of nodes
+% swap node (shallow copy of nodes)
 _shallowCopy(Node1, Node2, Step)
 					:-	_swapTerms(Node1, Node2, Step).
 _shallowCopy(Node2, Node1, Step)
@@ -173,9 +173,11 @@ _deallocateRec(Child, Step)
 % copy a node, recursively recreate same structure as original node
 _deallocateRec(Orig, Step)
 					:-	_deepCopy(Orig, ToCopy, Step).
+_mapto(ToCopy, Orig, Step) % force copy to be rooted at Orig
+					:-	_deepCopy(Orig, ToCopy, Step).
 % TODO: ensure this doesn't use temp nodes
 % acquire free nodes
-_mapRec(Orig, Step)
+_mapRec(ToCopy, Step)
 					:-	_deepCopy(Orig, ToCopy, Step).
 _mapNode(Node, Step)
 					:-	_mapRec(Node, Step).
@@ -185,6 +187,28 @@ _mapRec(Child, Step)
 % perform the copy
 _copyOver(Orig, ToCopy, Step)
 					:-	_deepCopy(Orig, ToCopy, Step).
+
+% copy original node
+_introduce(Orig, _nodeInfo(Field, Value), Step)
+					:-	_copyOver(Orig, ToCopy, Step),
+						_holds(ToCopy, _nodeInfo(Field, Value), Step).
+% add child pointers
+_introduce(Orig, _childnum(Num, NewChild), Step)
+					:-	_copyOver(Orig, ToCopy, Step),
+						_holds(ToCopy, _childNum(Num, Child), Step),
+						_mapto(Child, NewChild, Step).
+_introduce(Orig, _treeInfo(activechild, NewChild), Step)
+					:-	_copyOver(Orig, ToCopy, Step),
+						_holds(ToCopy, _treeInfo(activechild, Child), Step),
+						_mapto(Child, NewChild, Step).
+% copy children
+_copyOver(NewChild, Child, Step)
+					:-	_copyOver(Orig, ToCopy, Step),
+						_holds(ToCopy, _childNum(Num, Child), Step),
+						_mapto(Child, NewChild, Step).
+
+
+
 % unfinished, requires numbering original's children, and ToCopy's children
 
 % move subtree down, 
