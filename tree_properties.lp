@@ -215,3 +215,6 @@ _introduce(Term1, _treeInfo(activechild, NewTerm), Step)
 % compare subtrees (equality)
 % move subtree up
 
+% change node operation
+_update(Node, _nodeInfo(operation, Op), Step)
+					:-	_changeNodeOp(Node, Op, Step).
