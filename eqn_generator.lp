@@ -23,8 +23,8 @@ _layer(1..numLayers).
 _layerNodes(1, 2).
 _layerNodes(2, 6).
 _layerNodes(3, 20).
-_layerNodes(4, 20).
-_layerNodes(5, 10).
+_layerNodes(4, 6).
+_layerNodes(5, 6).
 
 % define nodes based on layers and nodes in each layer
 _node(_id(Layer, Number))	:-	_layer(Layer), _layerNodes(Layer, NumNodes), Number = 1..NumNodes.
@@ -119,6 +119,11 @@ _initially(_id(ParentLayer, ParentNum), _nodeInfo(denom, _id(ChildLayer, SndChil
 						ChildLayer = ParentLayer + 1.
 
 
+% set right side to zero polynomial
+% _initially(_id(1,2), _nodeInfo(type, poly)).
+% _initially(_id(1,2), _nodeInfo(numterms, 1)).
+% _initially(_id(1,2), _nodeInfo(coeffof(1), _coeff(0))).
+% _initially(_id(1,2), _nodeInfo(degof(1), _degree(0))).
 % code for allocating unused nodes
 _freeNode(Node, Step)
 				:-	_node(Node),

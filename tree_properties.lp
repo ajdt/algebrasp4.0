@@ -164,6 +164,22 @@ _introduce(Node, _nodeInfo(denom, Denom), Step)
 _update(Node, _nodeInfo(operation, div), Step)
 					:-	_mulToDiv(Node, Numer, Denom, Step).
 
+
+_mapAndCopy(Term1, Step)
+					:-	_groupTerms(Term1, Term2, Step).
+_mapAndCopy(Term2, Step)
+					:-	_groupTerms(Term1, Term2, Step).
+_mapNode(Term, Layer+1, Step)
+					:-	 _layerOf(Term, Layer),
+						_mapAndCopy(Term, Step).
+_introduce(NewTerm, _nodeInfo(X,Y), Step)
+					:-	_mapAndCopy(Term, Step),
+						_mapto(Term, NewTerm, Step),
+						_holds(Term, _nodeInfo(X,Y), Step).
+_introduce(NewTerm, _childnum(X,Y), Step)
+					:-	_mapAndCopy(Term, Step),
+						_mapto(Term, NewTerm, Step),
+						_holds(Term, _childnum(X,Y), Step).
 % a deallocate children of predicate?
 
 % move subtree down, 
