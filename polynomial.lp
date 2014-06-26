@@ -103,6 +103,8 @@ _equalTermDeg(Poly1, Poly2, Term, Step)
 _equalTermCoeff(Poly1, Poly2, Term, Step)
 							:-	_holds(Poly1, _nodeInfo(coeffof(Term), _coeff(Coeff)), Step),
 								_holds(Poly2, _nodeInfo(coeffof(Term), _coeff(Coeff)), Step),
+								_layerOf(Poly1, Layer),
+								_layerOf(Poly2, Layer),
 								Poly1 < Poly2.
 _equalOnTerm(Poly1, Poly2, Term, Step)
 							:-	_equalTermCoeff(Poly1, Poly2, Term, Step),

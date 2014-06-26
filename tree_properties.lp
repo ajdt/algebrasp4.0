@@ -7,7 +7,8 @@ _isDiv(Node, Step)	:-	_holds(Node, _nodeInfo(operation, div), Step).
 _numSubExpressions(Node, NumKids, Step)	
 					:-	_holds(Node, _nodeInfo(numchildren, NumKids), Step).
 _termOf(Parent, Child, Step)	
-					:-	_holds(Parent, _treeInfo(activechild, Child), Step).
+					:-	_holds(Parent, _treeInfo(activechild, Child), Step),
+						_validChild(Parent, Child).
 _numerOf(Fraction, Numer, Step)
 					:-	_holds(Fraction, _nodeInfo(numer, Numer), Step).
 _denomOf(Fraction, Denom, Step)
@@ -162,89 +163,6 @@ _introduce(Node, _nodeInfo(denom, Denom), Step)
 					:-	_mulToDiv(Node, Numer, Denom, Step).
 _update(Node, _nodeInfo(operation, div), Step)
 					:-	_mulToDiv(Node, Numer, Denom, Step).
-% deallocate recursive
-_deleteNode(Node, Step)
-					:-	_deallocate(Node, Step).
-_deallocate(Node, Step)
-					:-	_deallocateRec(Node, Step).
-_deallocateRec(Child, Step)
-					:-	_deallocateRec(Node, Step),
-						_termOf(Node, Child, Step).
-% copy a node, recursively recreate same structure as original node
-_deallocateRec(Orig, Step)
-					:-	_deepCopy(Orig, ToCopy, Step).
-_mapto(ToCopy, Orig, Step) % force copy to be rooted at Orig
-					:-	_deepCopy(Orig, ToCopy, Step).
-% TODO: ensure this doesn't use temp nodes
-% acquire free nodes
-_mapRec(ToCopy, Layer, Step)
-					:-	_deepCopy(Orig, ToCopy, Step),
-						_layerOf(Orig, Layer).
-_mapNode(Node, Layer, Step)
-					:-	_mapRec(Node, Layer, Step).
-_mapRec(Child, Layer+1, Step)
-					:-	_mapRec(Node, Layer, Step),
-						_termOf(Node, Child, Step).
-% perform the copy
-_copyOver(Orig, ToCopy, Step)
-					:-	_deepCopy(Orig, ToCopy, Step).
-
-% copy original node
-_introduce(Orig, _nodeInfo(Field, Value), Step)
-					:-	_copyOver(Orig, ToCopy, Step),
-						_holds(ToCopy, _nodeInfo(Field, Value), Step).
-% add child pointers
-_introduce(Orig, _childnum(Num, NewChild), Step)
-					:-	_copyOver(Orig, ToCopy, Step),
-						_holds(ToCopy, _childNum(Num, Child), Step),
-						_mapto(Child, NewChild, Step).
-_introduce(Orig, _treeInfo(activechild, NewChild), Step)
-					:-	_copyOver(Orig, ToCopy, Step),
-						_holds(ToCopy, _treeInfo(activechild, Child), Step),
-						_mapto(Child, NewChild, Step).
-% copy children
-_copyOver(NewChild, Child, Step)
-					:-	_copyOver(Orig, ToCopy, Step),
-						_holds(ToCopy, _childNum(Num, Child), Step),
-						_mapto(Child, NewChild, Step).
-
-
-%
-%_deallocateRec(Term2, Step)
-%	:-	_groupTerms(Term1, Term2, Step).
-%_clearNode(Term1, Step)
-%	:-	_groupTerms(Term1, Term2, Step).
-%_deleteChildrenOf(Term1, Step)	% in case groupTerms is changed to handle arbitrary subtrees
-%	:-	_groupTerms(Term1, Term2, Step).
-%_mapNode(Term1, Layer+1, Step)
-%	:-	_groupTerms(Term1, Term2, Step),
-%		_layerOf(Term1, Layer).
-%_mapNode(Term2, Layer+1, Step)
-%	:-	_groupTerms(Term1, Term2, Step),
-%		_layerOf(Term2, Layer).
-%% make node copies
-%_copyOver(NewNode, Term1, Step)
-%	:-	_groupTerms(Term1, Term2, Step),
-%		_mapto(Term1, NewNode, Step).
-%_copyOver(NewNode, Term2, Step)
-%	:-	_groupTerms(Term1, Term2, Step),
-%		_mapto(Term2, NewNode, Step).
-%% set children of Term1
-%_introduce(Term1, _nodeInfo(numchildren, 2), Step)
-%	:-	_groupTerms(Term1, Term2, Step).
-%_introduce(Term1, _childnum(1, NewNode), Step)
-%	:-	_groupTerms(Term1, Term2, Step),
-%		_mapto(Term1, NewNode, Step).
-%_introduce(Term1, _childnum(2, NewNode), Step)
-%	:-	_groupTerms(Term1, Term2, Step),
-%		_mapto(Term2, NewNode, Step).
-%_introduce(Term1, _treeInfo(activechild, NewNode), Step)
-%	:-	_groupTerms(Term1, Term2, Step),
-%		_mapto(Term1, NewNode, Step).
-%_introduce(Term1, _treeInfo(activechild, NewNode), Step)
-%	:-	_groupTerms(Term1, Term2, Step),
-%		_mapto(Term2, NewNode, Step).
-
 
 % a deallocate children of predicate?
 
