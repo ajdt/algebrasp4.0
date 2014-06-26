@@ -18,6 +18,9 @@
 #const maxChildren	=	3.	% limit on children of operator nodes
 #const maxDepth		=	3.	% limits number of layers used during generation
 
+#const right_side	= _id(1,2).	% useful aliases for left/right used by rule files
+#const left_side 	= _id(1,1).
+
 % define number of nodes per layer
 _layer(1..numLayers).
 _layerNodes(1, 2).

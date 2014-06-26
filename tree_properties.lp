@@ -172,12 +172,15 @@ _mapDownAndCopy(Term2, Step)
 _mapNode(Term, Layer+1, Step)
 					:-	 _layerOf(Term, Layer),
 						_mapDownAndCopy(Term, Step).
-_copyToMapped(Term, Step)
-					:-	_mapDownAndCopy(Term, Step).
-_introduce(NewTerm, _nodeInfo(X,Y), Step)
-					:-	_copyToMapped(Term, Step),
-						_mapto(Term, NewTerm, Step),
-						_holds(Term, _nodeInfo(X,Y), Step).
+_copyPoly(NewTerm, Term, Step)
+					:-	_mapDownAndCopy(Term, Step),
+						_mapto(Term, NewTerm, Step).
+
+% copying a polynomial node
+_introduce(Copy, _nodeInfo(X,Y), Step)
+					:-	_copyPoly(Copy, Orig, Step),
+						_holds(Orig, _nodeInfo(X,Y), Step).
+
 _deleteNode(Term2, Step)
 					:-	_groupTerms(Term1, Term2, Step).
 _makeProdNode(Term1, Step)
