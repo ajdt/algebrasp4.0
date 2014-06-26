@@ -28,6 +28,8 @@ _layerNodes(5, 10).
 
 % define nodes based on layers and nodes in each layer
 _node(_id(Layer, Number))	:-	_layer(Layer), _layerNodes(Layer, NumNodes), Number = 1..NumNodes.
+_layerOf(_id(Layer, Number), Layer)	
+							:-	_layer(Layer), _layerNodes(Layer, NumNodes), Number = 1..NumNodes.
 
 % define a set of temp nodes used for intermediate results
 _tempLayer(1..3).
@@ -124,9 +126,10 @@ _freeNode(Node, Step)
 					not _holds(Node, _field(active, yes), Step).
 _freeNode(Node, Step)
 				:-	_deallocated(Node, Step).
-1 { _mapto(OldNode, NewNode, Step) : _freeNode(NewNode, Step) } 1
-				:-	_mapNode(OldNode, Step).
+1 { _mapto(OldNode, NewNode, Step) : _freeNode(NewNode, Step), _layerOf(NewNode, Layer) } 1
+				:-	_mapNode(OldNode, Layer, Step).
 
 :- _freeNode(FreeNode), _step(Step), 2 {_mapto(Node, FreeNode, Step) : _node(Node) }.
+
 
 #show _initially/2.

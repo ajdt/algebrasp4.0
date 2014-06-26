@@ -177,12 +177,13 @@ _mapto(ToCopy, Orig, Step) % force copy to be rooted at Orig
 					:-	_deepCopy(Orig, ToCopy, Step).
 % TODO: ensure this doesn't use temp nodes
 % acquire free nodes
-_mapRec(ToCopy, Step)
-					:-	_deepCopy(Orig, ToCopy, Step).
-_mapNode(Node, Step)
-					:-	_mapRec(Node, Step).
-_mapRec(Child, Step)
-					:-	_mapRec(Node, Step),
+_mapRec(ToCopy, Layer, Step)
+					:-	_deepCopy(Orig, ToCopy, Step),
+						_layerOf(Orig, Layer).
+_mapNode(Node, Layer, Step)
+					:-	_mapRec(Node, Layer, Step).
+_mapRec(Child, Layer+1, Step)
+					:-	_mapRec(Node, Layer, Step),
 						_termOf(Node, Child, Step).
 % perform the copy
 _copyOver(Orig, ToCopy, Step)
@@ -208,8 +209,44 @@ _copyOver(NewChild, Child, Step)
 						_mapto(Child, NewChild, Step).
 
 
+%
+%_deallocateRec(Term2, Step)
+%	:-	_groupTerms(Term1, Term2, Step).
+%_clearNode(Term1, Step)
+%	:-	_groupTerms(Term1, Term2, Step).
+%_deleteChildrenOf(Term1, Step)	% in case groupTerms is changed to handle arbitrary subtrees
+%	:-	_groupTerms(Term1, Term2, Step).
+%_mapNode(Term1, Layer+1, Step)
+%	:-	_groupTerms(Term1, Term2, Step),
+%		_layerOf(Term1, Layer).
+%_mapNode(Term2, Layer+1, Step)
+%	:-	_groupTerms(Term1, Term2, Step),
+%		_layerOf(Term2, Layer).
+%% make node copies
+%_copyOver(NewNode, Term1, Step)
+%	:-	_groupTerms(Term1, Term2, Step),
+%		_mapto(Term1, NewNode, Step).
+%_copyOver(NewNode, Term2, Step)
+%	:-	_groupTerms(Term1, Term2, Step),
+%		_mapto(Term2, NewNode, Step).
+%% set children of Term1
+%_introduce(Term1, _nodeInfo(numchildren, 2), Step)
+%	:-	_groupTerms(Term1, Term2, Step).
+%_introduce(Term1, _childnum(1, NewNode), Step)
+%	:-	_groupTerms(Term1, Term2, Step),
+%		_mapto(Term1, NewNode, Step).
+%_introduce(Term1, _childnum(2, NewNode), Step)
+%	:-	_groupTerms(Term1, Term2, Step),
+%		_mapto(Term2, NewNode, Step).
+%_introduce(Term1, _treeInfo(activechild, NewNode), Step)
+%	:-	_groupTerms(Term1, Term2, Step),
+%		_mapto(Term1, NewNode, Step).
+%_introduce(Term1, _treeInfo(activechild, NewNode), Step)
+%	:-	_groupTerms(Term1, Term2, Step),
+%		_mapto(Term2, NewNode, Step).
 
-% unfinished, requires numbering original's children, and ToCopy's children
+
+% a deallocate children of predicate?
 
 % move subtree down, 
 % move children down
