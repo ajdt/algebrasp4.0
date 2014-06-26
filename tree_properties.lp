@@ -165,15 +165,17 @@ _update(Node, _nodeInfo(operation, div), Step)
 					:-	_mulToDiv(Node, Numer, Denom, Step).
 
 
-_mapAndCopy(Term1, Step)
+_mapDownAndCopy(Term1, Step)
 					:-	_groupTerms(Term1, Term2, Step).
-_mapAndCopy(Term2, Step)
+_mapDownAndCopy(Term2, Step)
 					:-	_groupTerms(Term1, Term2, Step).
 _mapNode(Term, Layer+1, Step)
 					:-	 _layerOf(Term, Layer),
-						_mapAndCopy(Term, Step).
+						_mapDownAndCopy(Term, Step).
+_copyToMapped(Term, Step)
+					:-	_mapDownAndCopy(Term, Step).
 _introduce(NewTerm, _nodeInfo(X,Y), Step)
-					:-	_mapAndCopy(Term, Step),
+					:-	_copyToMapped(Term, Step),
 						_mapto(Term, NewTerm, Step),
 						_holds(Term, _nodeInfo(X,Y), Step).
 _deleteNode(Term2, Step)
@@ -186,6 +188,7 @@ _introduce(Term1, _nodeInfo(type, oper), Step)
 					:-	_makeProdNode(Term1, Step).
 _introduce(Term1, _nodeInfo(operation, mul), Step)
 					:-	_makeProdNode(Term1, Step).
+% initialize new fields for Term1
 _introduce(Term1, _nodeInfo(numchildren, 2), Step)
 					:-	_makeProdNode(Term1, Step).
 _introduce(Term1, _childnum(1, NewTerm), Step)
