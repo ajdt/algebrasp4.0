@@ -31,7 +31,7 @@ _applicable(_action(numerSimp, _data(left_side)), Step)
 % assumes that fraction is poly/poly
 _clearNode(FracRoot, Step)
 			:-	_doAction(_action(numerSimp, _data(FracRoot)), Step).
-_copyPoly(FracRoot, Numer, Step)
+_copyNodeInfo(FracRoot, Numer, Step)
 			:-	_doAction(_action(numerSimp, _data(FracRoot)), Step),
 				_numerOf(FracRoot, Numer, Step).
 _deleteNode(Denom, Step)
@@ -77,7 +77,7 @@ _replaceWith(Right, RightTerm, Step)
 				_termOf(Right, RightTerm, Step).
 _clearNode(Copy, Step)
 			:-	_replaceWith(Copy, Orig, Step).
-_copyPoly(Copy, Orig, Step)
+_copyNodeInfo(Copy, Orig, Step)
 			:-	_replaceWith(Copy, Orig, Step).
 % on left side, replace leftTerm with other right side term
 _replaceWith(LeftTerm, OtherRightTerm, Step)
@@ -95,6 +95,4 @@ _changeNodeOp(Root, mul, Step)
 				_termOf(Left, LeftTerm, Step),
 				_termOf(Root, Left, Step).
 
-
-:- not action(factorCommTerm).
 

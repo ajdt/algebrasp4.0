@@ -172,13 +172,13 @@ _mapDownAndCopy(Term2, Step)
 _mapNode(Term, Layer+1, Step)
 					:-	 _layerOf(Term, Layer),
 						_mapDownAndCopy(Term, Step).
-_copyPoly(NewTerm, Term, Step)
+_copyNodeInfo(NewTerm, Term, Step)
 					:-	_mapDownAndCopy(Term, Step),
 						_mapto(Term, NewTerm, Step).
 
 % copying a polynomial node
 _introduce(Copy, _nodeInfo(X,Y), Step)
-					:-	_copyPoly(Copy, Orig, Step),
+					:-	_copyNodeInfo(Copy, Orig, Step),
 						_holds(Orig, _nodeInfo(X,Y), Step).
 
 _deleteNode(Term2, Step)
@@ -208,6 +208,30 @@ _introduce(Term1, _treeInfo(activechild, NewTerm), Step)
 						_mapto(Term2, NewTerm, Step).
 % a deallocate children of predicate?
 
+% copy entire subtree
+_mapNodeRec(Child, Layer+1, Step)
+					:-	_mapNodeRec(Node, Layer, Step),
+						_termOf(Node, Child, Step),
+						_layer(Layer),
+						_node(Node),
+						_step(Step).
+_mapNode(Node, Layer, Step)
+					:-	_mapNodeRec(Node, Layer, Step).
+
+% XXX warning: does not copy childnum info, this info will probably be removed later
+_introduce(NewNode, _treeInfo(activechild, NewChild), Step)
+					:-	_copyMappedSubtree(Node, Step),
+						_termOf(Node, Child, Step),
+						_mapto(Node, NewNode, Step),
+						_mapto(Child, NewChild, Step).
+
+_copyMappedSubtree(Child, Step)
+					:-	_copyMappedSubtree(Node, Step),
+						_termOf(Node, Child, Step).
+% recursively copy children
+_copyMappedSubtree(Child, Step)
+					:-	_copyMappedSubtree(Node, Step),
+						_termOf(Node, Child, Step).
 % move subtree down, 
 % move children down
 % copy subtree, 
