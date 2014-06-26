@@ -176,10 +176,30 @@ _introduce(NewTerm, _nodeInfo(X,Y), Step)
 					:-	_mapAndCopy(Term, Step),
 						_mapto(Term, NewTerm, Step),
 						_holds(Term, _nodeInfo(X,Y), Step).
-_introduce(NewTerm, _childnum(X,Y), Step)
-					:-	_mapAndCopy(Term, Step),
-						_mapto(Term, NewTerm, Step),
-						_holds(Term, _childnum(X,Y), Step).
+_deleteNode(Term2, Step)
+					:-	_groupTerms(Term1, Term2, Step).
+_makeProdNode(Term1, Step)
+					:-	_groupTerms(Term1, Term2, Step).
+_clearNode(Term1, Step)
+					:-	_makeProdNode(Term1, Step).
+_introduce(Term1, _nodeInfo(type, oper), Step)
+					:-	_makeProdNode(Term1, Step).
+_introduce(Term1, _nodeInfo(operation, mul), Step)
+					:-	_makeProdNode(Term1, Step).
+_introduce(Term1, _nodeInfo(numchildren, 2), Step)
+					:-	_makeProdNode(Term1, Step).
+_introduce(Term1, _childnum(1, NewTerm), Step)
+					:-	_makeProdNode(Term1, Step),
+						_mapto(Term1, NewTerm, Step).
+_introduce(Term1, _treeInfo(activechild, NewTerm), Step)
+					:-	_makeProdNode(Term1, Step),
+						_mapto(Term1, NewTerm, Step).
+_introduce(Term1, _childnum(2, NewTerm), Step)
+					:-	_groupTerms(Term1, Term2, Step),
+						_mapto(Term2, NewTerm, Step).
+_introduce(Term1, _treeInfo(activechild, NewTerm), Step)
+					:-	_groupTerms(Term1, Term2, Step),
+						_mapto(Term2, NewTerm, Step).
 % a deallocate children of predicate?
 
 % move subtree down, 
