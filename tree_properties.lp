@@ -91,6 +91,9 @@ _deleteChildrenOf(Node, Step)
 _deleteNode(Child, Step)
 					:-	_deleteChildrenOf(Parent, Step),
 						_termOf(Parent, Child, Step).
+% deleting a node also deallocates it
+_deallocated(Node, Step)
+					:-	_deleteNode(Node, Step).
 
 % NOTE: shiftChildren should only be called once per step for a node,
 % to avoid race condition on updating the children
@@ -232,7 +235,13 @@ _copyMappedSubtree(Child, Step)
 _copyMappedSubtree(Child, Step)
 					:-	_copyMappedSubtree(Node, Step),
 						_termOf(Node, Child, Step).
+% remove node
+_deleteNode(Node, Step)
+					:-	_shiftDownSubtree(Node, Step).
 % move subtree down, 
+_mapNodeRec(Node, Layer + 1, Step)
+					:-	_shiftDownSubtree(Node, Step),
+						_layerOf(Node, Layer).
 % move children down
 % copy subtree, 
 % delete subtree, 
