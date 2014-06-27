@@ -84,6 +84,8 @@ _isZeroDegree(Poly, Step)	:-	not _hasHighDegreeTerms(Poly, Step),
 								not _hasTermWithDeg(Poly, 1, Step),
 								_hasTermWithDeg(Poly, 0, Step).
 
+_numTerms(Poly, Num, Step)	:-	_holds(Poly, _nodeInfo(numterms, Num), Step). 
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% DEFINED POLYNOMIAL CONSTANTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 _introduce(Node, _nodeInfo(type, poly), Step)
 							:-	_setToUnitPoly(Node, Step).

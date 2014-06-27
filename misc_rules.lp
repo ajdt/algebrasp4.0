@@ -109,13 +109,26 @@ _applicable(_action(distribute, _data(LeftTerm, RightTerm)), Step)
 _multiplyPolyWithMonom(LeftTerm, RightTerm, Step)
 			:-	_doAction(_action(distribute, _data(LeftTerm, RightTerm)), Step).
 % features for the rule
-ruleParam(distribute, numterms, 0) 
+ruleParam(distribute, prodsize, 0) 
 			:-	_doAction(_action(distribute, _data(LeftTerm, RightTerm)), Step),
 				_termOf(Parent, LeftTerm, Step),
 				_numSubExpressions(Parent, 2, Step).
-ruleParam(distribute, numterms, 1) 
+ruleParam(distribute, prodsize, 1) 
 			:-	_doAction(_action(distribute, _data(LeftTerm, RightTerm)), Step),
 				_termOf(Parent, LeftTerm, Step),
 				_numSubExpressions(Parent, Num, Step), Num > 2.
+ruleParam(distribute, polysize, Num) 
+			:-	_doAction(_action(distribute, _data(LeftTerm, RightTerm)), Step),
+				_numTerms(LeftTerm, Num, Step).
+ruleParam(distribute, degree, 2) 
+			:-	_doAction(_action(distribute, _data(LeftTerm, RightTerm)), Step),
+				_isQuadratic(LeftTerm).
+ruleParam(distribute, degree, 1) 
+			:-	_doAction(_action(distribute, _data(LeftTerm, RightTerm)), Step),
+				_isLinear(LeftTerm).
+ruleParam(distribute, degree, 0) 
+			:-	_doAction(_action(distribute, _data(LeftTerm, RightTerm)), Step),
+				_isLinear(LeftTerm),
+				_isLinear(RightTerm).
 
 :- not action(distribute).
