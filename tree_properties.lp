@@ -235,13 +235,19 @@ _copyMappedSubtree(Child, Step)
 _copyMappedSubtree(Child, Step)
 					:-	_copyMappedSubtree(Node, Step),
 						_termOf(Node, Child, Step).
-% remove node
-_deleteNode(Node, Step)
+% moving a subtree down
+_deleteChildrenOf(Node, Step)
+					:-	_shiftDownSubtree(Node, Step).
+_clearNode(Node, Step)
 					:-	_shiftDownSubtree(Node, Step).
 % move subtree down, 
 _mapNodeRec(Node, Layer + 1, Step)
 					:-	_shiftDownSubtree(Node, Step),
 						_layerOf(Node, Layer).
+% set pointer from old root to new root,
+_introduce(Node, _treeInfo(activechild, NewRoot))
+					:-	_shiftDownSubtree(Node, Step),
+						_mapto(Node, NewRoot, Step).
 % move children down
 % copy subtree, 
 % delete subtree, 

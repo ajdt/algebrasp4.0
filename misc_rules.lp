@@ -95,4 +95,16 @@ _changeNodeOp(Root, mul, Step)
 				_termOf(Left, LeftTerm, Step),
 				_termOf(Root, Left, Step).
 
+%================================================================================
+% distribute (a + b ) * c --> a*c + b*c
+%================================================================================
+_applicable(_action(distribute, _data(LeftTerm, RightTerm)), Step)
+			:-	_isMul(Root, Step),
+				_termOf(Root, LeftTerm, Step),
+				_termOf(Root, RightTerm, Step),
+				_isPolynomial(LeftTerm, Step),
+				_isMonomial(RightTerm, Step).
 
+_multiplyPolyWithMonom(LeftTerm, RightTerm, Step)
+			:-	_doAction(_action(distribute, _data(LeftTerm, RightTerm)), Step)
+:- not action(distribute).
