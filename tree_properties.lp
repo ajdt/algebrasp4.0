@@ -261,27 +261,52 @@ _update(Node, _nodeInfo(operation, Op), Step)
 				% Arithmetic Operations
 
 % store result in temp node, 
+_copyPolyFeaturesToTemp(Poly, Step)
+					:-	_multiplyPolyWithMonom(Poly, Mono, Step).
 
 _holds(_id(temp, 1,1), _nodeInfo(numterms, Num), Step)
-					:-	_multiplyPolyWithMonom(Poly, Mono, Step),
+					:-	_copyPolyFeaturesToTemp(Poly, Step),
 						_holds(Poly, _nodeInfo(numterms, Num), Step).
 
-_holds(_id(temp, 1,1), _nodeInfo(coeffof(Term), _coeff(CoeffPoly*CoeffMono)), Step)
+_holds(_id(temp, 1,1), _nodeInfo(type, poly), Step)
+					:-	_copyPolyFeaturesToTemp(Poly, Step).
+% isolate monomials degree and coefficient
+% result is saved in temp,1,1
+_multiplyCoeffWith(Poly, CoeffMono, Step)
 					:-	_multiplyPolyWithMonom(Poly, Mono, Step),
-						_holds(Mono, _nodeInfo(coeffof(1), _coeff(CoeffMono)), Step),
+						_holds(Mono, _nodeInfo(coeffof(1), _coeff(CoeffMono)), Step).
+_addToDeg(Poly, DegMono, Step)
+					:-	_multiplyPolyWithMonom(Poly, Mono, Step),
+						_holds(Mono, _nodeInfo(degof(1), _degree(DegMono)), Step).
+
+% multiply polynomials terms
+_holds(_id(temp, 1,1), _nodeInfo(coeffof(Term), _coeff(CoeffPoly*CoeffMono)), Step)
+					:-	_multiplyCoeffWith(Poly, CoeffMono, Step),
 						_holds(Poly, _nodeInfo(coeffof(Term), _coeff(CoeffPoly)), Step),
 						_coeff(CoeffPoly*CoeffMono).
 
 _holds(_id(temp, 1,1), _nodeInfo(degof(Term), _degree(DegPoly+DegMono)), Step)
-					:-	_multiplyPolyWithMonom(Poly, Mono, Step),
-						_holds(Mono, _nodeInfo(degof(1), _degree(DegMono)), Step),
+					:-	_addToDeg(Poly, DegMono, Step),
 						_holds(Poly, _nodeInfo(degof(Term), _degree(DegPoly)), Step),
 						_degree(DegPoly+DegMono).
-%delete children
-_deleteChildrenOf(Poly, Step)
-					:-	_multiplyPolyWithMonom(Poly, Mono, Step).
-_clearNode(Poly, Step)
-					:-	_multiplyPolyWithMonom(Poly, Mono, Step).
-_copyNodeInfo(Poly, _id(temp, 1,1), Step)
-					:-	_multiplyPolyWithMonom(Poly, Mono, Step).
-% ensure temp node properties don't hold into next step
+% delete children
+% sets the result of _id(temp,1,1) to the given node
+_setResultTo(Root, Step)
+					:-	_multiplyPolyWithMonom(Poly, Mono, Step),
+						_numSubExpressions(Root, 2, Step),
+						_termOf(Root, Poly, Step).
+_setResultTo(Poly, Step)
+					:-	_multiplyPolyWithMonom(Poly, Mono, Step),
+						_numSubExpressions(Root, Num, Step), Num > 2,
+						_termOf(Root, Poly, Step).
+_deleteChildrenOf(Root, Step)
+					:-	_setResultTo(Root, Step).
+_clearNode(Root, Step)
+					:-	_setResultTo(Root, Step).
+_copyNodeInfo(Root, _id(temp, 1,1), Step)
+					:-	_setResultTo(Root, Step).
+
+% if we've set the result to Poly, then Mono must be deleted
+_cancelTerm(Mono, Step)
+					:-	_multiplyPolyWithMonom(Poly, Mono, Step),
+						_setResultTo(Poly, Step).

@@ -108,5 +108,14 @@ _applicable(_action(distribute, _data(LeftTerm, RightTerm)), Step)
 
 _multiplyPolyWithMonom(LeftTerm, RightTerm, Step)
 			:-	_doAction(_action(distribute, _data(LeftTerm, RightTerm)), Step).
+% features for the rule
+ruleParam(distribute, numterms, 0) 
+			:-	_doAction(_action(distribute, _data(LeftTerm, RightTerm)), Step),
+				_termOf(Parent, LeftTerm, Step),
+				_numSubExpressions(Parent, 2, Step).
+ruleParam(distribute, numterms, 1) 
+			:-	_doAction(_action(distribute, _data(LeftTerm, RightTerm)), Step),
+				_termOf(Parent, LeftTerm, Step),
+				_numSubExpressions(Parent, Num, Step), Num > 2.
 
 :- not action(distribute).

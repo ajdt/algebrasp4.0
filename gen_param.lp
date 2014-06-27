@@ -7,7 +7,7 @@
 
 % monomial constants
 #const maxAssignableCoeff	=	5.
-#const maxCoeff				=	maxAssignableCoeff*2.
+#const maxCoeff				=	maxAssignableCoeff*4.
 #const maxAssignableDegree	=	2.
 #const maxDegree			=	maxAssignableDegree*2.
 
