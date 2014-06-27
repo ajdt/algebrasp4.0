@@ -257,3 +257,31 @@ _introduce(Node, _treeInfo(activechild, NewRoot))
 % change node operation
 _update(Node, _nodeInfo(operation, Op), Step)
 					:-	_changeNodeOp(Node, Op, Step).
+
+				% Arithmetic Operations
+
+% store result in temp node, 
+
+_holds(_id(temp, 1,1), _nodeInfo(numterms, Num), Step)
+					:-	_multiplyPolyWithMonom(Poly, Mono, Step),
+						_holds(Poly, _nodeInfo(numterms, Num), Step).
+
+_holds(_id(temp, 1,1), _nodeInfo(coeffof(Term), _coeff(CoeffPoly*CoeffMono)), Step)
+					:-	_multiplyPolyWithMonom(Poly, Mono, Step),
+						_holds(Mono, _nodeInfo(coeffof(1), _coeff(CoeffMono)), Step),
+						_holds(Poly, _nodeInfo(coeffof(Term), _coeff(CoeffPoly)), Step),
+						_coeff(CoeffPoly*CoeffMono).
+
+_holds(_id(temp, 1,1), _nodeInfo(degof(Term), _degree(DegPoly+DegMono)), Step)
+					:-	_multiplyPolyWithMonom(Poly, Mono, Step),
+						_holds(Mono, _nodeInfo(degof(1), _degree(DegMono)), Step),
+						_holds(Poly, _nodeInfo(degof(Term), _degree(DegPoly)), Step),
+						_degree(DegPoly+DegMono).
+%delete children
+_deleteChildrenOf(Poly, Step)
+					:-	_multiplyPolyWithMonom(Poly, Mono, Step).
+_clearNode(Poly, Step)
+					:-	_multiplyPolyWithMonom(Poly, Mono, Step).
+_copyNodeInfo(Poly, _id(temp, 1,1), Step)
+					:-	_multiplyPolyWithMonom(Poly, Mono, Step).
+% ensure temp node properties don't hold into next step

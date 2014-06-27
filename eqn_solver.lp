@@ -13,6 +13,7 @@ _holds(Node, Info, 1)								:-	_initially(Node, Info).
 
 _holds(Node, Info, S+1) 	:-	_holds(Node, Info, S),
 								_step(S+1),
+								not _tempNode(Node),
 								not _remove(Node, Info, S).
 
 _remove(Node, _nodeInfo(FieldName, FieldValue), S) 	:-	_update(Node, _nodeInfo(FieldName, NewValue), S),

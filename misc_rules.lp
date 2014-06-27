@@ -102,9 +102,11 @@ _applicable(_action(distribute, _data(LeftTerm, RightTerm)), Step)
 			:-	_isMul(Root, Step),
 				_termOf(Root, LeftTerm, Step),
 				_termOf(Root, RightTerm, Step),
+				LeftTerm != RightTerm,
 				_isPolynomial(LeftTerm, Step),
 				_isMonomial(RightTerm, Step).
 
 _multiplyPolyWithMonom(LeftTerm, RightTerm, Step)
-			:-	_doAction(_action(distribute, _data(LeftTerm, RightTerm)), Step)
+			:-	_doAction(_action(distribute, _data(LeftTerm, RightTerm)), Step).
+
 :- not action(distribute).

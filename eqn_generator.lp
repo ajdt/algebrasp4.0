@@ -40,7 +40,8 @@ _tempLayerNodes(1,1).
 _tempLayerNodes(2,4).
 _tempLayerNodes(3,6).
 % purposely give temp nodes arity 2, so they're not accidentally used where regular nodes would be
-_node(_id(temp, Layer, Number))	:- _tempLayerNodes(Layer, NumNodes), Number = 1..NumNodes.
+_tempNode(_id(temp, Layer, Number))	:- _tempLayerNodes(Layer, NumNodes), Number = 1..NumNodes.
+_node(X)	:-	_tempNode(X).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% expression tree properties %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % root nodes are all in first layer, and count as depth 1
