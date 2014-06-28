@@ -279,23 +279,31 @@ _multiplyCoeffWith(Poly, CoeffMono, Offset, Step)
 					:-	_multiplyPolyWithMonom(Poly, Mono, Step),
 						_numTerms(Poly, PolyTerms, Step),
 						Offset = (Term - 1)*PolyTerms,
+						_maxNumPolyTerms(Offset),
+						CoeffMono <= maxAssignableCoeff,
 						_holds(Mono, _nodeInfo(coeffof(Term), _coeff(CoeffMono)), Step).
 
 _addToDeg(Poly, DegMono, Offset, Step)
 					:-	_multiplyPolyWithMonom(Poly, Mono, Step),
 						_numTerms(Poly, PolyTerms, Step),
 						Offset = (Term - 1)*PolyTerms,
+						_maxNumPolyTerms(Offset),
+						DegMono <= maxAssignableDegree,
 						_holds(Mono, _nodeInfo(degof(Term), _degree(DegMono)), Step).
 
 % multiply polynomials terms
 _holds(_id(temp, 1,1), _nodeInfo(coeffof(Offset+Term), _coeff(CoeffPoly*CoeffMono)), Step)
 					:-	_multiplyCoeffWith(Poly, CoeffMono, Offset, Step),
+						_maxNumPolyTerms(Offset+Term),
 						_holds(Poly, _nodeInfo(coeffof(Term), _coeff(CoeffPoly)), Step),
+						CoeffPoly <= maxAssignableCoeff,
 						_coeff(CoeffPoly*CoeffMono).
 
 _holds(_id(temp, 1,1), _nodeInfo(degof(Offset+Term), _degree(DegPoly+DegMono)), Step)
 					:-	_addToDeg(Poly, DegMono, Offset, Step),
+						_maxNumPolyTerms(Offset+Term),
 						_holds(Poly, _nodeInfo(degof(Term), _degree(DegPoly)), Step),
+						DegPoly <= maxAssignableDegree,
 						_degree(DegPoly+DegMono).
 % delete children
 % sets the result of _id(temp,1,1) to the given node

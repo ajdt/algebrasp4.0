@@ -98,6 +98,7 @@ _initially(Child, _nodeInfo(active,yes))	:-	_initially(Parent, _treeInfo(activec
 
 										% GENERATE POLYNOMIALS
 _numPolyTerms(1..2).
+_maxNumPolyTerms(1..9).
 % NOTE: degree and leading coef are decided here, so that we can create leadingCoef, and degree predicates for 
 % poly nodes if necessary
 1 { _makePolyWithDeg(Node, Deg) : _degree(Deg), Deg <= maxAssignableDegree } 1 	
