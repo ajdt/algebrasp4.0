@@ -129,12 +129,14 @@ _initially(_id(ParentLayer, ParentNum), _nodeInfo(denom, _id(ChildLayer, SndChil
 % _initially(_id(1,2), _nodeInfo(coeffof(1), _coeff(0))).
 % _initially(_id(1,2), _nodeInfo(degof(1), _degree(0))).
 % code for allocating unused nodes
-_freeNode(Node, Step)
+_freeNode(Node, Step)	% tempNodes don't count as freeNodes
 				:-	_node(Node),
 					_step(Step),
+					not _tempNode(Node),
 					not _holds(Node, _field(active, yes), Step).
 _freeNode(Node, Step)
-				:-	_deallocated(Node, Step).
+				:-	_deallocated(Node, Step),
+					not _tempNode(Node).
 1 { _mapto(OldNode, NewNode, Step) : _freeNode(NewNode, Step), _layerOf(NewNode, Layer) } 1
 				:-	_mapNode(OldNode, Layer, Step).
 
