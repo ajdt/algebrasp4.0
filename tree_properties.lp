@@ -264,29 +264,37 @@ _update(Node, _nodeInfo(operation, Op), Step)
 _copyPolyFeaturesToTemp(Poly, Step)
 					:-	_multiplyPolyWithMonom(Poly, Mono, Step).
 
-_holds(_id(temp, 1,1), _nodeInfo(numterms, Num), Step)
-					:-	_copyPolyFeaturesToTemp(Poly, Step),
-						_holds(Poly, _nodeInfo(numterms, Num), Step).
+_holds(_id(temp, 1,1), _nodeInfo(numterms, Num1*Num2), Step)
+					:-	_multiplyPolyWithMonom(Poly, Mono, Step),
+						_holds(Poly, _nodeInfo(numterms, Num1), Step),
+						_holds(Mono, _nodeInfo(numterms, Num2), Step).
 
 _holds(_id(temp, 1,1), _nodeInfo(type, poly), Step)
 					:-	_copyPolyFeaturesToTemp(Poly, Step).
+_holds(_id(temp, 1,1), _nodeInfo(active, yes), Step)
+					:-	_copyPolyFeaturesToTemp(Poly, Step).
 % isolate monomials degree and coefficient
 % result is saved in temp,1,1
-_multiplyCoeffWith(Poly, CoeffMono, Step)
+_multiplyCoeffWith(Poly, CoeffMono, Offset, Step)
 					:-	_multiplyPolyWithMonom(Poly, Mono, Step),
-						_holds(Mono, _nodeInfo(coeffof(1), _coeff(CoeffMono)), Step).
-_addToDeg(Poly, DegMono, Step)
+						_numTerms(Poly, PolyTerms, Step),
+						Offset = (Term - 1)*PolyTerms,
+						_holds(Mono, _nodeInfo(coeffof(Term), _coeff(CoeffMono)), Step).
+
+_addToDeg(Poly, DegMono, Offset, Step)
 					:-	_multiplyPolyWithMonom(Poly, Mono, Step),
-						_holds(Mono, _nodeInfo(degof(1), _degree(DegMono)), Step).
+						_numTerms(Poly, PolyTerms, Step),
+						Offset = (Term - 1)*PolyTerms,
+						_holds(Mono, _nodeInfo(degof(Term), _degree(DegMono)), Step).
 
 % multiply polynomials terms
-_holds(_id(temp, 1,1), _nodeInfo(coeffof(Term), _coeff(CoeffPoly*CoeffMono)), Step)
-					:-	_multiplyCoeffWith(Poly, CoeffMono, Step),
+_holds(_id(temp, 1,1), _nodeInfo(coeffof(Offset+Term), _coeff(CoeffPoly*CoeffMono)), Step)
+					:-	_multiplyCoeffWith(Poly, CoeffMono, Offset, Step),
 						_holds(Poly, _nodeInfo(coeffof(Term), _coeff(CoeffPoly)), Step),
 						_coeff(CoeffPoly*CoeffMono).
 
-_holds(_id(temp, 1,1), _nodeInfo(degof(Term), _degree(DegPoly+DegMono)), Step)
-					:-	_addToDeg(Poly, DegMono, Step),
+_holds(_id(temp, 1,1), _nodeInfo(degof(Offset+Term), _degree(DegPoly+DegMono)), Step)
+					:-	_addToDeg(Poly, DegMono, Offset, Step),
 						_holds(Poly, _nodeInfo(degof(Term), _degree(DegPoly)), Step),
 						_degree(DegPoly+DegMono).
 % delete children
