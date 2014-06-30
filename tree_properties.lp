@@ -28,29 +28,11 @@ _canGrowTreeFromNode(_id(Layer, Number), Step)
 % 
 % NOTE: deleteMonomialOnly does not update numterms; useful if multiple deletes occur 
 % leading to multiple updatesto numterms (and a race condition)
-_remove(Polynomial, _nodeInfo(coeffof(Term), Coeff), Step)
-					:-	_deleteMonomialOnly(Polynomial, Term, Step),
-						_holds(Polynomial, _nodeInfo(coeffof(Term), Coeff), Step).
-_remove(Polynomial, _nodeInfo(degof(Term), Deg), Step)
-					:-	_deleteMonomialOnly(Polynomial, Term, Step),
-						_holds(Polynomial, _nodeInfo(degof(Term), Deg), Step).
+_remove(Polynomial, _nodeInfo(Deg, Coeff), Step)
+					:-	_deleteMonomialOnly(Polynomial, Deg, Step),
+						_holds(Polynomial, _nodeInfo(Deg, Coeff), Step).
 
 _deleteMonomialOnly(Poly, Mono, Step)	:-	_deleteMonomial(Poly, Mono, Step).
-
-% shift down monomial term numbers by 1
-_shiftDown(Poly, Term+1, 1, Step)			:-	_deleteMonomial(Poly, Term, Step).
-
-% shifting term numbers for polynomials
-_introduce(Poly, _nodeInfo(coeffof(Term - Delta), Coeff), Step)
-					:-	_shiftDown(Poly, Start, Delta, Step),
-						_holds(Poly, _nodeInfo(coeffof(Term), Coeff), Step).
-_introduce(Poly, _nodeInfo(degof(Term - Delta), Deg), Step)
-					:-	_shiftDown(Poly, Start, Delta, Step),
-						_holds(Poly, _nodeInfo(degof(Term), Deg), Step).
-_deleteMonomialOnly(Poly, Term, Step)
-					:-	_shiftDown(Poly, Start, Delta, Step),
-						_holds(Poly, _nodeInfo(coeffof(Term), Coeff), Step),
-						Term >= Start.
 
 % update the number of terms
 _update(Poly, _nodeInfo(numterms, NumTerms - 1), Step)
@@ -275,6 +257,7 @@ _holds(_id(temp, 1,1), _nodeInfo(active, yes), Step)
 					:-	_copyPolyFeaturesToTemp(Poly, Step).
 % isolate monomials degree and coefficient
 % result is saved in temp,1,1
+% TODO: have to adjust the way terms are multiplied together
 _multiplyCoeffWith(Poly, CoeffMono, Offset, Step)
 					:-	_multiplyPolyWithMonom(Poly, Mono, Step),
 						_numTerms(Poly, PolyTerms, Step),

@@ -101,17 +101,12 @@ _numPolyTerms(1..2).
 _maxNumPolyTerms(1..9).
 % NOTE: degree and leading coef are decided here, so that we can create leadingCoef, and degree predicates for 
 % poly nodes if necessary
-1 { _makePolyWithDeg(Node, Deg) : _degree(Deg), Deg <= maxAssignableDegree } 1 	
-					:-	_initially(Node, _nodeInfo(type, poly)).
-1 { _makePolyWithCoeff(Node, Coeff) : _coeff(Coeff), Coeff <= maxAssignableCoeff } 1 	
-					:-	_initially(Node, _nodeInfo(type, poly)).
-1 { _makePolyWithTerms(Node, NumTerms) : _numPolyTerms(NumTerms) } 1 	
+1 { _makePolyWithOrder(Node, Order) : _degree(Order) , Order <= maxAssignableDegree } 1 	
 					:-	_initially(Node, _nodeInfo(type, poly)).
 
-_initially(Node, _nodeInfo(coeffof(Num), _coeff(Coeff)))	:- _hasMonom(Node, Num, _monomial(Coeff, Deg)).
-_initially(Node, _nodeInfo(degof(Num), _degree(Deg)))		:- _hasMonom(Node, Num, _monomial(Coeff, Deg)).
+_initially(Node, _nodeInfo(Deg, Coeff))	:- _hasMonom(Node, Deg, Coeff).
 
-_initially(Node, _nodeInfo(numterms, NumTerms))			:-	_makePolyWithTerms(Node, NumTerms).
+_initially(Node, _nodeInfo(numterms, Order+1))			:-	_makePolyWithOrder(Node, Order).
 
 % fractions also have numer/denom fields to alias first and second child
 _initially(_id(ParentLayer, ParentNum), _nodeInfo(numer, _id(ChildLayer, FstChildNum)))	
