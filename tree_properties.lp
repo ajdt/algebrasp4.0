@@ -244,10 +244,10 @@ _update(Node, _nodeInfo(operation, Op), Step)
 
 % store result in temp node, 
 _copyPolyFeaturesToTemp(Poly, Step)
-					:-	_multiplyPolyWithMonom(Poly, Mono, Step).
+					:-	_multiplyPolys(Poly, Mono, Step).
 
 _holds(_id(temp, 1,1), _nodeInfo(numterms, Num1*Num2), Step)
-					:-	_multiplyPolyWithMonom(Poly, Mono, Step),
+					:-	_multiplyPolys(Poly, Mono, Step),
 						_holds(Poly, _nodeInfo(numterms, Num1), Step),
 						_holds(Mono, _nodeInfo(numterms, Num2), Step).
 
@@ -256,46 +256,20 @@ _holds(_id(temp, 1,1), _nodeInfo(type, poly), Step)
 _holds(_id(temp, 1,1), _nodeInfo(active, yes), Step)
 					:-	_copyPolyFeaturesToTemp(Poly, Step).
 % isolate monomials degree and coefficient
+_holds(_id(temp, 1, 1), _nodeInfo(Deg1 + Deg2, Coeff1*Coeff2), Step)
+					:-	_multiplyPolys(Poly1, Poly2, Step),
+						_holds(Poly1, _nodeInfo(Deg1, Coeff1), Step),
+						_holds(Poly2, _nodeInfo(Deg2, Coeff2), Step).
 % result is saved in temp,1,1
 % TODO: have to adjust the way terms are multiplied together
-_multiplyCoeffWith(Poly, CoeffMono, Offset, Step)
-					:-	_multiplyPolyWithMonom(Poly, Mono, Step),
-						_numTerms(Poly, PolyTerms, Step),
-						Offset = (Term - 1)*PolyTerms,
-						_maxNumPolyTerms(Offset),
-						CoeffMono <= maxAssignableCoeff,
-						_holds(Mono, _nodeInfo(coeffof(Term), _coeff(CoeffMono)), Step).
-
-_addToDeg(Poly, DegMono, Offset, Step)
-					:-	_multiplyPolyWithMonom(Poly, Mono, Step),
-						_numTerms(Poly, PolyTerms, Step),
-						Offset = (Term - 1)*PolyTerms,
-						_maxNumPolyTerms(Offset),
-						DegMono <= maxAssignableDegree,
-						_holds(Mono, _nodeInfo(degof(Term), _degree(DegMono)), Step).
-
-% multiply polynomials terms
-_holds(_id(temp, 1,1), _nodeInfo(coeffof(Offset+Term), _coeff(CoeffPoly*CoeffMono)), Step)
-					:-	_multiplyCoeffWith(Poly, CoeffMono, Offset, Step),
-						_maxNumPolyTerms(Offset+Term),
-						_holds(Poly, _nodeInfo(coeffof(Term), _coeff(CoeffPoly)), Step),
-						CoeffPoly <= maxAssignableCoeff,
-						_coeff(CoeffPoly*CoeffMono).
-
-_holds(_id(temp, 1,1), _nodeInfo(degof(Offset+Term), _degree(DegPoly+DegMono)), Step)
-					:-	_addToDeg(Poly, DegMono, Offset, Step),
-						_maxNumPolyTerms(Offset+Term),
-						_holds(Poly, _nodeInfo(degof(Term), _degree(DegPoly)), Step),
-						DegPoly <= maxAssignableDegree,
-						_degree(DegPoly+DegMono).
 % delete children
 % sets the result of _id(temp,1,1) to the given node
 _setResultTo(Root, Step)
-					:-	_multiplyPolyWithMonom(Poly, Mono, Step),
+					:-	_multiplyPolys(Poly, Mono, Step),
 						_numSubExpressions(Root, 2, Step),
 						_termOf(Root, Poly, Step).
 _setResultTo(Poly, Step)
-					:-	_multiplyPolyWithMonom(Poly, Mono, Step),
+					:-	_multiplyPolys(Poly, Mono, Step),
 						_numSubExpressions(Root, Num, Step), Num > 2,
 						_termOf(Root, Poly, Step).
 _deleteChildrenOf(Root, Step)
@@ -307,5 +281,5 @@ _copyNodeInfo(Root, _id(temp, 1,1), Step)
 
 % if we've set the result to Poly, then Mono must be deleted
 _cancelTerm(Mono, Step)
-					:-	_multiplyPolyWithMonom(Poly, Mono, Step),
+					:-	_multiplyPolys(Poly, Mono, Step),
 						_setResultTo(Poly, Step).

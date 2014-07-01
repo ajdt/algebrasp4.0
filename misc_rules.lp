@@ -106,8 +106,9 @@ _applicable(_action(distribute, _data(LeftTerm, RightTerm)), Step)
 				_isPolynomial(LeftTerm, Step),
 				_isPolynomial(RightTerm, Step).
 
-_multiplyPolyWithMonom(LeftTerm, RightTerm, Step)
+_multiplyPolys(LeftTerm, RightTerm, Step)
 			:-	_doAction(_action(distribute, _data(LeftTerm, RightTerm)), Step).
+
 % features for the rule
 ruleParam(distribute, prodsize, 0) 
 			:-	_doAction(_action(distribute, _data(LeftTerm, RightTerm)), Step),
