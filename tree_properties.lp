@@ -397,6 +397,8 @@ _introduce(Root, _treeInfo(activechild, RegNode), Step)
 
 _copyNodeInfo(Root, _id(temp, 1,1), Step)
 					:-	_setResultTo(Root, Step).
+_update(Poly, _nodeInfo(2, 1), Step)				% fix this later
+					:-	_dividePolyBy(Poly, ACoeff, Step).
 #show _mapto/3.
 #show _mapNode/3.
 #show _setToPoly/2.

@@ -141,7 +141,6 @@ _applicable(_action(factor, _data(Poly)), Step)
 			:-	_isQuadratic(Poly, Step),
 				_squareMonom(Poly, ACoeff, Step),
 				_isFactorable(Poly, Step),
-				ACoeff ==1,
 				ACoeff <=5,
 				ACoeff >= - 5,
 				_linearMonom(Poly, BCoeff, Step),
@@ -152,6 +151,15 @@ _applicable(_action(factor, _data(Poly)), Step)
 				CCoeff >= - 5.
 
 _factorPoly(Poly, Step)
-			:-	_doAction(_action(factor, _data(Poly)), Step).
+			:-	_doAction(_action(factor, _data(Poly)), Step),
+				_squareMonom(Poly, ACoeff, Step),
+				ACoeff == 1.
+_dividePolyBy(Poly, ACoeff, Step)
+			:-	_doAction(_action(factor, _data(Poly)), Step),
+				_squareMonom(Poly, ACoeff, Step),
+				ACoeff != 1.
+_doAction(_action(factor, _data(Poly)), Step+1)
+			:-	_dividePolyBy(Poly, ACoeff, Step),
+				_step(Step+1).
 
 :- not action(factor).
