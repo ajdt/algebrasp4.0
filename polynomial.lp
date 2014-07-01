@@ -86,28 +86,17 @@ _introduce(Node, _nodeInfo(0, 1), Step)
 							:-	_setToUnitPoly(Node, Step).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% POLYNOMS EQUALITY %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% when two polynomials have the same value for a term
-_equalOnTerm(Poly1, Poly2, Deg, Step)
-							:-	_holds(Poly1, _nodeInfo(Deg, Coeff), Step),
-								_holds(Poly2, _nodeInfo(Deg, Coeff), Step),
-								Poly1 < Poly2.
-% unequal if have different values at the same term position
+% NOTE: only care about equality comparisons when nodes are in the same layer
 _unequal(Poly1, Poly2, Step)
-							:-	_numPolyTerms(Term),
-								_isPolynomial(Poly1, Step),
-								_isPolynomial(Poly2, Step),
-								_holds(Poly1, _nodeInfo(numterms, TermCount), Step),
-								_holds(Poly2, _nodeInfo(numterms, TermCount), Step),
-								Term <= TermCount,
-								not _equalOnTerm(Poly1, Poly2, Term-1, Step), % term count is off by 1 w.r.t degree
+							:-	_node(Poly1),	
+								_node(Poly2),
+								not _tempNode(Poly1),
+								not _tempNode(Poly2),
+								_holds(Poly1, _nodeInfo(Deg, Coeff), Step),
+								not _holds(Poly2, _nodeInfo(Deg, Coeff), Step),
+								_layerOf(Poly1, Layer),
+								_layerOf(Poly2, Layer),
 								Poly1 < Poly2.
-
-% unequal if different numbers of terms
-_unequal(Poly1, Poly2, Step)
-							:-	_holds(Poly1, _nodeInfo(numterms, Terms1), Step),
-								_holds(Poly2, _nodeInfo(numterms, Terms2), Step),
-								Poly1 < Poly2,
-								Terms1 != Terms2.
 _equal(Poly1, Poly2, Step)
 							:-	_holds(Poly1, _nodeInfo(type, poly), Step),
 								_holds(Poly2, _nodeInfo(type, poly), Step),
