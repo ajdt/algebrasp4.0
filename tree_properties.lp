@@ -242,33 +242,45 @@ _update(Node, _nodeInfo(operation, Op), Step)
 
 				% Arithmetic Operations
 
+				% multiplying polynomials
+
 % store result in temp node, 
-_copyPolyFeaturesToTemp(Poly, Step)
+_tempRootToAdd(Step)
 					:-	_multiplyPolys(Poly, Mono, Step).
 
+% temp root is sum of several standard polynomials
 _holds(_id(temp, 1,1), _nodeInfo(type, oper), Step)
-					:-	_copyPolyFeaturesToTemp(Poly, Step).
+					:-	_tempRootToAdd(Step).
 _holds(_id(temp, 1,1), _nodeInfo(operation, add), Step)
-					:-	_copyPolyFeaturesToTemp(Poly, Step).
+					:-	_tempRootToAdd(Step).
 _holds(_id(temp, 1,1), _nodeInfo(active, yes), Step)
-					:-	_copyPolyFeaturesToTemp(Poly, Step).
-% isolate monomials degree and coefficient
-_multByMono(Poly1, Deg2, Coeff2, Step)
+					:-	_tempRootToAdd(Step).
+% NOTE: a standard polynomial is created for each monomial of Poly2
+_holds(_id(temp, 1,1), _nodeInfo(numchildren, Num), Step)
+					:-	_tempRootToAdd(Step),
+						_multiplyPolys(Poly1, Poly2, Step),
+						_numTerms(Poly2, Num, Steps).
+% multiply each pair of monomials
+_holds(_id(temp, 2, Deg2+1), _nodeInfo(Deg1 + Deg2, Coeff1 * Coeff2), Step)
 					:-	_multiplyPolys(Poly1, Poly2, Step),
 						_holds(Poly2, _nodeInfo(Deg2, Coeff2), Step),
-						_degree(Deg2).
-
-% remember to update with num children etc
-_holds(_id(temp, 2, Deg2+1), _nodeInfo(Deg1 + Deg2, Coeff1 * Coeff2), Step)
-					:-	_multByMono(Poly1, Deg2, Coeff2, Step),
+						_degree(Deg2),
 						_holds(Poly1, _nodeInfo(Deg1, Coeff1), Step),
 						_degree(Deg1).
+% set term count for each polynomial
+_holds(_id(temp, 2, Poly), _nodeInfo(numterms, NumMonoms), Step)
+					:-	_multiplyPolys(Poly1, Poly2, Step),
+						_numTerms(Poly1, NumMonoms, Step),
+						_numTerms(Poly2, NumStdPolys, Step),
+						Poly = 1..NumStdPolys .
 
 % setup parent/child pointers
 _activateTempNode(PolyNum, Step)
 :-	_multiplyPolys(Poly1, Poly2, Step),
 	_holds(Poly2, _nodeInfo(numterms, Num), Step),
 	PolyNum = 1..Num.
+
+% set basic polynomial properties for node
 _holds(_id(temp, 1,1), _treeInfo(activechild, _id(temp, 2, PolyNum)), Step)
 	:-	_activateTempNode(PolyNum, Step).
 _holds(_id(temp, 2,PolyNum), _nodeInfo(active, yes), Step)
@@ -277,10 +289,7 @@ _holds(_id(temp, 2,PolyNum), _nodeInfo(type, poly), Step)
 	:-	_activateTempNode(PolyNum, Step).
 
 
-% result is saved in temp,1,1
-% TODO: have to adjust the way terms are multiplied together
-% delete children
-% sets the result of _id(temp,1,1) to the given node
+% decide which node to assign children to
 _setResultTo(Root, Step)
 					:-	_multiplyPolys(Poly, Mono, Step),
 						_numSubExpressions(Root, 2, Step),
@@ -289,6 +298,11 @@ _setResultTo(Poly, Step)
 					:-	_multiplyPolys(Poly, Mono, Step),
 						_numSubExpressions(Root, Num, Step), Num > 2,
 						_termOf(Root, Poly, Step).
+% if we've set the result to Poly, then Mono must be deleted
+_cancelTerm(Mono, Step)
+					:-	_multiplyPolys(Poly, Mono, Step),
+						_setResultTo(Poly, Step).
+
 _deleteChildrenOf(Root, Step)
 					:-	_setResultTo(Root, Step).
 % copying over the entire subtree
@@ -298,7 +312,7 @@ _clearNode(Root, Step)
 _mapResultToLayer(Layer+1, Step)
 					:-	_setResultTo(_id(Layer, Num), Step).
 
-% for efficiency, just map the subtree
+% TODO: try mapping entire subtree instead
 _mapNode(_id(temp, 2, Num), Layer+1, Step)
 					:-	_multiplyPolys(Poly1, Poly2, Step),
 						_holds(Poly2, _nodeInfo(numterms, Terms), Step),
@@ -316,7 +330,3 @@ _introduce(Root, _treeInfo(activechild, RegNode), Step)
 _copyNodeInfo(Root, _id(temp, 1,1), Step)
 					:-	_setResultTo(Root, Step).
 
-% if we've set the result to Poly, then Mono must be deleted
-_cancelTerm(Mono, Step)
-					:-	_multiplyPolys(Poly, Mono, Step),
-						_setResultTo(Poly, Step).
