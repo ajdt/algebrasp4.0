@@ -28,28 +28,25 @@ def wrapFact(parser, left='initially(', right=')'):
 	return wrapWithPredicate( node_parser + ',' + parser, left, right)
 
 node_parser		=	'id(' + Word(nums) + ',' + Word(nums) + ')'
-mono_parser		=	Word(alphas) + ',' + 'monomial('+ Word(nums + '-') + ',' + Word(nums) + ')' # NOTE: added '-' to recognize negative numbers
-coeff			=	'coeffof(' + Word(nums) + '),coeff(' + Word(nums+'-') + ')'
-deg				=	'degof(' + Word(nums) + '),degree(' + Word(nums) + ')'
+coeff			=	Word(nums + '-')
+deg				=	Word(nums)
 
 type_parser		=	wrapFact(wrapWithPredicate(Word(alphas) + ',' + Word(alphas)))
 oper_parser		=	wrapFact(wrapWithPredicate(Word(alphas) + ',' + Word(alphas)))
 child_parser 	= 	wrapFact(wrapWithPredicate(Word(alphas) + ',' + node_parser, 'treeInfo('))
-coef_parser		=	wrapFact(wrapWithPredicate(coeff ))
-deg_parser		=	wrapFact(wrapWithPredicate(deg ))
+mono_parser		=	wrapFact(wrapWithPredicate(deg + ',' + coeff ))
 op_symbols 		= 	{'add' : '+' , 'div' : '/' , 'mul' : '*' }
 
 
 
-all_parsers = [ node_parser, mono_parser, type_parser, oper_parser,	child_parser, coef_parser, deg_parser]
+all_parsers = [ node_parser, mono_parser, type_parser, oper_parser,	child_parser ]
 
 step_type_parser		=	wrapFact(wrapWithPredicate(Word(alphas) + ',' + Word(alphas)), 'holds(', ',' + Word(nums) + ')' )
 step_oper_parser		=	wrapFact(wrapWithPredicate(Word(alphas) + ',' + Word(alphas)), 'holds(', ',' + Word(nums) + ')' )
 step_child_parser 		= 	wrapFact(wrapWithPredicate(Word(alphas) + ',' + node_parser, 'treeInfo('), 'holds(', ',' + Word(nums) + ')' )
-step_coef_parser		=	wrapFact(wrapWithPredicate(coeff ), 'holds(', ',' + Word(nums) + ')' )
-step_deg_parser			=	wrapFact(wrapWithPredicate(deg ), 'holds(', ',' + Word(nums) + ')' )
+step_mono_parser		=	wrapFact(wrapWithPredicate(deg + ',' + coeff), 'holds(', ',' + Word(nums) + ')' )
 
-step_parsers = [ step_type_parser, step_oper_parser, step_child_parser, step_coef_parser, step_deg_parser ]
+step_parsers = [ step_type_parser, step_oper_parser, step_child_parser, step_mono_parser]
 
 def findParserMatchingPredicate(predicate, parser_list=all_parsers):
 	for parser in parser_list:
@@ -82,7 +79,7 @@ def makeDictDict():
 def formSolutionString(predicates_list):
 	# one dictionary per predicate type
 	types, operator			= defaultdict(dict), defaultdict(dict)
-	coeff, deg				= defaultdict(makeDictDict), defaultdict(makeDictDict)
+	monom					= defaultdict(makeDefDict)
 	children 				= defaultdict(makeDefDict)
 
 	# parse predicate list for info first
@@ -99,16 +96,10 @@ def formSolutionString(predicates_list):
 		elif field == 'activechild':
 			child = ''.join(data[1:])
 			children[step][node].append(child)
-		elif field == 'coeffof(':
-			term = data[0]
-			coeff_value = data[2]
-			coeff[step][node][term]	= coeff_value
-		elif field == 'degof(':
-			term = data[0]
-			deg_value = data[2]
-			deg[step][node][term]	= deg_value
-		else :
-			continue
+		elif field in '0123456789': 
+			coeff = data[1]
+			deg = field
+			monom[step][node].append((deg, coeff))
 	#print 'types', types, '\n\n'
 	#print 'operator', operator, '\n\n'
 	#print 'mono', mono, '\n\n'
@@ -116,14 +107,14 @@ def formSolutionString(predicates_list):
 	# print 
 	all_steps = []
 	for solve_step in sorted(types.keys()):
-		all_steps.append( str(solve_step) + ': ' + eqnString(types[solve_step], operator[solve_step], coeff[solve_step], deg[solve_step], children[solve_step]))
+		all_steps.append( str(solve_step) + ': ' + eqnString(types[solve_step], operator[solve_step], monom[solve_step], children[solve_step]))
 	return '\n'.join(all_steps) 
 
 
 def formEqnString(predicates_list):
 	# one dictionary per predicate type
 	types, operator			= {}, {} 		# key is node id in all cases
-	coeff, deg				= defaultdict(dict), defaultdict(dict)
+	monom					= defaultdict(list)
 	children 				= defaultdict(list)
 
 	# parse predicate list for info first
@@ -131,31 +122,25 @@ def formEqnString(predicates_list):
 		parser, tokens = findParserMatchingPredicate(predicate)
 		if parser == None or tokens == [] :
 			continue
-		node, field, data = parseNodeAndInfo(tokens)
+		node, field, data, step = parseStepInfo(tokens)
 
 		if field == 'type':
 			types[node] = ''.join(data[1:])
 		elif field == 'operation':
 			operator[node] = ''.join(data[1:])
 		elif field == 'activechild':
-			child = ''.join(data[1:]) 	# avoid leading comma contained in data array
+			child = ''.join(data[1:])
 			children[node].append(child)
-		elif field == 'coeffof(':
-			term = data[0]
-			coeff_value = data[2]
-			coeff[node][term]	= coeff_value
-		elif field == 'degof(':
-			term = data[0]
-			deg_value = data[2]
-			deg[node][term]	= deg_value
-		else :
-			continue
-	return eqnString(types, operator, coeff, deg, children)
+		elif field in '0123456789': 
+			coeff = data[1]
+			deg = field
+			monom[node].append((deg, coeff))
+	return eqnString(types, operator, monom, children)
 
 # form the full equation string given dictionaries with data
-def eqnString(types, operator,coeff, deg, children, in_latex=False):
-	left	= formPolyString(types, operator,coeff, deg, children, 'id(1,1)')
-	right	= formPolyString(types, operator,coeff, deg, children, 'id(1,2)')
+def eqnString(types, operator,monom, children, in_latex=False):
+	left	= formPolyString(types, operator,monom, children, 'id(1,1)')
+	right	= formPolyString(types, operator,monom, children, 'id(1,2)')
 	if in_latex:
 		string =  '$$' + sp.latex( sp.sympify(left, evaluate=False)) + '=' + sp.latex( sp.sympify(right, evaluate=False)) + '$$'
 	else:
@@ -164,25 +149,25 @@ def eqnString(types, operator,coeff, deg, children, in_latex=False):
 	return string
 	
 
-def formPolyString(types, operator, coeff, deg, children, root):
+def formPolyString(types, operator, monom, children, root):
 	if types[root] == 'poly':
-		return '(' + makePolynomial(root, coeff, deg) + ')'
+		return '(' + makePolynomial(root, monom) + ')'
 
 	child_strings = []
 	for child in children[root]:
-		child_strings.append( formPolyString(types, operator, coeff, deg, children, child) )
+		child_strings.append( formPolyString(types, operator, monom, children, child) )
 	return '(' + op_symbols[operator[root]].join(child_strings) + ')'
 
-def makePolynomial(nodeName, coeff, deg):
+def makePolynomial(nodeName, monom):
 	all_terms = []
-	for term in coeff[nodeName].keys():
+	for (deg, coeff) in monom[nodeName]:
 		mono_term = ''
-		if coeff[nodeName][term] == '0':
+		if coeff == '0':
 			mono_term = '0'
-		elif deg[nodeName][term] == '0':
-			mono_term = coeff[nodeName][term]
+		elif deg == '0':
+			mono_term = coeff
 		else:
-			mono_term =  coeff[nodeName][term] + 'x^' + deg[nodeName][term]
+			mono_term =  coeff + 'x^' + deg
 
 		all_terms.append(mono_term)
 	return '+'.join(all_terms)
