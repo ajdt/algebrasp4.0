@@ -246,20 +246,37 @@ _update(Node, _nodeInfo(operation, Op), Step)
 _copyPolyFeaturesToTemp(Poly, Step)
 					:-	_multiplyPolys(Poly, Mono, Step).
 
-_holds(_id(temp, 1,1), _nodeInfo(numterms, Num1*Num2), Step)
-					:-	_multiplyPolys(Poly, Mono, Step),
-						_holds(Poly, _nodeInfo(numterms, Num1), Step),
-						_holds(Mono, _nodeInfo(numterms, Num2), Step).
-
-_holds(_id(temp, 1,1), _nodeInfo(type, poly), Step)
+_holds(_id(temp, 1,1), _nodeInfo(type, oper), Step)
+					:-	_copyPolyFeaturesToTemp(Poly, Step).
+_holds(_id(temp, 1,1), _nodeInfo(operation, add), Step)
 					:-	_copyPolyFeaturesToTemp(Poly, Step).
 _holds(_id(temp, 1,1), _nodeInfo(active, yes), Step)
 					:-	_copyPolyFeaturesToTemp(Poly, Step).
 % isolate monomials degree and coefficient
-_holds(_id(temp, 1, 1), _nodeInfo(Deg1 + Deg2, Coeff1*Coeff2), Step)
+_multByMono(Poly1, Deg2, Coeff2, Step)
 					:-	_multiplyPolys(Poly1, Poly2, Step),
+						_holds(Poly2, _nodeInfo(Deg2, Coeff2), Step),
+						_degree(Deg2).
+
+% remember to update with num children etc
+_holds(_id(temp, 2, Deg2+1), _nodeInfo(Deg1 + Deg2, Coeff1 * Coeff2), Step)
+					:-	_multByMono(Poly1, Deg2, Coeff2, Step),
 						_holds(Poly1, _nodeInfo(Deg1, Coeff1), Step),
-						_holds(Poly2, _nodeInfo(Deg2, Coeff2), Step).
+						_degree(Deg1).
+
+% setup parent/child pointers
+_activateTempNode(PolyNum, Step)
+:-	_multiplyPolys(Poly1, Poly2, Step),
+	_holds(Poly2, _nodeInfo(numterms, Num), Step),
+	PolyNum = 1..Num.
+_holds(_id(temp, 1,1), _treeInfo(activechild, _id(temp, 2, PolyNum)), Step)
+	:-	_activateTempNode(PolyNum, Step).
+_holds(_id(temp, 2,PolyNum), _nodeInfo(active, yes), Step)
+	:-	_activateTempNode(PolyNum, Step).
+_holds(_id(temp, 2,PolyNum), _nodeInfo(type, poly), Step)
+	:-	_activateTempNode(PolyNum, Step).
+
+
 % result is saved in temp,1,1
 % TODO: have to adjust the way terms are multiplied together
 % delete children
@@ -274,8 +291,28 @@ _setResultTo(Poly, Step)
 						_termOf(Root, Poly, Step).
 _deleteChildrenOf(Root, Step)
 					:-	_setResultTo(Root, Step).
+% copying over the entire subtree
 _clearNode(Root, Step)
 					:-	_setResultTo(Root, Step).
+
+_mapResultToLayer(Layer+1, Step)
+					:-	_setResultTo(_id(Layer, Num), Step).
+
+% for efficiency, just map the subtree
+_mapNode(_id(temp, 2, Num), Layer+1, Step)
+					:-	_multiplyPolys(Poly1, Poly2, Step),
+						_holds(Poly2, _nodeInfo(numterms, Terms), Step),
+						Num = 1..Terms,
+						_mapResultToLayer(Layer, Step).
+% copy over all node info as appropriate
+_copyNodeInfo(NewNode, OldNode, Step)
+					:-	_mapto(OldNode, NewNode, Step).
+% copy over parent/child links
+_introduce(Root, _treeInfo(activechild, RegNode), Step)
+					:-	_mapto(TempNode, RegNode, Step),
+						_setResultTo(Root, Step),
+						_holds(_id(temp,1,1), _treeInfo(activechild, TempNode), Step).
+
 _copyNodeInfo(Root, _id(temp, 1,1), Step)
 					:-	_setResultTo(Root, Step).
 

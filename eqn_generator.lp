@@ -129,14 +129,14 @@ _freeNode(Node, Step)	% tempNodes don't count as freeNodes
 				:-	_node(Node),
 					_step(Step),
 					not _tempNode(Node),
-					not _holds(Node, _field(active, yes), Step).
+					not _holds(Node, _nodeInfo(active, yes), Step).
 _freeNode(Node, Step)
 				:-	_deallocated(Node, Step),
 					not _tempNode(Node).
 1 { _mapto(OldNode, NewNode, Step) : _freeNode(NewNode, Step), _layerOf(NewNode, Layer) } 1
 				:-	_mapNode(OldNode, Layer, Step).
 
-:- _freeNode(FreeNode), _step(Step), 2 {_mapto(Node, FreeNode, Step) : _node(Node) }.
+:- _freeNode(FreeNode, Step), _step(Step), 2 {_mapto(Node, FreeNode, Step) : _node(Node) }.
 
 
 #show _initially/2.
