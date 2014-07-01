@@ -266,7 +266,11 @@ _holds(_id(temp, 2, Deg2+1), _nodeInfo(Deg1 + Deg2, Coeff1 * Coeff2), Step)
 						_holds(Poly2, _nodeInfo(Deg2, Coeff2), Step),
 						_degree(Deg2),
 						_holds(Poly1, _nodeInfo(Deg1, Coeff1), Step),
-						_degree(Deg1).
+						_degree(Deg1),
+						_coeff(Coeff1 * Coeff2),
+						_degree(Deg1 + Deg2),
+						not _tempNode(Poly1),
+						not _tempNode(Poly2).
 % set term count for each polynomial
 _holds(_id(temp, 2, Poly), _nodeInfo(numterms, NumMonoms), Step)
 					:-	_multiplyPolys(Poly1, Poly2, Step),
@@ -318,6 +322,70 @@ _mapNode(_id(temp, 2, Num), Layer+1, Step)
 						_holds(Poly2, _nodeInfo(numterms, Terms), Step),
 						Num = 1..Terms,
 						_mapResultToLayer(Layer, Step).
+
+
+_hasFactors(Poly, DCoeff, ECoeff, Step)
+					:-	_isQuadratic(Poly, Step),
+						_linearMonom(Poly, BCoeff, Step),
+						_constMonom(Poly, CCoeff, Step),
+						_coeff(DCoeff),
+						_coeff(ECoeff),
+						BCoeff == DCoeff + ECoeff,
+						CCoeff == DCoeff * ECoeff,
+						_coeff(BCoeff),
+						_coeff(CCoeff).
+_isFactorable(Poly, Step)
+				:-	_hasFactors(Poly, DCoeff, ECoeff, Step).
+%		factoring a quadratic
+_factorsOfPoly(Poly, DCoeff, ECoeff, Step)
+					:-	_factorPoly(Poly, Step),
+						_hasFactors(Poly, DCoeff, ECoeff, Step).
+
+% set temp root to product of binomials
+_tempRootToMul(Step)
+					:-	_factorPoly(Poly, Step).
+
+% temp root is sum of several standard polynomials
+_holds(_id(temp, 1,1), _nodeInfo(type, oper), Step)
+					:-	_factorPoly(Poly, Step).
+_holds(_id(temp, 1,1), _nodeInfo(operation, mul), Step)
+					:-	_factorPoly(Poly, Step).
+_holds(_id(temp, 1,1), _nodeInfo(active, yes), Step)
+					:-	_factorPoly(Poly, Step).
+_holds(_id(temp, 1,1), _nodeInfo(numchildren, 2), Step)
+					:-	_factorPoly(Poly, Step).
+_setStdPoly(_id(temp, 2, 1), DCoeff, Step)
+					:-	_factorsOfPoly(Poly, ECoeff, DCoeff, Step).
+_setStdPoly(_id(temp, 2, 2), ECoeff, Step)
+					:-	_factorsOfPoly(Poly, ECoeff, DCoeff, Step).
+_holds(Node, _nodeInfo(0, Coeff), Step)
+					:-	_setStdPoly(Node, Coeff, Step).
+_setToPoly(Node, Step)
+					:-	_setStdPoly(Node, Coeff, Step).
+_holds(Node, _nodeInfo(1, 1), Step)
+					:-	_setToPoly(Node, Step).
+
+_holds(Node, _nodeInfo(type, poly), Step)
+					:-	_setToPoly(Node, Step).
+_holds(Node, _nodeInfo(active, yes), Step)
+					:-	_setToPoly(Node, Step).
+_holds(Node, _nodeInfo(numterms, 2), Step)
+					:-	_setToPoly(Node, Step).
+
+% set the parent/child pointers
+_holds(_id(temp, 1,1), _treeInfo(activechild, _id(temp, 2, ChildNo)), Step)
+					:-	_factorPoly(Poly, Step),
+						ChildNo = 1..2.
+% map the nodes. NOTE: This is a good bit of code to DRY up
+_mapNode(_id(temp, 2, ChildNo), Layer+1, Step)
+					:-	_factorPoly(Poly, Step),
+						_layerOf(Poly, Layer),
+						ChildNo = 1..2.
+% copy over the factored form
+_setResultTo(Poly, Step)
+					:-	_factorPoly(Poly, Step).
+
+
 % copy over all node info as appropriate
 _copyNodeInfo(NewNode, OldNode, Step)
 					:-	_mapto(OldNode, NewNode, Step).
@@ -329,4 +397,7 @@ _introduce(Root, _treeInfo(activechild, RegNode), Step)
 
 _copyNodeInfo(Root, _id(temp, 1,1), Step)
 					:-	_setResultTo(Root, Step).
-
+#show _mapto/3.
+#show _mapNode/3.
+#show _setToPoly/2.
+#show _setStdPoly/3.
