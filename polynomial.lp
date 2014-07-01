@@ -46,6 +46,7 @@ _isBinomial(Poly, Step)	:-	_holds(Poly, _nodeInfo(numterms, 2), Step).
 _isTrinomial(Poly, Step)	:-	_holds(Poly, _nodeInfo(numterms, 3), Step).
 
 _hasTermWithDeg(Poly, Deg, Step)	:-	_holds(Poly, _nodeInfo(Deg, Coeff), Step),
+										_degree(Deg),
 										Coeff != 0.
 _hasHighDegreeTerms(Poly, Step)	:-	_hasTermWithDeg(Poly, Deg, Step),
 									Deg > 3.
@@ -76,6 +77,14 @@ _isZeroDegree(Poly, Step)	:-	not _hasHighDegreeTerms(Poly, Step),
 								_hasTermWithDeg(Poly, 0, Step).
 
 _numTerms(Poly, Num, Step)	:-	_holds(Poly, _nodeInfo(numterms, Num), Step). 
+
+% terms
+_squareMonom(Poly, Coeff, Step)
+							:-	_holds(Poly, _nodeInfo(2, Coeff), Step).
+_linearMonom(Poly, Coeff, Step)
+							:-	_holds(Poly, _nodeInfo(1, Coeff), Step).
+_constMonom(Poly, Coeff, Step)
+							:-	_holds(Poly, _nodeInfo(0, Coeff), Step).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% DEFINED POLYNOMIAL CONSTANTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 _introduce(Node, _nodeInfo(type, poly), Step)
