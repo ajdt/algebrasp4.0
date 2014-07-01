@@ -122,7 +122,7 @@ def formEqnString(predicates_list):
 		parser, tokens = findParserMatchingPredicate(predicate)
 		if parser == None or tokens == [] :
 			continue
-		node, field, data, step = parseStepInfo(tokens)
+		node, field, data = parseNodeAndInfo(tokens)
 
 		if field == 'type':
 			types[node] = ''.join(data[1:])
