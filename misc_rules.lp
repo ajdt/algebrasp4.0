@@ -135,12 +135,13 @@ ruleParam(distribute, degree, 0)
 				_isLinear(RightTerm).
 
 %================================================================================
-% group terms (ax^2 + bx + c) --> (x + e) * (x + d)
+% factor (ax^2 + bx + c) --> (x + e) * (x + d)
 %================================================================================
 _applicable(_action(factor, _data(Poly)), Step)
 			:-	_isQuadratic(Poly, Step),
 				_squareMonom(Poly, ACoeff, Step),
 				_isFactorable(Poly, Step),
+				ACoeff ==1,
 				ACoeff <=5,
 				ACoeff >= - 5,
 				_linearMonom(Poly, BCoeff, Step),

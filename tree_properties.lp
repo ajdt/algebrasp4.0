@@ -337,9 +337,9 @@ _hasFactors(Poly, DCoeff, ECoeff, Step)
 _isFactorable(Poly, Step)
 				:-	_hasFactors(Poly, DCoeff, ECoeff, Step).
 %		factoring a quadratic
-_factorsOfPoly(Poly, DCoeff, ECoeff, Step)
-					:-	_factorPoly(Poly, Step),
-						_hasFactors(Poly, DCoeff, ECoeff, Step).
+1 { _factorsOfPoly(Poly, DCoeff, ECoeff, Step) : _hasFactors(Poly, DCoeff, ECoeff, Step) } 1
+					:-	_factorPoly(Poly, Step).
+						
 
 % set temp root to product of binomials
 _tempRootToMul(Step)
