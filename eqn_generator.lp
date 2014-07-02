@@ -15,8 +15,8 @@
 
 % I don't want these constants to be changed, so they're not in gen_param.lp
 #const numLayers 	=	5.
-#const maxChildren	=	3.	% limit on children of operator nodes
-#const maxDepth		=	2.	% limits number of layers used during generation
+#const maxChildren	=	2.	% limit on children of operator nodes
+#const maxDepth		=	1.	% limits number of layers used during generation
 
 #const right_side	= _id(1,2).	% useful aliases for left/right used by rule files
 #const left_side 	= _id(1,1).
@@ -97,7 +97,7 @@ _initially(Parent, _treeInfo(activechild, Child))
 _initially(Child, _nodeInfo(active,yes))	:-	_initially(Parent, _treeInfo(activechild, Child)).
 
 										% GENERATE POLYNOMIALS
-_numPolyTerms(1..2).
+_numPolyTerms(1..3).
 _maxNumPolyTerms(1..9).
 % NOTE: degree and leading coef are decided here, so that we can create leadingCoef, and degree predicates for 
 % poly nodes if necessary
