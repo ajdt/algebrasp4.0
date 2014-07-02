@@ -86,11 +86,11 @@ _replaceWith(LeftTerm, OtherRightTerm, Step)
 				_termOf(Right, OtherRightTerm, Step),
 				OtherRightTerm != RightTerm.
 % change lhs operation to add
-_changeNodeOp(Left, add, Step)
+_changeOperator(Left, add, Step)
 			:-	_doAction(_action(factorCommTerm, _data(LeftTerm, RightTerm)), Step),
 				_termOf(Left, LeftTerm, Step).
 % change root op to mul
-_changeNodeOp(Root, mul, Step)
+_changeOperator(Root, mul, Step)
 			:-	_doAction(_action(factorCommTerm, _data(LeftTerm, RightTerm)), Step),
 				_termOf(Left, LeftTerm, Step),
 				_termOf(Root, Left, Step).

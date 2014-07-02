@@ -31,7 +31,7 @@ _applicable(_action(fracDiv, _data(RootFrac, DenomFrac)), Step)
 %	performing action
 _swapNumerDenom(DenomFrac, Step)
 			:-	_doAction(_action(fracDiv, _data(RootFrac, DenomFrac)), Step).
-_convertDivToMul(RootFrac, Step)
+_changeOperator(RootFrac, mul, Step)
 			:-	_doAction(_action(fracDiv, _data(RootFrac, DenomFrac)), Step).
 
 
@@ -48,16 +48,16 @@ _applicable(_action(multFrac, _data(LeftFrac, RightFrac)), Step)
 				_numSubExpressions(RootMul, 2, Step).
 
 %	performing action
-_mulToDiv(RootExpr, LeftFrac, RightFrac, Step)
+_changeToDiv(RootExpr, LeftFrac, RightFrac, Step)
 			:-	_doAction(_action(multFrac, _data(LeftFrac, RightFrac)), Step),
 				_termOf(RootExpr, LeftFrac, Step).
 _swapTerms(LeftDenom, RightNumer, Step)
 			:-	_doAction(_action(multFrac, _data(LeftFrac, RightFrac)), Step),
 				_denomOf(LeftFrac, LeftDenom, Step),
 				_numerOf(RightFrac, RightNumer, Step).
-_convertDivToMul(LeftFrac, Step)
+_changeOperator(LeftFrac, mul, Step)
 			:-	_doAction(_action(multFrac, _data(LeftFrac, RightFrac)), Step).
-_convertDivToMul(RightFrac, Step)
+_changeOperator(RightFrac, mul, Step)
 			:-	_doAction(_action(multFrac, _data(LeftFrac, RightFrac)), Step).
 :- not action(multFrac).
 :- action(Name), Name != multFrac.

@@ -89,56 +89,64 @@ _cancelTerm(Term, Step)
 					:-	_cancelTerm(Expr, Term, Step),
 						_node(Term).
 _applyNodeOp(Term, delete, Step)	
-					:-	_cancelTerm(Term, Step).	% TODO: want both versions of cancelTerm for now 
+					:-	_cancelTerm(Term, Step).	% want both versions of cancelTerm for now 
 
 
-% swap node (shallow copy of nodes)
+					% Copying a Node
+_introduce(Copy, Info, Step)
+					:-	_shallowCopy(Copy, Orig, Step),
+						_holds(Orig, Info, Step).
+_applyNodeOp(Copy, clear, Step)
+					:-	_shallowCopy(Copy, Orig, Step),
+% copying just nodeInfo
+_introduce(Copy, _nodeInfo(X,Y), Step)
+					:-	_copyNodeInfo(Copy, Orig, Step),
+						_holds(Orig, _nodeInfo(X,Y), Step).
+% swap nodes (nodes become shallow copies of each other)
 _shallowCopy(Node1, Node2, Step)
 					:-	_swapTerms(Node1, Node2, Step).
 _shallowCopy(Node2, Node1, Step)
 					:-	_swapTerms(Node1, Node2, Step).
-_update(Copy, Info, Step)
-					:-	_shallowCopy(Copy, ToCopy, Step),
-						_holds(ToCopy, Info, Step).
-
-
-% activateNode
-_introduce(Node, _nodeInfo(active, yes), Step)
-					:-	_activate(Node, Step).
-
-% copying a polynomial node
-_introduce(Copy, _nodeInfo(X,Y), Step)
-					:-	_copyNodeInfo(Copy, Orig, Step),
-						_holds(Orig, _nodeInfo(X,Y), Step).
 
 
 							%				CHANGE NODE OPERATOR
-% mul node to div node
+% change node operator
+_update(Node, _nodeInfo(operation, Oper), Step)
+					:-	_changeOperator(Node, Oper, Step),
+						_holds(Node, _nodeInfo(type, oper), Step).
+
+_transformToOper(Node, Oper, Step)
+					:-	_changeOperator(Node, Oper, Step),
+						not _holds(Node, _nodeInfo(type, oper), Step).
+
+% changing to div requires providing numer and denom fields too
+_changeOperator(Node, div, Step)
+					:-	_changeToDiv(Node, Numer, Denom, Step).
 _introduce(Node, _nodeInfo(numer, Numer), Step)
-					:-	_mulToDiv(Node, Numer, Denom, Step).
+					:-	_changeToDiv(Node, Numer, Denom, Step).
 _introduce(Node, _nodeInfo(denom, Denom), Step)
-					:-	_mulToDiv(Node, Numer, Denom, Step).
-_update(Node, _nodeInfo(operation, div), Step)
-					:-	_mulToDiv(Node, Numer, Denom, Step).
-_update(DivNode, _nodeInfo(operation, mul), Step)
-					:-	_convertDivToMul(DivNode, Step).
-_removeFracFields(DivNode, Step)
-					:-	_convertDivToMul(DivNode, Step).
+					:-	_changeToDiv(Node, Numer, Denom, Step).
+
+% removing fractional fields, if necessary
+_removeFracFields(Node, Step)
+					:-	_changeOperator(Node, Oper, Step),
+						_holds(Node, _nodeInfo(operation, div), Step).
+
 _remove(DivNode, _nodeInfo(numer, X), Step)
 					:-	_removeFracFields(DivNode, Step),
 						_holds(DivNode, _nodeInfo(numer, X), Step).
 _remove(DivNode, _nodeInfo(denom, X), Step)
 					:-	_removeFracFields(DivNode, Step),
 						_holds(DivNode, _nodeInfo(denom, X), Step).
+
+% convert non-operator node to operator
+% note: only clears node, doesn't delete any children, doesn't initialize with childcount
 _applyNodeOp(Term1, clear, Step)
-					:-	_makeProdNode(Term1, Step).
+					:-	_transformToOper(Node, Oper, Step).
 _introduce(Term1, _nodeInfo(type, oper), Step)
-					:-	_makeProdNode(Term1, Step).
-_introduce(Term1, _nodeInfo(operation, mul), Step)
-					:-	_makeProdNode(Term1, Step).
-% change node operation
-_update(Node, _nodeInfo(operation, Op), Step)
-					:-	_changeNodeOp(Node, Op, Step).
+					:-	_transformToOper(Node, Oper, Step).
+_introduce(Term1, _nodeInfo(operation, Oper), Step)
+					:-	_transformToOper(Node, Oper, Step).
 
 
 							%				RULE HELPERS
@@ -168,13 +176,13 @@ _copyNodeInfo(NewTerm, Term, Step)
 
 _applyNodeOp(Term2, delete, Step)
 					:-	_groupTerms(Term1, Term2, Step).
-_makeProdNode(Term1, Step)
+_changeOperator(Term1, mul, Step)
 					:-	_groupTerms(Term1, Term2, Step).
 % initialize new fields for Term1
 _introduce(Term1, _nodeInfo(numchildren, 2), Step)
-					:-	_makeProdNode(Term1, Step).
+					:-	_changeOperator(Term1, mul, Step).
 _introduce(Term1, _treeInfo(activechild, NewTerm), Step)
-					:-	_makeProdNode(Term1, Step),
+					:-	_changeOperator(Term1, mul, Step),
 						_mapto(Term1, NewTerm, Step).
 _introduce(Term1, _treeInfo(activechild, NewTerm), Step)
 					:-	_groupTerms(Term1, Term2, Step),
