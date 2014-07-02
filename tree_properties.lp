@@ -28,25 +28,30 @@ _canGrowTreeFromNode(_id(Layer, Number), Step)
 % NOTE: deleteMonomialOnly does not update numterms; useful if multiple deletes occur 
 % leading to multiple updatesto numterms (and a race condition)
 _remove(Polynomial, _nodeInfo(Deg, Coeff), Step)
-					:-	_deleteMonomialOnly(Polynomial, Deg, Step),
+					:-	_deleteMonomial(Polynomial, Deg, Step),
+						_degree(Deg), _coeff(Coeff),
 						_holds(Polynomial, _nodeInfo(Deg, Coeff), Step).
 
-_deleteMonomialOnly(Poly, Mono, Step)	:-	_deleteMonomial(Poly, Mono, Step).
-
 % update the number of terms
-_update(Poly, _nodeInfo(numterms, NumTerms - 1), Step)
-					:-	_deleteMonomial(Poly, Mono, Step),
+_update(Poly, _nodeInfo(numterms, NumTerms + Delta), Step)
+					:-	_changeNumTerms(Poly, Delta, Step),
+						Delta <= 5, % TODO: turn these into consts
+						Delta >= -5,
 						_holds(Poly, _nodeInfo(numterms, NumTerms), Step).
 
 % canceling a term
+_deleteMonomial(Poly, Term, Step)		
+					:-	_cancelTerm(Poly, Term, Step),
+						not _node(Term).
+_changeNumTerms(Poly, -1, Step)	% update the number of terms
+					:-	_cancelTerm(Poly, Term, Step),
+						not _node(Term).
+
 _deleteNode(Term, Step)	
 					:-	_cancelTerm(Expr, Term, Step),
 						_node(Term).
 _deleteNode(Term, Step)	
 					:-	_cancelTerm(Term, Step).	% TODO: want both versions of cancelTerm for now 
-_deleteMonomial(Poly, Term, Step)		
-					:-	_cancelTerm(Poly, Term, Step),
-						not _node(Term).
 
 % deleting a node means to remove all parent pointers, and the entire subtree rooted at that node
 % to remove node properties use _clearNode(...)
