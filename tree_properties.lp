@@ -275,6 +275,21 @@ _tempResult(Node, _nodeInfo(type, oper), Step)
 					:-	_initTempAsOper(Node, Step).
 _tempResult(Node, _nodeInfo(active, yes), Step) 
 					:-	_initTempAsOper(Node, Step).
+% setting a temp node to a polynomial
+_tempResult(Node, _nodeInfo(type, poly), Step)
+					:-	_tempToPoly(Node, Step).
+_tempResult(Node, _nodeInfo(active, yes), Step)
+					:-	_tempToPoly(Node, Step).
+_tempResult(Node, _nodeInfo(active, yes), Step)
+					:-	_tempToPoly(Node, Step).
+
+% setting temp node to a binomial
+_tempResult(Node, _nodeInfo(0, Coeff), Step)
+					:-	_tempToBinomial(Node, Coeff, Step).
+_tempResult(Node, _nodeInfo(1, 1), Step)
+					:-	_tempToBinomial(Node, Coeff, Step).
+_tempToPoly(Node, Step)
+					:-	_tempToBinomial(Node, Coeff, Step).
 
 				% Arithmetic Operations
 
@@ -343,38 +358,17 @@ _isFactorable(Poly, Step)
 1 { _factorsOfPoly(Poly, DCoeff, ECoeff, Step) : _hasFactors(Poly, DCoeff, ECoeff, Step) } 1
 					:-	_factorPoly(Poly, Step).
 						
-
 % set temp root to product of binomials
-% TODO: use existing predicates to convert to mul node!
-_tempRootToMul(Step)
-					:-	_factorPoly(Poly, Step).
-
-% temp root is sum of several standard polynomials
-_tempResult(_id(temp, 1,1), _nodeInfo(type, oper), Step)
-					:-	_factorPoly(Poly, Step).
-_tempResult(_id(temp, 1,1), _nodeInfo(operation, mul), Step)
-					:-	_factorPoly(Poly, Step).
-_tempResult(_id(temp, 1,1), _nodeInfo(active, yes), Step)
+_setTempOper(_id(temp, 1,1), mul, Step)
 					:-	_factorPoly(Poly, Step).
 _tempResult(_id(temp, 1,1), _nodeInfo(numchildren, 2), Step)
 					:-	_factorPoly(Poly, Step).
-_setStdPoly(_id(temp, 2, 1), DCoeff, Step)
-					:-	_factorsOfPoly(Poly, ECoeff, DCoeff, Step).
-_setStdPoly(_id(temp, 2, 2), ECoeff, Step)
-					:-	_factorsOfPoly(Poly, ECoeff, DCoeff, Step).
-_tempResult(Node, _nodeInfo(0, Coeff), Step)
-					:-	_setStdPoly(Node, Coeff, Step).
-_setToPoly(Node, Step)
-					:-	_setStdPoly(Node, Coeff, Step).
-_tempResult(Node, _nodeInfo(1, 1), Step)
-					:-	_setToPoly(Node, Step).
 
-_tempResult(Node, _nodeInfo(type, poly), Step)
-					:-	_setToPoly(Node, Step).
-_tempResult(Node, _nodeInfo(active, yes), Step)
-					:-	_setToPoly(Node, Step).
-_tempResult(Node, _nodeInfo(numterms, 2), Step)
-					:-	_setToPoly(Node, Step).
+% set two temp nodes to be the first deg binomials of factored form 
+_tempToBinomial(_id(temp, 2, 1), DCoeff, Step)
+					:-	_factorsOfPoly(Poly, ECoeff, DCoeff, Step).
+_tempToBinomial(_id(temp, 2, 2), ECoeff, Step)
+					:-	_factorsOfPoly(Poly, ECoeff, DCoeff, Step).
 
 % set the parent/child pointers
 _tempResult(_id(temp, 1,1), _treeInfo(activechild, _id(temp, 2, ChildNo)), Step)
@@ -406,5 +400,5 @@ _update(Poly, _nodeInfo(2, 1), Step)				% fix this later
 					:-	_dividePolyBy(Poly, ACoeff, Step).
 #show _mapto/3.
 #show _mapNode/3.
-#show _setToPoly/2.
-#show _setStdPoly/3.
+#show _tempToPoly/2.
+#show _tempToBinomial/3.
