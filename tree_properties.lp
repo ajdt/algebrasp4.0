@@ -104,7 +104,7 @@ _introduce(Copy, _nodeInfo(X,Y), Step)
 						_holds(Orig, _nodeInfo(X,Y), Step).
 % copying nodeInfo from temp node
 _introduce(Copy, _nodeInfo(X,Y), Step)
-					:-	_copyTempInfo(Copy, Orig, Step),
+					:-	_copyNodeInfo(Copy, Orig, Step),
 						_tempResult(Orig, _nodeInfo(X,Y), Step).
 % swap nodes (nodes become shallow copies of each other)
 _shallowCopy(Node1, Node2, Step)
@@ -387,7 +387,7 @@ _setResultTo(Poly, Step)
 
 
 % copy over all node info as appropriate
-_copyTempInfo(NewNode, OldNode, Step)
+_copyNodeInfo(NewNode, OldNode, Step)
 					:-	_mapto(OldNode, NewNode, Step).
 % copy over parent/child links
 _introduce(Root, _treeInfo(activechild, RegNode), Step)
@@ -395,7 +395,7 @@ _introduce(Root, _treeInfo(activechild, RegNode), Step)
 						_setResultTo(Root, Step),
 						_tempResult(_id(temp,1,1), _treeInfo(activechild, TempNode), Step).
 
-_copyTempInfo(Root, _id(temp, 1,1), Step)
+_copyNodeInfo(Root, _id(temp, 1,1), Step)
 					:-	_setResultTo(Root, Step).
 
 _update(Poly, _nodeInfo(2, 1), Step)				% fix this later
