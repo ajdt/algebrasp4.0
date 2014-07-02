@@ -229,6 +229,17 @@ _introduce(Node, _treeInfo(activechild, NewRoot))
 					:-	_shiftDownSubtree(Node, Step),
 						_mapto(Node, NewRoot, Step).
 
+% copy over all node info as appropriate
+_copyNodeInfo(NewNode, OldNode, Step)
+					:-	_mapto(OldNode, NewNode, Step).
+% copy over parent/child links
+_introduce(Root, _treeInfo(activechild, RegNode), Step)
+					:-	_mapto(TempNode, RegNode, Step),
+						_setResultTo(Root, Step),
+						_tempResult(_id(temp,1,1), _treeInfo(activechild, TempNode), Step).
+
+_copyNodeInfo(Root, _id(temp, 1,1), Step)
+					:-	_setResultTo(Root, Step).
 					% MULTIPLY POLYNOMIALS 
 % setup parent/child pointers
 _activateTempNode(PolyNum, Step)
@@ -383,18 +394,6 @@ _mapNode(_id(temp, 2, ChildNo), Layer+1, Step)
 _setResultTo(Poly, Step)
 					:-	_factorPoly(Poly, Step).
 
-
-% copy over all node info as appropriate
-_copyNodeInfo(NewNode, OldNode, Step)
-					:-	_mapto(OldNode, NewNode, Step).
-% copy over parent/child links
-_introduce(Root, _treeInfo(activechild, RegNode), Step)
-					:-	_mapto(TempNode, RegNode, Step),
-						_setResultTo(Root, Step),
-						_tempResult(_id(temp,1,1), _treeInfo(activechild, TempNode), Step).
-
-_copyNodeInfo(Root, _id(temp, 1,1), Step)
-					:-	_setResultTo(Root, Step).
 
 _update(Poly, _nodeInfo(2, 1), Step)				% fix this later
 					:-	_dividePolyBy(Poly, ACoeff, Step).
