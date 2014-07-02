@@ -22,6 +22,19 @@ _canGrowTreeFromNode(_id(Layer, Number), Step)
 
 
 							%				NODE OPERATIONS
+_nodeOper(delete;deallocate;allocate;clear).
+
+_applyNodeOp(Node, Op, Step)
+					:-	_applyNodeOpRecursive(Node, Op, Step).
+_applyNodeOpRecursive(Child, Op, Step)
+					:-	_applyNodeOpRecursive(Node, Op, Step),
+						_termOf(Node, Child, Step).
+
+_remove(Node, Info, Step)	% clearing a node
+					:-	_applyNodeOp(Node, clear, Step),
+						_holds(Node, Info, Step).
+_introduce(Node, _nodeInfo(active, yes), Step)		% cleared node is still active
+					:-	_applyNodeOp(Node, clear, Step).
 
 % deleting a monomial
 % 
@@ -92,17 +105,6 @@ _update(Copy, Info, Step)
 						_holds(ToCopy, Info, Step).
 
 
-% clear a node's values
-_remove(Node, Info, Step)
-					:-	_clearNode(Node, Step),
-						_holds(Node, Info, Step).
-_introduce(Node, _nodeInfo(active, yes), Step)		% cleared node is still active
-					:-	_clearNode(Node, Step).
-_clearNode(Node, Step)
-					:- _clearRecursive(Node, Step).
-_clearRecursive(Child, Step)
-					:-	_clearRecursive(Node, Step),
-						_holds(Node, _nodeInfo(activechild, Child), Step).
 % activateNode
 _introduce(Node, _nodeInfo(active, yes), Step)
 					:-	_activate(Node, Step).
@@ -131,7 +133,7 @@ _remove(DivNode, _nodeInfo(numer, X), Step)
 _remove(DivNode, _nodeInfo(denom, X), Step)
 					:-	_removeFracFields(DivNode, Step),
 						_holds(DivNode, _nodeInfo(denom, X), Step).
-_clearNode(Term1, Step)
+_applyNodeOp(Term1, clear, Step)
 					:-	_makeProdNode(Term1, Step).
 _introduce(Term1, _nodeInfo(type, oper), Step)
 					:-	_makeProdNode(Term1, Step).
@@ -146,7 +148,7 @@ _update(Node, _nodeInfo(operation, Op), Step)
 % setToOne
 _deleteChildrenOf(Node, Step)
 					:-	_setToOne(Node, Step).
-_clearNode(Node, Step)	
+_applyNodeOp(Node, clear, Step)	
 					:-	_setToOne(Node, Step).
 _setToUnitPoly(Node, Step)	% defined in polynomial class
 					:-	_setToOne(Node, Step).
@@ -209,7 +211,7 @@ _copyMappedSubtree(Child, Step)
 % moving a subtree down
 _deleteChildrenOf(Node, Step)
 					:-	_shiftDownSubtree(Node, Step).
-_clearNode(Node, Step)
+_applyNodeOp(Node, clear, Step)
 					:-	_shiftDownSubtree(Node, Step).
 % move subtree down, 
 _mapNodeRec(Node, Layer + 1, Step)
@@ -234,7 +236,7 @@ _holds(_id(temp, 2,PolyNum), _nodeInfo(type, poly), Step)
 	:-	_activateTempNode(PolyNum, Step).
 
 % copying over the entire subtree
-_clearNode(Root, Step)
+_applyNodeOp(Root, clear, Step)
 					:-	_setResultTo(Root, Step).
 
 _mapResultToLayer(Layer+1, Step)

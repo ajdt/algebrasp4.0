@@ -29,7 +29,7 @@ _applicable(_action(numerSimp, _data(left_side)), Step)
 				_isPolynomial(Numer, Step).
 
 % assumes that fraction is poly/poly
-_clearNode(FracRoot, Step)
+_applyNodeOp(FracRoot, clear, Step)
 			:-	_doAction(_action(numerSimp, _data(FracRoot)), Step).
 _copyNodeInfo(FracRoot, Numer, Step)
 			:-	_doAction(_action(numerSimp, _data(FracRoot)), Step),
@@ -68,14 +68,14 @@ _applicable(_action(factorCommTerm, _data(LeftTerm, RightTerm)), Step)
 				_isPolynomial(RightTerm, Step).
 
 % TODO: actions must be revised, to copy arbitrary subtrees later on
-_clearNode(LeftTerm, Step)
+_applyNodeOp(LeftTerm, clear, Step)
 			:-	_doAction(_action(factorCommTerm, _data(LeftTerm, RightTerm)), Step).
 _deleteNode(RightTerm, Step)
 			:-	_doAction(_action(factorCommTerm, _data(LeftTerm, RightTerm)), Step).
 _replaceWith(Right, RightTerm, Step)
 			:-	_doAction(_action(factorCommTerm, _data(LeftTerm, RightTerm)), Step),
 				_termOf(Right, RightTerm, Step).
-_clearNode(Copy, Step)
+_applyNodeOp(Copy, clear, Step)
 			:-	_replaceWith(Copy, Orig, Step).
 _copyNodeInfo(Copy, Orig, Step)
 			:-	_replaceWith(Copy, Orig, Step).
