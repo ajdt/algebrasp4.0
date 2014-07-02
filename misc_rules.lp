@@ -34,7 +34,7 @@ _applyNodeOp(FracRoot, clear, Step)
 _copyNodeInfo(FracRoot, Numer, Step)
 			:-	_doAction(_action(numerSimp, _data(FracRoot)), Step),
 				_numerOf(FracRoot, Numer, Step).
-_deleteNode(Denom, Step)
+_applyNodeOp(Denom, delete, Step)
 			:-	_doAction(_action(numerSimp, _data(FracRoot)), Step),
 				_denomOf(FracRoot, Denom, Step).
 			% features for rule
@@ -70,7 +70,7 @@ _applicable(_action(factorCommTerm, _data(LeftTerm, RightTerm)), Step)
 % TODO: actions must be revised, to copy arbitrary subtrees later on
 _applyNodeOp(LeftTerm, clear, Step)
 			:-	_doAction(_action(factorCommTerm, _data(LeftTerm, RightTerm)), Step).
-_deleteNode(RightTerm, Step)
+_applyNodeOp(RightTerm, delete, Step)
 			:-	_doAction(_action(factorCommTerm, _data(LeftTerm, RightTerm)), Step).
 _replaceWith(Right, RightTerm, Step)
 			:-	_doAction(_action(factorCommTerm, _data(LeftTerm, RightTerm)), Step),
