@@ -21,8 +21,7 @@ _canGrowTreeFromNode(_id(Layer, Number), Step)
 					:-	_node(_id(Layer, Number)), Layer <= maxDepth, _step(Step).
 
 
-							%				TREE OPERATIONS
-% possible operations
+							%				NODE OPERATIONS
 
 % deleting a monomial
 % 
@@ -116,21 +115,24 @@ _clearNode(Node, Step)
 _clearRecursive(Child, Step)
 					:-	_clearRecursive(Node, Step),
 						_holds(Node, _nodeInfo(activechild, Child), Step).
-% setToOne
-_deleteChildrenOf(Node, Step)
-					:-	_setToOne(Node, Step).
-_clearNode(Node, Step)	
-					:-	_setToOne(Node, Step).
-_setToUnitPoly(Node, Step)	% defined in polynomial class
-					:-	_setToOne(Node, Step).
 % activateNode
 _introduce(Node, _nodeInfo(active, yes), Step)
 					:-	_activate(Node, Step).
-% swap numerator and denom
-_swapTerms(Numer, Denom, Step)
-					:-	_swapNumerDenom(Frac, Step),
-						_numerOf(Frac, Numer, Step),
-						_denomOf(Frac, Denom, Step).
+
+% copying a polynomial node
+_introduce(Copy, _nodeInfo(X,Y), Step)
+					:-	_copyNodeInfo(Copy, Orig, Step),
+						_holds(Orig, _nodeInfo(X,Y), Step).
+
+
+							%				CHANGE NODE OPERATOR
+% mul node to div node
+_introduce(Node, _nodeInfo(numer, Numer), Step)
+					:-	_mulToDiv(Node, Numer, Denom, Step).
+_introduce(Node, _nodeInfo(denom, Denom), Step)
+					:-	_mulToDiv(Node, Numer, Denom, Step).
+_update(Node, _nodeInfo(operation, div), Step)
+					:-	_mulToDiv(Node, Numer, Denom, Step).
 _update(DivNode, _nodeInfo(operation, mul), Step)
 					:-	_convertDivToMul(DivNode, Step).
 _removeFracFields(DivNode, Step)
@@ -141,15 +143,31 @@ _remove(DivNode, _nodeInfo(numer, X), Step)
 _remove(DivNode, _nodeInfo(denom, X), Step)
 					:-	_removeFracFields(DivNode, Step),
 						_holds(DivNode, _nodeInfo(denom, X), Step).
-% mul node to div node
-_introduce(Node, _nodeInfo(numer, Numer), Step)
-					:-	_mulToDiv(Node, Numer, Denom, Step).
-_introduce(Node, _nodeInfo(denom, Denom), Step)
-					:-	_mulToDiv(Node, Numer, Denom, Step).
-_update(Node, _nodeInfo(operation, div), Step)
-					:-	_mulToDiv(Node, Numer, Denom, Step).
+_clearNode(Term1, Step)
+					:-	_makeProdNode(Term1, Step).
+_introduce(Term1, _nodeInfo(type, oper), Step)
+					:-	_makeProdNode(Term1, Step).
+_introduce(Term1, _nodeInfo(operation, mul), Step)
+					:-	_makeProdNode(Term1, Step).
+% change node operation
+_update(Node, _nodeInfo(operation, Op), Step)
+					:-	_changeNodeOp(Node, Op, Step).
 
 
+							%				RULE HELPERS
+% setToOne
+_deleteChildrenOf(Node, Step)
+					:-	_setToOne(Node, Step).
+_clearNode(Node, Step)	
+					:-	_setToOne(Node, Step).
+_setToUnitPoly(Node, Step)	% defined in polynomial class
+					:-	_setToOne(Node, Step).
+% swap numerator and denom
+_swapTerms(Numer, Denom, Step)
+					:-	_swapNumerDenom(Frac, Step),
+						_numerOf(Frac, Numer, Step),
+						_denomOf(Frac, Denom, Step).
+% group terms
 _mapDownAndCopy(Term1, Step)
 					:-	_groupTerms(Term1, Term2, Step).
 _mapDownAndCopy(Term2, Step)
@@ -161,21 +179,10 @@ _copyNodeInfo(NewTerm, Term, Step)
 					:-	_mapDownAndCopy(Term, Step),
 						_mapto(Term, NewTerm, Step).
 
-% copying a polynomial node
-_introduce(Copy, _nodeInfo(X,Y), Step)
-					:-	_copyNodeInfo(Copy, Orig, Step),
-						_holds(Orig, _nodeInfo(X,Y), Step).
-
 _deleteNode(Term2, Step)
 					:-	_groupTerms(Term1, Term2, Step).
 _makeProdNode(Term1, Step)
 					:-	_groupTerms(Term1, Term2, Step).
-_clearNode(Term1, Step)
-					:-	_makeProdNode(Term1, Step).
-_introduce(Term1, _nodeInfo(type, oper), Step)
-					:-	_makeProdNode(Term1, Step).
-_introduce(Term1, _nodeInfo(operation, mul), Step)
-					:-	_makeProdNode(Term1, Step).
 % initialize new fields for Term1
 _introduce(Term1, _nodeInfo(numchildren, 2), Step)
 					:-	_makeProdNode(Term1, Step).
@@ -193,6 +200,7 @@ _introduce(Term1, _treeInfo(activechild, NewTerm), Step)
 						_mapto(Term2, NewTerm, Step).
 % a deallocate children of predicate?
 
+					% 			NODE ALLOCATION
 % copy entire subtree
 _mapNodeRec(Child, Layer+1, Step)
 					:-	_mapNodeRec(Node, Layer, Step),
@@ -230,21 +238,45 @@ _mapNodeRec(Node, Layer + 1, Step)
 _introduce(Node, _treeInfo(activechild, NewRoot))
 					:-	_shiftDownSubtree(Node, Step),
 						_mapto(Node, NewRoot, Step).
+% setup parent/child pointers
+_activateTempNode(PolyNum, Step)
+:-	_multiplyPolys(Poly1, Poly2, Step),
+	_holds(Poly2, _nodeInfo(numterms, Num), Step),
+	PolyNum = 1..Num.
+
+% set basic polynomial properties for node
+_holds(_id(temp, 1,1), _treeInfo(activechild, _id(temp, 2, PolyNum)), Step)
+	:-	_activateTempNode(PolyNum, Step).
+_holds(_id(temp, 2,PolyNum), _nodeInfo(active, yes), Step)
+	:-	_activateTempNode(PolyNum, Step).
+_holds(_id(temp, 2,PolyNum), _nodeInfo(type, poly), Step)
+	:-	_activateTempNode(PolyNum, Step).
+
+% copying over the entire subtree
+_clearNode(Root, Step)
+					:-	_setResultTo(Root, Step).
+
+_mapResultToLayer(Layer+1, Step)
+					:-	_setResultTo(_id(Layer, Num), Step).
+
+% TODO: try mapping entire subtree instead
+_mapNode(_id(temp, 2, Num), Layer+1, Step)
+					:-	_multiplyPolys(Poly1, Poly2, Step),
+						_holds(Poly2, _nodeInfo(numterms, Terms), Step),
+						Num = 1..Terms,
+						_mapResultToLayer(Layer, Step).
 % move children down
 % copy subtree, 
 % delete subtree, 
 % compare subtrees (equality)
 % move subtree up
 
-% change node operation
-_update(Node, _nodeInfo(operation, Op), Step)
-					:-	_changeNodeOp(Node, Op, Step).
 
 				% Arithmetic Operations
 
 				% multiplying polynomials
 
-% store result in temp node, 
+% store result in temp node, TODO: use existing predicates to change operator 
 _tempRootToAdd(Step)
 					:-	_multiplyPolys(Poly, Mono, Step).
 
@@ -278,19 +310,6 @@ _holds(_id(temp, 2, Poly), _nodeInfo(numterms, NumMonoms), Step)
 						_numTerms(Poly2, NumStdPolys, Step),
 						Poly = 1..NumStdPolys .
 
-% setup parent/child pointers
-_activateTempNode(PolyNum, Step)
-:-	_multiplyPolys(Poly1, Poly2, Step),
-	_holds(Poly2, _nodeInfo(numterms, Num), Step),
-	PolyNum = 1..Num.
-
-% set basic polynomial properties for node
-_holds(_id(temp, 1,1), _treeInfo(activechild, _id(temp, 2, PolyNum)), Step)
-	:-	_activateTempNode(PolyNum, Step).
-_holds(_id(temp, 2,PolyNum), _nodeInfo(active, yes), Step)
-	:-	_activateTempNode(PolyNum, Step).
-_holds(_id(temp, 2,PolyNum), _nodeInfo(type, poly), Step)
-	:-	_activateTempNode(PolyNum, Step).
 
 
 % decide which node to assign children to
@@ -309,19 +328,6 @@ _cancelTerm(Mono, Step)
 
 _deleteChildrenOf(Root, Step)
 					:-	_setResultTo(Root, Step).
-% copying over the entire subtree
-_clearNode(Root, Step)
-					:-	_setResultTo(Root, Step).
-
-_mapResultToLayer(Layer+1, Step)
-					:-	_setResultTo(_id(Layer, Num), Step).
-
-% TODO: try mapping entire subtree instead
-_mapNode(_id(temp, 2, Num), Layer+1, Step)
-					:-	_multiplyPolys(Poly1, Poly2, Step),
-						_holds(Poly2, _nodeInfo(numterms, Terms), Step),
-						Num = 1..Terms,
-						_mapResultToLayer(Layer, Step).
 
 
 _hasFactors(Poly, DCoeff, ECoeff, Step)
@@ -342,6 +348,7 @@ _isFactorable(Poly, Step)
 						
 
 % set temp root to product of binomials
+% TODO: use existing predicates to convert to mul node!
 _tempRootToMul(Step)
 					:-	_factorPoly(Poly, Step).
 
