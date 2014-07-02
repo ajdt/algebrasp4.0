@@ -97,7 +97,7 @@ _introduce(Copy, Info, Step)
 					:-	_shallowCopy(Copy, Orig, Step),
 						_holds(Orig, Info, Step).
 _applyNodeOp(Copy, clear, Step)
-					:-	_shallowCopy(Copy, Orig, Step),
+					:-	_shallowCopy(Copy, Orig, Step).
 % copying just nodeInfo
 _introduce(Copy, _nodeInfo(X,Y), Step)
 					:-	_copyNodeInfo(Copy, Orig, Step),
@@ -141,11 +141,11 @@ _remove(DivNode, _nodeInfo(denom, X), Step)
 
 % convert non-operator node to operator
 % note: only clears node, doesn't delete any children, doesn't initialize with childcount
-_applyNodeOp(Term1, clear, Step)
+_applyNodeOp(Node, clear, Step)
 					:-	_transformToOper(Node, Oper, Step).
-_introduce(Term1, _nodeInfo(type, oper), Step)
+_introduce(Node, _nodeInfo(type, oper), Step)
 					:-	_transformToOper(Node, Oper, Step).
-_introduce(Term1, _nodeInfo(operation, Oper), Step)
+_introduce(Node, _nodeInfo(operation, Oper), Step)
 					:-	_transformToOper(Node, Oper, Step).
 
 
