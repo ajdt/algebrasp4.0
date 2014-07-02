@@ -44,6 +44,22 @@ _deallocated(Node, Step)	% deallocating a node
 					:-	_applyNodeOp(Node, deallocate, Step).
 _remove(Node, _nodeInfo(active, yes), Step)	
 					:-	_applyNodeOp(Node, deallocate, Step).
+					%	MISC DELETE PROPERTIES
+% deleting a node means to remove all parent pointers, and the entire subtree rooted at that node
+_deleteChildReferences(Parent, Child, Step)
+					:-	_cancelTerm(Child, Step),	% cancelTerm/2 means term is its own node
+						_termOf(Parent, Child, Step).	
+% update parent's child count
+_update(Parent, _nodeInfo(numchildren, NumKids - 1), Step)
+					:-	_deleteChildReferences(Parent, Node, Step),
+						_holds(Parent, _nodeInfo(numchildren, NumKids), Step).
+% remove parent pointer to child
+_remove(Parent, _treeInfo(activechild, Term), Step)
+					:-	_deleteChildReferences(Parent, Term, Step).
+% 'recursively' delete all children
+_applyNodeOp(Child, delete, Step)	% figure out better way to do this
+					:-	_deleteChildrenOf(Parent, Step),
+						_termOf(Parent, Child, Step).
 
 % deleting a monomial
 % 
@@ -69,30 +85,12 @@ _changeNumTerms(Poly, -1, Step)	% update the number of terms
 					:-	_cancelTerm(Poly, Term, Step),
 						not _node(Term).
 
-_applyNodeOp(Term, delete, Step)	
+_cancelTerm(Term, Step)	
 					:-	_cancelTerm(Expr, Term, Step),
 						_node(Term).
 _applyNodeOp(Term, delete, Step)	
 					:-	_cancelTerm(Term, Step).	% TODO: want both versions of cancelTerm for now 
 
-% deleting a node means to remove all parent pointers, and the entire subtree rooted at that node
-% to remove node properties use _clearNode(...)
-
-_deleteChildProperties(Parent, Child, Step)
-					:-	_applyNodeOp(Child, delete, Step),
-						_termOf(Parent, Child, Step).	
-
-% update parent's child count
-_update(Parent, _nodeInfo(numchildren, NumKids - 1), Step)
-					:-	_deleteChildProperties(Parent, Node, Step),
-						_holds(Parent, _nodeInfo(numchildren, NumKids), Step).
-% remove parent pointer to child
-_remove(Parent, _treeInfo(activechild, Term), Step)
-					:-	_deleteChildProperties(Parent, Term, Step).
-% 'recursively' delete all children
-_applyNodeOp(Child, delete, Step)	% figure out better way to do this
-					:-	_deleteChildrenOf(Parent, Step),
-						_termOf(Parent, Child, Step).
 
 % swap node (shallow copy of nodes)
 _shallowCopy(Node1, Node2, Step)
