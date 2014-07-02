@@ -81,23 +81,6 @@ _deleteNode(Child, Step)
 _deallocated(Node, Step)
 					:-	_deleteNode(Node, Step).
 
-% NOTE: shiftChildren should only be called once per step for a node,
-% to avoid race condition on updating the children
-% 
-_shiftChildren(Parent, ChildNum+1, 1, Step)	
-					:-	_cancelTerm(Parent, Child, Step),
-						_termOf(Parent, Child, Step),
-						not _deleteNode(Parent, Step),
-						_holds(Parent, _childnum(ChildNum, Child), Step).
-_remove(Parent, _childnum(ChildNo, Child), Step)
-					:-	_shiftChildren(Parent, Start, Delta, Step),
-						_holds(Parent, _childnum(ChildNo, Child), Step),
-						ChildNo >= Start.
-_introduce(Parent, _childnum(ChildNo - Delta, Child), Step)
-					:-	_shiftChildren(Parent, Start, Delta, Step),
-						_holds(Parent, _childnum(ChildNo, Child), Step),
-						ChildNo >= Start.
-
 
 % swap node (shallow copy of nodes)
 _shallowCopy(Node1, Node2, Step)
@@ -191,15 +174,9 @@ _makeProdNode(Term1, Step)
 % initialize new fields for Term1
 _introduce(Term1, _nodeInfo(numchildren, 2), Step)
 					:-	_makeProdNode(Term1, Step).
-_introduce(Term1, _childnum(1, NewTerm), Step)
-					:-	_makeProdNode(Term1, Step),
-						_mapto(Term1, NewTerm, Step).
 _introduce(Term1, _treeInfo(activechild, NewTerm), Step)
 					:-	_makeProdNode(Term1, Step),
 						_mapto(Term1, NewTerm, Step).
-_introduce(Term1, _childnum(2, NewTerm), Step)
-					:-	_groupTerms(Term1, Term2, Step),
-						_mapto(Term2, NewTerm, Step).
 _introduce(Term1, _treeInfo(activechild, NewTerm), Step)
 					:-	_groupTerms(Term1, Term2, Step),
 						_mapto(Term2, NewTerm, Step).
@@ -216,7 +193,6 @@ _mapNodeRec(Child, Layer+1, Step)
 _mapNode(Node, Layer, Step)
 					:-	_mapNodeRec(Node, Layer, Step).
 
-% XXX warning: does not copy childnum info, this info will probably be removed later
 _introduce(NewNode, _treeInfo(activechild, NewChild), Step)
 					:-	_copyMappedSubtree(Node, Step),
 						_termOf(Node, Child, Step),
