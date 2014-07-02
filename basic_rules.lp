@@ -81,14 +81,15 @@ ruleParam(divIdent, cancelType, 1)
 % addCommonTerms: a*x^b + c*x^b ----> (a+c)*x^b
 %================================================================================
 
-_applicable(_action(addCommTerms, _data(Poly, Term1, Term2)), Step)
-			:-	_sameDegree(Poly, Term1, Term2, Step).
+_applicable(_action(addCommTerms, _data(LeftPoly, RightPoly)), Step)
+			:-	_isAdd(Root, Step),
+				_termOf(Root, LeftPoly, Step),
+				_termOf(Root, RightPoly, Step),
+				LeftPoly != RightPoly.
 
 
 % TODO: delete this, only for debugging purposes
-_addTerms(Poly, Term1, Term2, Step)
-			:-	_doAction(_action(addCommTerms, _data(Poly, Term1, Term2)), Step).
+_addTerms(LeftPoly, RightPoly, Step)
+			:-	_doAction(_action(addCommTerms, _data(LeftPoly, RightPoly)), Step).
 :- not action(addCommTerms).
-%:- action(addIdent).
-%:- action(mulIdent).
 

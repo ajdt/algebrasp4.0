@@ -395,6 +395,32 @@ _setResultTo(Poly, Step)
 					:-	_factorPoly(Poly, Step).
 
 
+					%	Add Terms
+_tempToPoly(_id(temp, 1,1), Step)
+					:-	_addTerms(LeftPoly, RightPoly, Step).
+_tempResult(_id(temp, 1, 1), _nodeInfo(Deg, Coeff1 + Coeff2), Step)
+					:-	_addTerms(LeftPoly, RightPoly, Step),
+						_holds(LeftPoly, _nodeInfo(Deg, Coeff1), Step),
+						_holds(RightPoly, _nodeInfo(Deg, Coeff2), Step),
+						_degree(Deg),
+						_coeff(Coeff1 + Coeff2).
+
+_setResultTo(Root, Step)	% TODO: refactor this
+					:-	_addTerms(LeftPoly, RightPoly, Step),
+						_numSubExpressions(Root, 2, Step),
+						_termOf(Root, Poly, Step).
+_setResultTo(Poly, Step)
+					:-	_addTerms(LeftPoly, RightPoly, Step),
+						_numSubExpressions(Root, Num, Step), Num > 2,
+						_termOf(Root, Poly, Step).
+% if we've set the result to Poly, then Mono must be deleted
+_cancelTerm(RightPoly, Step)
+					:-	_addTerms(LeftPoly, RightPoly, Step),
+						_setResultTo(Poly, Step).
+
+
+_deleteChildrenOf(Root, Step)
+					:-	_setResultTo(Root, Step).
 _update(Poly, _nodeInfo(2, 1), Step)				% fix this later
 					:-	_dividePolyBy(Poly, ACoeff, Step).
 #show _mapto/3.
