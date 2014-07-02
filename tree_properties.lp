@@ -264,25 +264,29 @@ _mapNode(_id(temp, 2, Num), Layer+1, Step)
 % move subtree up
 
 
+				% Setting Temp Operations
+_initTempAsOper(Node, Step)				
+					:-	_setTempOper(Node, Oper, Step),
+						_tempNode(Node).
+_tempResult(Node, _nodeInfo(operation, Oper), Step)				
+					:-	_setTempOper(Node, Oper, Step),
+						_tempNode(Node).
+_tempResult(Node, _nodeInfo(type, oper), Step) 
+					:-	_initTempAsOper(Node, Step).
+_tempResult(Node, _nodeInfo(active, yes), Step) 
+					:-	_initTempAsOper(Node, Step).
+
 				% Arithmetic Operations
 
 				% multiplying polynomials
 
 % store result in temp node, TODO: use existing predicates to change operator 
-_tempRootToAdd(Step)
+_setTempOper(_id(temp, 1,1), add, Step)
 					:-	_multiplyPolys(Poly, Mono, Step).
 
-% temp root is sum of several standard polynomials
-_tempResult(_id(temp, 1,1), _nodeInfo(type, oper), Step)
-					:-	_tempRootToAdd(Step).
-_tempResult(_id(temp, 1,1), _nodeInfo(operation, add), Step)
-					:-	_tempRootToAdd(Step).
-_tempResult(_id(temp, 1,1), _nodeInfo(active, yes), Step)
-					:-	_tempRootToAdd(Step).
 % NOTE: a standard polynomial is created for each monomial of Poly2
 _tempResult(_id(temp, 1,1), _nodeInfo(numchildren, Num), Step)
-					:-	_tempRootToAdd(Step),
-						_multiplyPolys(Poly1, Poly2, Step),
+					:-	_multiplyPolys(Poly1, Poly2, Step),
 						_numTerms(Poly2, Num, Steps).
 % multiply each pair of monomials
 _tempResult(_id(temp, 2, Deg2+1), _nodeInfo(Deg1 + Deg2, Coeff1 * Coeff2), Step)
