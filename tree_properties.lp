@@ -153,7 +153,9 @@ _introduce(Node, _nodeInfo(operation, Oper), Step)
 					:-	_transformToOper(Node, Oper, Step).
 
 
-							%				RULE HELPERS
+%================================================================================
+%				RULE HELPERS
+%================================================================================
 % setToOne
 _deleteChildrenOf(Node, Step)
 					:-	_setToOne(Node, Step).
@@ -166,18 +168,11 @@ _swapTerms(Numer, Denom, Step)
 					:-	_swapNumerDenom(Frac, Step),
 						_numerOf(Frac, Numer, Step),
 						_denomOf(Frac, Denom, Step).
-% group terms
-_mapDownAndCopy(Term1, Step)
+	%%%% group terms %%%%
+_shiftDownSubtree(Term1, Step)
 					:-	_groupTerms(Term1, Term2, Step).
-_mapDownAndCopy(Term2, Step)
+_shiftDownSubtree(Term2, Step)
 					:-	_groupTerms(Term1, Term2, Step).
-_mapNode(Term, Layer+1, Step)
-					:-	 _layerOf(Term, Layer),
-						_mapDownAndCopy(Term, Step).
-_copyNodeInfo(NewTerm, Term, Step)
-					:-	_mapDownAndCopy(Term, Step),
-						_mapto(Term, NewTerm, Step).
-
 _applyNodeOp(Term2, delete, Step)
 					:-	_groupTerms(Term1, Term2, Step).
 _changeOperator(Term1, mul, Step)
