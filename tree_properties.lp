@@ -255,8 +255,9 @@ _copyNodeInfo(Root, _id(temp, 1,1), Step)
 _applyNodeOp(Root, clear, Step)
 					:-	_setResultTo(Root, Step).
 
-_mapResultToLayer(Layer+1, Step)
-					:-	_setResultTo(_id(Layer, Num), Step).
+_mapNodeRec(Child, Layer+1, Step)	% this is incorrect.
+					:-	_setResultTo(_id(Layer, Num), Step),
+						_tempResult(_id(temp, 1,1), _treeInfo(activechild, Child), Step).
 %------------------------------ 
 	%%%% SAVE the result of a binary operation (uses setResultTo) %%%%
 _setResultTo(Root, Step)	
