@@ -92,4 +92,4 @@ _applicable(_action(addCommTerms, _data(LeftPoly, RightPoly)), Step)
 _addTerms(LeftPoly, RightPoly, Step)
 			:-	_doAction(_action(addCommTerms, _data(LeftPoly, RightPoly)), Step).
 :- not action(addCommTerms).
-
+:- action(Name), Name != addCommTerms.

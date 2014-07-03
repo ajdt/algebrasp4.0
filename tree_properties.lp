@@ -408,6 +408,50 @@ _tempResult(_id(temp, 1, 1), _nodeInfo(Deg, Coeff1 + Coeff2), Step)
 						_degree(Deg),
 						_coeff(Coeff1 + Coeff2).
 
+% incorporate monomials that don't have a common term
+_tempResult(_id(temp, 1, 1), _nodeInfo(Deg, Coeff), Step)
+					:-	_addTerms(LeftPoly, RightPoly, Step),
+						_holds(LeftPoly, _nodeInfo(Deg, Coeff), Step),
+						not	_hasTermWithDeg(RightPoly, Deg, Step),
+						_degree(Deg),
+						_coeff(Coeff).
+_tempResult(_id(temp, 1, 1), _nodeInfo(Deg, Coeff), Step)
+					:-	_addTerms(LeftPoly, RightPoly, Step),
+						_holds(RightPoly, _nodeInfo(Deg, Coeff), Step),
+						not	_hasTermWithDeg(LeftPoly, Deg, Step),
+						_degree(Deg),
+						_coeff(Coeff).
+
+% count numterms
+_commonTerm(Deg, Step)
+					:-	_addTerms(LeftPoly, RightPoly, Step),
+						_holds(LeftPoly, _nodeInfo(Deg, Coeff1), Step),
+						_holds(RightPoly, _nodeInfo(Deg, Coeff2), Step),
+						_degree(Deg),
+						_coeff(Coeff1 + Coeff2).
+% initialize count
+_commonTermCount(0, 0, Step)	:-	_step(Step), not _commonTerm(0, Step),
+						_addTerms(LeftPoly, RightPoly, Step).
+_commonTermCount(0, 1, Step)	:-	_step(Step), _commonTerm(0, Step),
+						_addTerms(LeftPoly, RightPoly, Step).
+
+% iterate to get successive counts
+ _commonTermCount(Deg+1, Count+1, Step)
+ 					:-	_commonTermCount(Deg, Count, Step),
+						_degree(Deg+1),
+						_commonTerm(Deg+1, Step).
+ _commonTermCount(Deg+1, Count, Step)
+ 					:-	_commonTermCount(Deg, Count, Step),
+						_degree(Deg+1),
+						not _commonTerm(Deg, Step).
+% finally record the number of terms in the resultant polynomial
+_tempResult(_id(temp, 1, 1), _nodeInfo(numterms, LeftTotal + RightTotal - Count), Step)
+					:-	_addTerms(LeftPoly, RightPoly, Step),
+						_holds(LeftPoly, _nodeInfo(numterms, LeftTotal), Step),
+						_holds(RightPoly, _nodeInfo(numterms, RightTotal), Step),
+						_commonTermCount(maxDegree, Count, Step).
+
+% save the result
 _writeBinaryOp(LeftPoly, RightPoly, Step)
 					:-	_addTerms(LeftPoly, RightPoly, Step).
 
