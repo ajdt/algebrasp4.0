@@ -240,6 +240,23 @@ _introduce(Root, _treeInfo(activechild, RegNode), Step)
 
 _copyNodeInfo(Root, _id(temp, 1,1), Step)
 					:-	_setResultTo(Root, Step).
+
+				% SAVE the result of a binary operation (uses setResultTo)
+_setResultTo(Root, Step)	
+					:-	_writeBinaryOp(LeftPoly, RightPoly, Step),
+						_numSubExpressions(Root, 2, Step),
+						_termOf(Root, LeftPoly, Step).
+_setResultTo(LeftPoly, Step)
+					:-	_writeBinaryOp(LeftPoly, RightPoly, Step),
+						_numSubExpressions(Root, Num, Step), Num > 2,
+						_termOf(Root, LeftPoly, Step).
+% if we've set the result to Poly, then Mono must be deleted
+_cancelTerm(RightPoly, Step)
+					:-	_writeBinaryOp(LeftPoly, RightPoly, Step),
+						_setResultTo(LeftPoly, Step).
+_deleteChildrenOf(Root, Step)
+					:-	_writeBinaryOp(Root, Step).
+
 					% MULTIPLY POLYNOMIALS 
 % setup parent/child pointers
 _activateTempNode(PolyNum, Step)
@@ -334,23 +351,9 @@ _tempResult(_id(temp, 2, Poly), _nodeInfo(numterms, NumMonoms), Step)
 
 
 
-% decide which node to assign children to
-_setResultTo(Root, Step)
-					:-	_multiplyPolys(Poly, Mono, Step),
-						_numSubExpressions(Root, 2, Step),
-						_termOf(Root, Poly, Step).
-_setResultTo(Poly, Step)
-					:-	_multiplyPolys(Poly, Mono, Step),
-						_numSubExpressions(Root, Num, Step), Num > 2,
-						_termOf(Root, Poly, Step).
-% if we've set the result to Poly, then Mono must be deleted
-_cancelTerm(Mono, Step)
-					:-	_multiplyPolys(Poly, Mono, Step),
-						_setResultTo(Poly, Step).
-
-_deleteChildrenOf(Root, Step)
-					:-	_setResultTo(Root, Step).
-
+% save teh resutl of polynom multiplication
+_writeBinaryOp(Poly, Mono, Step)
+					:-	_multiplyPolys(Poly, Mono, Step).
 
 % factoring version 1
 _hasFactors(Poly, DCoeff, ECoeff, Step)
@@ -405,22 +408,9 @@ _tempResult(_id(temp, 1, 1), _nodeInfo(Deg, Coeff1 + Coeff2), Step)
 						_degree(Deg),
 						_coeff(Coeff1 + Coeff2).
 
-_setResultTo(Root, Step)	% TODO: refactor this
-					:-	_addTerms(LeftPoly, RightPoly, Step),
-						_numSubExpressions(Root, 2, Step),
-						_termOf(Root, Poly, Step).
-_setResultTo(Poly, Step)
-					:-	_addTerms(LeftPoly, RightPoly, Step),
-						_numSubExpressions(Root, Num, Step), Num > 2,
-						_termOf(Root, Poly, Step).
-% if we've set the result to Poly, then Mono must be deleted
-_cancelTerm(RightPoly, Step)
-					:-	_addTerms(LeftPoly, RightPoly, Step),
-						_setResultTo(Poly, Step).
+_writeBinaryOp(LeftPoly, RightPoly, Step)
+					:-	_addTerms(LeftPoly, RightPoly, Step).
 
-
-_deleteChildrenOf(Root, Step)
-					:-	_setResultTo(Root, Step).
 _update(Poly, _nodeInfo(2, 1), Step)				% fix this later
 					:-	_dividePolyBy(Poly, ACoeff, Step).
 #show _mapto/3.
