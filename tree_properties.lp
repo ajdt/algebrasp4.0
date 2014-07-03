@@ -193,46 +193,60 @@ _introduce(Term1, _treeInfo(activechild, NewTerm), Step)
 						_mapto(Term2, NewTerm, Step).
 % a deallocate children of predicate?
 
-					% 			NODE ALLOCATION
-% copy entire subtree
+%================================================================================
+% 			NODE ALLOCATION
+%================================================================================
+
+	%%%% mapping a subtree or a temp subtree %%%%
 _mapNodeRec(Child, Layer+1, Step)
 					:-	_mapNodeRec(Node, Layer, Step),
 						_termOf(Node, Child, Step),
 						_layer(Layer),
 						_node(Node),
 						_step(Step).
+
+_mapNodeRec(Child, Layer+1, Step)	% separate version for temp nodes
+					:-	_mapNodeRec(Node, Layer, Step),
+						_tempResult(Node, _nodeInfo(activechild, Child), Step),
+						_layer(Layer),
+						_node(Node),
+						_step(Step).
 _mapNode(Node, Layer, Step)
 					:-	_mapNodeRec(Node, Layer, Step).
 
+	%%%% copying a mapped subtree %%%%
+_copyNodeInfo(NewNode, OldNode, Step)
+					:-	_mapto(OldNode, NewNode, Step).
+
+% copy pointers
+_copyMappedSubtree(Child, Step)		% TODO: unnecessary??
+					:-	_copyMappedSubtree(Node, Step),
+						_termOf(Node, Child, Step).
 % set parent/child properties for nodes mapped-to 
 _introduce(NewNode, _treeInfo(activechild, NewChild), Step)
 					:-	_copyMappedSubtree(Node, Step),
 						_termOf(Node, Child, Step),
 						_mapto(Node, NewNode, Step),
 						_mapto(Child, NewChild, Step).
-
-% recursively copy children
-_copyMappedSubtree(Child, Step)
+_introduce(NewNode, _treeInfo(activechild, NewChild), Step)
 					:-	_copyMappedSubtree(Node, Step),
-						_termOf(Node, Child, Step).
-		% moving a subtree down
-_deleteChildrenOf(Node, Step)
-					:-	_shiftDownSubtree(Node, Step).
+						_tempResult(Node, _nodeInfo(activechild, Child), Step),
+						_mapto(Node, NewNode, Step),
+						_mapto(Child, NewChild, Step).
+
+	%%%% moving a subtree down %%%%
 _applyNodeOp(Node, clear, Step)
 					:-	_shiftDownSubtree(Node, Step).
-% move subtree down, 
+_deleteChildrenOf(Node, Step)
+					:-	_shiftDownSubtree(Node, Step).
+% map subtree to next layer
 _mapNodeRec(Node, Layer + 1, Step)
 					:-	_shiftDownSubtree(Node, Step),
 						_layerOf(Node, Layer).
-% set pointer from old root to new root,
-_introduce(Node, _treeInfo(activechild, NewRoot))
-					:-	_shiftDownSubtree(Node, Step),
-						_mapto(Node, NewRoot, Step).
 
-% copy over all node info as appropriate
-_copyNodeInfo(NewNode, OldNode, Step)
-					:-	_mapto(OldNode, NewNode, Step).
+	%%%% setting results (saving a temp result) %%%%
 % copy over parent/child links
+% TODO: alternative -- map entire subtree, but ensure temp,1,1 maps to root node
 _introduce(Root, _treeInfo(activechild, RegNode), Step)
 					:-	_mapto(TempNode, RegNode, Step),
 						_setResultTo(Root, Step),
@@ -241,7 +255,7 @@ _introduce(Root, _treeInfo(activechild, RegNode), Step)
 _copyNodeInfo(Root, _id(temp, 1,1), Step)
 					:-	_setResultTo(Root, Step).
 
-				% SAVE the result of a binary operation (uses setResultTo)
+	%%%% SAVE the result of a binary operation (uses setResultTo) %%%%
 _setResultTo(Root, Step)	
 					:-	_writeBinaryOp(LeftPoly, RightPoly, Step),
 						_numSubExpressions(Root, 2, Step),
