@@ -241,7 +241,9 @@ _mapNodeRec(Node, Layer + 1, Step)
 
 	%%%% setting results (saving a temp result) %%%%
 % copy over parent/child links
+
 % TODO: alternative -- map entire subtree, but ensure temp,1,1 maps to root node
+% NOTE: all shallow copying for mapped-to nodes is handled elsewhere
 _introduce(Root, _treeInfo(activechild, RegNode), Step)
 					:-	_mapto(TempNode, RegNode, Step),
 						_setResultTo(Root, Step),
@@ -250,6 +252,12 @@ _introduce(Root, _treeInfo(activechild, RegNode), Step)
 _copyNodeInfo(Root, _id(temp, 1,1), Step)
 					:-	_setResultTo(Root, Step).
 
+_applyNodeOp(Root, clear, Step)
+					:-	_setResultTo(Root, Step).
+
+_mapResultToLayer(Layer+1, Step)
+					:-	_setResultTo(_id(Layer, Num), Step).
+%------------------------------ 
 	%%%% SAVE the result of a binary operation (uses setResultTo) %%%%
 _setResultTo(Root, Step)	
 					:-	_writeBinaryOp(LeftPoly, RightPoly, Step),
@@ -259,40 +267,13 @@ _setResultTo(LeftPoly, Step)
 					:-	_writeBinaryOp(LeftPoly, RightPoly, Step),
 						_numSubExpressions(Root, Num, Step), Num > 2,
 						_termOf(Root, LeftPoly, Step).
+
 % if we've set the result to Poly, then Mono must be deleted
 _cancelTerm(RightPoly, Step)
 					:-	_writeBinaryOp(LeftPoly, RightPoly, Step),
 						_setResultTo(LeftPoly, Step).
 _deleteChildrenOf(Root, Step)
 					:-	_writeBinaryOp(Root, Step).
-
-					% MULTIPLY POLYNOMIALS 
-% setup parent/child pointers
-_activateTempNode(PolyNum, Step)
-:-	_multiplyPolys(Poly1, Poly2, Step),
-	_holds(Poly2, _nodeInfo(numterms, Num), Step),
-	PolyNum = 1..Num.
-
-% set basic polynomial properties for node
-_tempResult(_id(temp, 1,1), _treeInfo(activechild, _id(temp, 2, PolyNum)), Step)
-	:-	_activateTempNode(PolyNum, Step).
-_tempResult(_id(temp, 2,PolyNum), _nodeInfo(active, yes), Step)
-	:-	_activateTempNode(PolyNum, Step).
-_tempResult(_id(temp, 2,PolyNum), _nodeInfo(type, poly), Step)
-	:-	_activateTempNode(PolyNum, Step).
-
-% copying over the entire subtree
-_applyNodeOp(Root, clear, Step)
-					:-	_setResultTo(Root, Step).
-
-_mapResultToLayer(Layer+1, Step)
-					:-	_setResultTo(_id(Layer, Num), Step).
-
-% move children down
-% copy subtree, 
-% delete subtree, 
-% compare subtrees (equality)
-% move subtree up
 
 
 				% Setting Temp Operations
@@ -326,6 +307,22 @@ _tempToPoly(Node, Step)
 
 				% multiplying polynomials
 
+% setup parent/child pointers
+_activateTempNode(PolyNum, Step)
+:-	_multiplyPolys(Poly1, Poly2, Step),
+	_holds(Poly2, _nodeInfo(numterms, Num), Step),
+	PolyNum = 1..Num.
+
+% set basic polynomial properties for node
+_tempResult(_id(temp, 1,1), _treeInfo(activechild, _id(temp, 2, PolyNum)), Step)
+	:-	_activateTempNode(PolyNum, Step).
+_tempResult(_id(temp, 2,PolyNum), _nodeInfo(active, yes), Step)
+	:-	_activateTempNode(PolyNum, Step).
+_tempResult(_id(temp, 2,PolyNum), _nodeInfo(type, poly), Step)
+	:-	_activateTempNode(PolyNum, Step).
+
+
+
 % store result in temp node, TODO: use existing predicates to change operator 
 _setTempOper(_id(temp, 1,1), add, Step)
 					:-	_multiplyPolys(Poly, Mono, Step).
@@ -352,17 +349,11 @@ _tempResult(_id(temp, 2, Poly), _nodeInfo(numterms, NumMonoms), Step)
 						_numTerms(Poly2, NumStdPolys, Step),
 						Poly = 1..NumStdPolys .
 
-
-% TODO: try mapping entire subtree instead
-_mapNode(_id(temp, 2, Num), Layer+1, Step)
-					:-	_multiplyPolys(Poly1, Poly2, Step),
-						_holds(Poly2, _nodeInfo(numterms, Terms), Step),
-						Num = 1..Terms,
-						_mapResultToLayer(Layer, Step).
-
-% save teh resutl of polynom multiplication
+% save the result of polynom multiplication
 _writeBinaryOp(Poly, Mono, Step)
 					:-	_multiplyPolys(Poly, Mono, Step).
+
+
 
 % factoring version 1
 _hasFactors(Poly, DCoeff, ECoeff, Step)
