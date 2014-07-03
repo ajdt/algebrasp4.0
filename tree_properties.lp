@@ -279,12 +279,6 @@ _applyNodeOp(Root, clear, Step)
 _mapResultToLayer(Layer+1, Step)
 					:-	_setResultTo(_id(Layer, Num), Step).
 
-% TODO: try mapping entire subtree instead
-_mapNode(_id(temp, 2, Num), Layer+1, Step)
-					:-	_multiplyPolys(Poly1, Poly2, Step),
-						_holds(Poly2, _nodeInfo(numterms, Terms), Step),
-						Num = 1..Terms,
-						_mapResultToLayer(Layer, Step).
 % move children down
 % copy subtree, 
 % delete subtree, 
@@ -350,6 +344,12 @@ _tempResult(_id(temp, 2, Poly), _nodeInfo(numterms, NumMonoms), Step)
 						Poly = 1..NumStdPolys .
 
 
+% TODO: try mapping entire subtree instead
+_mapNode(_id(temp, 2, Num), Layer+1, Step)
+					:-	_multiplyPolys(Poly1, Poly2, Step),
+						_holds(Poly2, _nodeInfo(numterms, Terms), Step),
+						Num = 1..Terms,
+						_mapResultToLayer(Layer, Step).
 
 % save teh resutl of polynom multiplication
 _writeBinaryOp(Poly, Mono, Step)
@@ -397,8 +397,40 @@ _mapNode(_id(temp, 2, ChildNo), Layer+1, Step)
 _setResultTo(Poly, Step)
 					:-	_factorPoly(Poly, Step).
 
-_update(Poly, _nodeInfo(2, 1), Step)				% fix this later
-					:-	_divideByLeadingCoeff(Poly, ACoeff, Step).
+% dividing by leading coeff
+_setTempOper(_id(temp, 1,1), mul, Step)
+					:-	_divideByLeadingCoeff(Poly, Step).
+_tempToPoly(_id(temp, 2,1), Step)
+					:-	_divideByLeadingCoeff(Poly, Step).
+_tempToPoly(_id(temp, 2,2), Step)
+					:-	_divideByLeadingCoeff(Poly, Step).
+
+_tempResult(_id(temp, 2,2), _nodeInfo(Deg, Coeff/ACoeff), Step)
+					:-	_divideByLeadingCoeff(Poly, Step),
+						_holds(Poly, _nodeInfo(Deg, Coeff), Step),
+						_degree(Deg), _coeff(Coeff),
+						_squareMonom(Poly, ACoeff, Step),
+						_coeff(ACoeff),
+						_coeff(Coeff/ACoeff).
+_tempResult(_id(temp, 2,1), _nodeInfo(0, ACoeff), Step)
+					:-	_divideByLeadingCoeff(Poly, Step),
+						_squareMonom(Poly, ACoeff, Step),
+						_coeff(ACoeff).
+_tempResult(_id(temp, 1,1), _nodeInfo(activechild, _id(temp, 2, 1)), Step)
+					:-	_divideByLeadingCoeff(Poly, Step).
+_tempResult(_id(temp, 1,1), _nodeInfo(activechild, _id(temp, 2, 2)), Step)
+					:-	_divideByLeadingCoeff(Poly, Step).
+
+%% set num terms for each case
+%_tempResult(_id(temp, 2,2), _nodeInfo(numterms, Num), Step)
+%					:-	_divideByLeadingCoeff(Poly, Step),
+%						_holds(Poly, _nodeInfo(numterms, Num), Step).
+%_tempResult(_id(temp, 2,1), _nodeInfo(numterms, 1), Step)
+%					:-	_divideByLeadingCoeff(Poly, Step).
+%% TODO: this won't work, fix it
+_setResultTo(Poly, Step)
+					:-	_divideByLeadingCoeff(Poly, Step).
+
 
 
 					%	Add Terms

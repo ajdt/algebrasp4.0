@@ -41,6 +41,7 @@ _quadWithCommonTerm(Poly, Step)
 			:-	_isQuadratic(Poly, Step),
 				_squareMonom(Poly, ACoeff, Step),
 				_isFactorable(Poly, Step),
+				ACoeff != 1,
 				ACoeff <=5,
 				ACoeff >= - 5,
 				_linearMonom(Poly, BCoeff, Step),

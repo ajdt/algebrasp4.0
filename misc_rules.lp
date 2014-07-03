@@ -137,10 +137,11 @@ ruleParam(distribute, degree, 0)
 %================================================================================
 % factor (ax^2 + bx + c) --> (x + e) * (x + d)
 %================================================================================
-_applicable(_action(factor, _data(Poly)), Step)
+_applicable(_action(factor2, _data(Poly)), Step)
 			:-	_isQuadratic(Poly, Step),
 				_squareMonom(Poly, ACoeff, Step),
 				_isFactorable(Poly, Step),
+				ACoeff == 1,
 				ACoeff <=5,
 				ACoeff >= - 5,
 				_linearMonom(Poly, BCoeff, Step),
@@ -160,9 +161,14 @@ _divideByLeadingCoeff(Poly, Step)
 			:-	_doAction(_action(factor, _data(Poly, divideFirst)), Step).
 % TODO: create a separate predicate for this
 _doAction(_action(factor, _data(Poly)), Step+1)
-			:-	_dividePolyBy(Poly, ACoeff, Step),
+			:-	_divideByLeadingCoeff(Poly, Step),
 				_step(Step+1).
 _applicable(_action(factor, _data(Poly)), Step+1)
-			:-	_dividePolyBy(Poly, ACoeff, Step),
+			:-	_divideByLeadingCoeff(Poly, Step),
 				_step(Step+1).
 :- not action(factor).
+:- action(Name), Name != factor.
+#show _divideByLeadingCoeff/2.
+#show _tempResult/3.
+#show _mapto/3.
+#show _mapResultToLayer/2.
