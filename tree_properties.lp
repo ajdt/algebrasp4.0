@@ -397,6 +397,9 @@ _mapNode(_id(temp, 2, ChildNo), Layer+1, Step)
 _setResultTo(Poly, Step)
 					:-	_factorPoly(Poly, Step).
 
+_update(Poly, _nodeInfo(2, 1), Step)				% fix this later
+					:-	_divideByLeadingCoeff(Poly, ACoeff, Step).
+
 
 					%	Add Terms
 _tempToPoly(_id(temp, 1,1), Step)
@@ -455,8 +458,6 @@ _tempResult(_id(temp, 1, 1), _nodeInfo(numterms, LeftTotal + RightTotal - Count)
 _writeBinaryOp(LeftPoly, RightPoly, Step)
 					:-	_addTerms(LeftPoly, RightPoly, Step).
 
-_update(Poly, _nodeInfo(2, 1), Step)				% fix this later
-					:-	_dividePolyBy(Poly, ACoeff, Step).
 #show _mapto/3.
 #show _mapNode/3.
 #show _tempToPoly/2.

@@ -16,7 +16,7 @@
 % I don't want these constants to be changed, so they're not in gen_param.lp
 #const numLayers 	=	5.
 #const maxChildren	=	2.	% limit on children of operator nodes
-#const maxDepth		=	2.	% limits number of layers used during generation
+#const maxDepth		=	1.	% limits number of layers used during generation
 
 #const right_side	= _id(1,2).	% useful aliases for left/right used by rule files
 #const left_side 	= _id(1,1).

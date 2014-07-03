@@ -149,17 +149,20 @@ _applicable(_action(factor, _data(Poly)), Step)
 				_constMonom(Poly, CCoeff, Step),
 				CCoeff <=5,
 				CCoeff >= - 5.
+_applicable(_action(factor, _data(Poly, divideFirst)), Step)
+			:-	_quadWithCommonTerm(Poly, Step).
 
 _factorPoly(Poly, Step)
 			:-	_doAction(_action(factor, _data(Poly)), Step),
 				_squareMonom(Poly, ACoeff, Step),
 				ACoeff == 1.
-_dividePolyBy(Poly, ACoeff, Step)
-			:-	_doAction(_action(factor, _data(Poly)), Step),
-				_squareMonom(Poly, ACoeff, Step),
-				ACoeff != 1.
+_divideByLeadingCoeff(Poly, Step)
+			:-	_doAction(_action(factor, _data(Poly, divideFirst)), Step).
+% TODO: create a separate predicate for this
 _doAction(_action(factor, _data(Poly)), Step+1)
 			:-	_dividePolyBy(Poly, ACoeff, Step),
 				_step(Step+1).
-
+_applicable(_action(factor, _data(Poly)), Step+1)
+			:-	_dividePolyBy(Poly, ACoeff, Step),
+				_step(Step+1).
 :- not action(factor).

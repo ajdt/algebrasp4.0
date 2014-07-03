@@ -37,6 +37,21 @@ _isConstMonomial(_monomial(Coeff, 0))	:-	_monomial(Coeff, 0).
 			:-	_makePolyWithOrder(Node, Order), _degree(Deg), Deg <= Order.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% POLYNOMIAL PROPERTIES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+_quadWithCommonTerm(Poly, Step)
+			:-	_isQuadratic(Poly, Step),
+				_squareMonom(Poly, ACoeff, Step),
+				_isFactorable(Poly, Step),
+				ACoeff <=5,
+				ACoeff >= - 5,
+				_linearMonom(Poly, BCoeff, Step),
+				BCoeff \ ACoeff == 0,
+				ACoeff != 0,
+				(CCoeff \ ACoeff) == 0,
+				BCoeff <=5,
+				BCoeff >= - 5,
+				_constMonom(Poly, CCoeff, Step),
+				CCoeff <=5,
+				CCoeff >= - 5.
 _polyTerm(Poly, Term, Step)	:-	_holds(Poly, _nodeInfo(numterms, Num), Step),
 								_numPolyTerms(Term),
 								Term <= Num.
