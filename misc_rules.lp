@@ -67,31 +67,39 @@ _applicable(_action(factorCommTerm, _data(LeftTerm, RightTerm)), Step)
 				_isPolynomial(LeftTerm, Step),
 				_isPolynomial(RightTerm, Step).
 
+% isolate terms
+_leftTerm(LeftTerm, Step)	:-	_doAction(_action(factorCommTerm, _data(LeftTerm, RightTerm)), Step).
+_rightTerm(RightTerm, Step)	:-	_doAction(_action(factorCommTerm, _data(LeftTerm, RightTerm)), Step).
+_otherRightTerm(OtherRightTerm, Step)
+							:-	_rightTerm(RightTerm, Step),
+								_termOf(Right, RightTerm, Step),
+								_termOf(Right, OtherRightTerm, Step),
+								RightTerm != OtherRightTerm.
 % TODO: actions must be revised, to copy arbitrary subtrees later on
 _applyNodeOp(LeftTerm, clear, Step)
-			:-	_doAction(_action(factorCommTerm, _data(LeftTerm, RightTerm)), Step).
+			:-	_leftTerm(LeftTerm, Step).
 _applyNodeOp(RightTerm, delete, Step)
-			:-	_doAction(_action(factorCommTerm, _data(LeftTerm, RightTerm)), Step).
+			:-	_rightTerm(RightTerm, Step).
 _replaceWith(Right, RightTerm, Step)
-			:-	_doAction(_action(factorCommTerm, _data(LeftTerm, RightTerm)), Step),
+			:-	_rightTerm(RightTerm, Step),
 				_termOf(Right, RightTerm, Step).
+% on left side, replace leftTerm with other right side term
+_replaceWith(LeftTerm, OtherRightTerm, Step)
+			:-	_leftTerm(LeftTerm, Step),
+				_otherRightTerm(OtherRightTerm, Step).
+
 _applyNodeOp(Copy, clear, Step)
 			:-	_replaceWith(Copy, Orig, Step).
 _copyNodeInfo(Copy, Orig, Step)
 			:-	_replaceWith(Copy, Orig, Step).
-% on left side, replace leftTerm with other right side term
-_replaceWith(LeftTerm, OtherRightTerm, Step)
-			:-	_doAction(_action(factorCommTerm, _data(LeftTerm, RightTerm)), Step),
-				_termOf(Right, RightTerm, Step),
-				_termOf(Right, OtherRightTerm, Step),
-				OtherRightTerm != RightTerm.
+
 % change lhs operation to add
 _changeOperator(Left, add, Step)
-			:-	_doAction(_action(factorCommTerm, _data(LeftTerm, RightTerm)), Step),
+			:-	_leftTerm(LeftTerm, Step),
 				_termOf(Left, LeftTerm, Step).
 % change root op to mul
 _changeOperator(Root, mul, Step)
-			:-	_doAction(_action(factorCommTerm, _data(LeftTerm, RightTerm)), Step),
+			:-	_leftTerm(LeftTerm, Step),
 				_termOf(Left, LeftTerm, Step),
 				_termOf(Root, Left, Step).
 
@@ -172,8 +180,8 @@ _doAction(_action(factor, _data(Poly)), Step)
 _applicable(_action(factor, _data(Poly)), Step)
 			:-	_factorNext(Poly, Step),
 				_step(Step).
-:- not action(factor).
-:- action(Name), Name != factor.
+%:- not action(factor).
+%:- action(Name), Name != factor.
 #show _divideByLeadingCoeff/2.
 #show _tempResult/3.
 #show _mapto/3.
