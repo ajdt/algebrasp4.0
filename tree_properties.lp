@@ -202,7 +202,7 @@ _mapNodeRec(Child, Layer+1, Step)
 
 _mapNodeRec(Child, Layer+1, Step)	% separate version for temp nodes
 					:-	_mapNodeRec(Node, Layer, Step),
-						_tempResult(Node, _nodeInfo(activechild, Child), Step),
+						_tempResult(Node, _treeInfo(activechild, Child), Step),
 						_layer(Layer),
 						_node(Node),
 						_step(Step).
@@ -225,7 +225,7 @@ _introduce(NewNode, _treeInfo(activechild, NewChild), Step)
 						_mapto(Child, NewChild, Step).
 _introduce(NewNode, _treeInfo(activechild, NewChild), Step)
 					:-	_copyMappedSubtree(Node, Step),
-						_tempResult(Node, _nodeInfo(activechild, Child), Step),
+						_tempResult(Node, _treeInfo(activechild, Child), Step),
 						_mapto(Node, NewNode, Step),
 						_mapto(Child, NewChild, Step).
 
@@ -417,9 +417,9 @@ _tempResult(_id(temp, 2,1), _nodeInfo(0, ACoeff), Step)
 					:-	_divideByLeadingCoeff(Poly, Step),
 						_squareMonom(Poly, ACoeff, Step),
 						_coeff(ACoeff).
-_tempResult(_id(temp, 1,1), _nodeInfo(activechild, _id(temp, 2, 1)), Step)
+_tempResult(_id(temp, 1,1), _treeInfo(activechild, _id(temp, 2, 1)), Step)
 					:-	_divideByLeadingCoeff(Poly, Step).
-_tempResult(_id(temp, 1,1), _nodeInfo(activechild, _id(temp, 2, 2)), Step)
+_tempResult(_id(temp, 1,1), _treeInfo(activechild, _id(temp, 2, 2)), Step)
 					:-	_divideByLeadingCoeff(Poly, Step).
 
 %% set num terms for each case

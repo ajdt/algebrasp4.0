@@ -171,4 +171,6 @@ _applicable(_action(factor, _data(Poly)), Step+1)
 #show _divideByLeadingCoeff/2.
 #show _tempResult/3.
 #show _mapto/3.
-#show _mapResultToLayer/2.
+#show _mapNodeRec/3.
+#show _setResultTo/2.
+#show _copyNodeInfo/3.
