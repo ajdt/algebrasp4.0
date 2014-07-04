@@ -160,12 +160,18 @@ _factorPoly(Poly, Step)
 _divideByLeadingCoeff(Poly, Step)
 			:-	_doAction(_action(factor, _data(Poly, divideFirst)), Step).
 % TODO: create a separate predicate for this
-_doAction(_action(factor, _data(Poly)), Step+1)
+_factorNext(StdPoly, Step+1)
 			:-	_divideByLeadingCoeff(Poly, Step),
-				_step(Step+1).
-_applicable(_action(factor, _data(Poly)), Step+1)
-			:-	_divideByLeadingCoeff(Poly, Step),
-				_step(Step+1).
+				_termOf(Poly, StdPoly, Step+1),
+				_isQuadratic(StdPoly, Step+1).
+				%_isFactorable(StdPoly, Step+1).
+%
+_doAction(_action(factor, _data(Poly)), Step)
+			:-	_factorNext(Poly, Step),
+				_step(Step).
+_applicable(_action(factor, _data(Poly)), Step)
+			:-	_factorNext(Poly, Step),
+				_step(Step).
 :- not action(factor).
 :- action(Name), Name != factor.
 #show _divideByLeadingCoeff/2.
@@ -174,3 +180,8 @@ _applicable(_action(factor, _data(Poly)), Step+1)
 #show _mapNodeRec/3.
 #show _setResultTo/2.
 #show _copyNodeInfo/3.
+#show _factorNext/2.
+#show _termOf/3.
+#show _isQuadratic/2.
+#show _isFactorable/2.
+#show _hasFactors/4.
