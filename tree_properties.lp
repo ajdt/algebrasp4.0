@@ -105,7 +105,11 @@ _introduce(Copy, _nodeInfo(X,Y), Step)
 % copying nodeInfo from temp node
 _introduce(Copy, _nodeInfo(X,Y), Step)
 					:-	_copyNodeInfo(Copy, Orig, Step),
-						_tempResult(Orig, _nodeInfo(X,Y), Step).
+						_tempResult(Orig, _nodeInfo(X,Y), Step),
+						_degree(X), _coeff(Y),
+						|-Y| <= 5.	% TODO: remove restriction on coeff and degrees, used to see if grounding shrinks
+									% with appropriate bounds in place
+
 % swap nodes (nodes become shallow copies of each other)
 _shallowCopy(Node1, Node2, Step)
 					:-	_swapTerms(Node1, Node2, Step).
@@ -333,22 +337,34 @@ _tempResult(_id(temp, 1,1), _nodeInfo(numchildren, Num), Step)
 					:-	_multiplyPolys(Poly1, Poly2, Step),
 						_numTerms(Poly2, Num, Steps).
 % multiply each pair of monomials
-_tempResult(_id(temp, 2, Deg2+1), _nodeInfo(Deg1 + Deg2, Coeff1 * Coeff2), Step)
+% each poly/coeff pair of Poly2 will become a separate standard poly
+_multTermsWith(_id(temp, 2, Deg2+1), Coeff2, Step)
 					:-	_multiplyPolys(Poly1, Poly2, Step),
 						_holds(Poly2, _nodeInfo(Deg2, Coeff2), Step),
 						_degree(Deg2),
+						not _tempNode(Poly2).
+% Poly2 is distributed across Poly1, so each Poly1 term is assigned to
+% temp nodes
+_origMonom(_id(temp, 2, PolyNum), _mono(Deg1, Coeff1), Step)
+					:-	_multiplyPolys(Poly1, Poly2, Step),
+						_tempResult(_id(temp, 2,PolyNum), _nodeInfo(active, yes), Step),
 						_holds(Poly1, _nodeInfo(Deg1, Coeff1), Step),
 						_degree(Deg1),
-						_coeff(Coeff1 * Coeff2),
-						_degree(Deg1 + Deg2),
-						not _tempNode(Poly1),
-						not _tempNode(Poly2).
+						not _tempNode(Poly1).
+% multiply each assigned Poly1 term from above with the corresponding monomial
+_tempResult(_id(temp, 2, NodeNum), _nodeInfo(Deg + NodeNum - 1, Coeff * Multiplier), Step)
+					:-	_origMonom(_id(temp, 2, NodeNum), _mono(Deg, Coeff), Step),
+						_multTermsWith(_id(temp, 2, NodeNum), Multiplier, Step).
+
+
 % set term count for each polynomial
-_tempResult(_id(temp, 2, Poly), _nodeInfo(numterms, NumMonoms), Step)
-					:-	_multiplyPolys(Poly1, Poly2, Step),
-						_numTerms(Poly1, NumMonoms, Step),
-						_numTerms(Poly2, NumStdPolys, Step),
-						Poly = 1..NumStdPolys .
+
+% TODO: determine if want to keep numterms!
+%_tempResult(_id(temp, 2, Poly), _nodeInfo(numterms, NumMonoms), Step)
+%					:-	_multiplyPolys(Poly1, Poly2, Step),
+%						_numTerms(Poly1, NumMonoms, Step),
+%						_numTerms(Poly2, NumStdPolys, Step),
+%						Poly = 1..NumStdPolys .
 
 % save the result of polynom multiplication
 _writeBinaryOp(Poly, Mono, Step)
@@ -406,13 +422,15 @@ _tempToPoly(_id(temp, 2,1), Step)
 _tempToPoly(_id(temp, 2,2), Step)
 					:-	_divideByLeadingCoeff(Poly, Step).
 
-_tempResult(_id(temp, 2,2), _nodeInfo(Deg, Coeff/ACoeff), Step)
-					:-	_divideByLeadingCoeff(Poly, Step),
-						_holds(Poly, _nodeInfo(Deg, Coeff), Step),
-						_degree(Deg), _coeff(Coeff),
-						_squareMonom(Poly, ACoeff, Step),
-						_coeff(ACoeff),
-						_coeff(Coeff/ACoeff).
+				% TODO: Restore this later
+				%_tempResult(_id(temp, 2,2), _nodeInfo(Deg, Coeff/ACoeff), Step)
+				%	:-	_divideByLeadingCoeff(Poly, Step),
+				%		_holds(Poly, _nodeInfo(Deg, Coeff), Step),
+				%		_degree(Deg), _coeff(Coeff),
+				%		_squareMonom(Poly, ACoeff, Step),
+				%		ACoeff != 0,
+				%		_coeff(ACoeff),
+				%		_coeff(Coeff/ACoeff).
 _tempResult(_id(temp, 2,1), _nodeInfo(0, ACoeff), Step)
 					:-	_divideByLeadingCoeff(Poly, Step),
 						_squareMonom(Poly, ACoeff, Step),
