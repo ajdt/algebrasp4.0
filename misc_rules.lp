@@ -180,8 +180,6 @@ _doAction(_action(factor, _data(Poly)), Step)
 _applicable(_action(factor, _data(Poly)), Step)
 			:-	_factorNext(Poly, Step),
 				_step(Step).
-%:- not action(factor).
-%:- action(Name), Name != factor.
 #show _divideByLeadingCoeff/2.
 #show _tempResult/3.
 #show _mapto/3.
@@ -193,3 +191,11 @@ _applicable(_action(factor, _data(Poly)), Step)
 #show _isQuadratic/2.
 #show _isFactorable/2.
 #show _hasFactors/4.
+#show _applicable/3.
+#show _isZero/2.
+#show _isMonomial/2.
+#show _validChild/2.
+:- not action(factorCommTerm).
+:- action(Name), Name != factorCommTerm.
+% TODO: remove this
+%:- _step(Step), not _isMonomial(right_side, Step).

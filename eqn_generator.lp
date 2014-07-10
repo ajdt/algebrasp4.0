@@ -51,7 +51,7 @@ _depth(_id(Layer, Number), Layer)	:- _node(_id(Layer, Number)).
 % a node can only be a parent of nodes in succeeding layer
 _validChild(_id(Layer1, Num1), _id(Layer2, Num2))	:-	_node(_id(Layer1, Num1)),
 														_node(_id(Layer2, Num2)),
-														Layer1 = Layer2 - 1.
+														Layer1 == Layer2 - 1.
 % temp  nodes have children too...
 _validChild(_id(temp, Layer1, Num1), _id(temp, Layer2, Num2))	
 													:-	_node(_id(temp, Layer1, Num1)),
@@ -118,9 +118,8 @@ _initially(_id(ParentLayer, ParentNum), _nodeInfo(denom, _id(ChildLayer, SndChil
 
 
 % set right side to zero polynomial
-% _initially(_id(1,2), _nodeInfo(type, poly)).
-% _initially(_id(1,2), _nodeInfo(coeffof(1), _coeff(0))).
-% _initially(_id(1,2), _nodeInfo(degof(1), _degree(0))).
+ _initially(_id(1,2), _nodeInfo(type, poly)).
+ _initially(_id(1,2), _nodeInfo(0, 0)).
 % code for allocating unused nodes
 _freeNode(Node, Step)	% tempNodes don't count as freeNodes
 				:-	_node(Node),

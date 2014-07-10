@@ -57,13 +57,13 @@ _quadWithCommonTerm(Poly, Step)
 _isPolynomial(Poly, Step)	:-	_holds(Poly, _nodeInfo(type, poly), Step).
 _isMonomial(Poly, Step)		:-	_step(Step),
 								_node(Poly), 
-								1 { _holds(Poly, _nodeInfo(activechild, ValidChild), Step) : _validChild(ValidChild)} 1.
+								1 { _holds(Poly, _nodeInfo(Deg, Coeff), Step) : _degree(Deg), _coeff(Coeff)} 1.
 _isBinomial(Poly, Step)		:-	_step(Step),
 								_node(Poly), 
-								2 { _holds(Poly, _nodeInfo(activechild, ValidChild), Step) : _validChild(ValidChild)} 2.
+								2 { _holds(Poly, _nodeInfo(Deg, Coeff), Step) : _degree(Deg), _coeff(Coeff)} 2.
 _isTrinomial(Poly, Step)	:-	_step(Step),
 								_node(Poly), 
-								3 { _holds(Poly, _nodeInfo(activechild, ValidChild), Step) : _validChild(ValidChild)} 3.
+								3 { _holds(Poly, _nodeInfo(Deg, Coeff), Step) : _degree(Deg), _coeff(Coeff)} 3.
 _polySize(Poly, 3, Step)	:-	_isTrinomial(Poly, Step).
 _polySize(Poly, 2, Step)	:-	_isBinomial(Poly, Step).
 _polySize(Poly, 1, Step)	:-	_isMonomial(Poly, Step).
@@ -141,4 +141,3 @@ _update(Poly, _nodeInfo(coeffof(Term1), _coeff(Coeff1+Coeff2)), Step)
 % TODO: update later due to changed polynomial representation
 _cancelTerm(Poly, Term2, Step)
 							:-	_addTerms(Poly, Term1, Term2, Step).
-
