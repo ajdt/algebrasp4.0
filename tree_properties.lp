@@ -64,24 +64,15 @@ _applyNodeOp(Child, delete, Step)	% figure out better way to do this
 % deleting a monomial
 % 
 % NOTE: deleteMonomialOnly does not update numterms; useful if multiple deletes occur 
-% leading to multiple updatesto numterms (and a race condition)
+% leading to multiple updates to numterms (and a race condition)
 _remove(Polynomial, _nodeInfo(Deg, Coeff), Step)
 					:-	_deleteMonomial(Polynomial, Deg, Step),
 						_degree(Deg), _coeff(Coeff),
 						_holds(Polynomial, _nodeInfo(Deg, Coeff), Step).
 
-% update the number of terms
-_update(Poly, _nodeInfo(numterms, NumTerms + Delta), Step)
-					:-	_changeNumTerms(Poly, Delta, Step),
-						Delta <= 5, % TODO: turn these into consts
-						Delta >= -5,
-						_holds(Poly, _nodeInfo(numterms, NumTerms), Step).
 
 % canceling a term
 _deleteMonomial(Poly, Term, Step)		
-					:-	_cancelTerm(Poly, Term, Step),
-						not _node(Term).
-_changeNumTerms(Poly, -1, Step)	% update the number of terms
 					:-	_cancelTerm(Poly, Term, Step),
 						not _node(Term).
 
@@ -315,7 +306,7 @@ _tempToPoly(Node, Step)
 % setup parent/child pointers
 _activateTempNode(PolyNum, Step)
 :-	_multiplyPolys(Poly1, Poly2, Step),
-	_holds(Poly2, _nodeInfo(numterms, Num), Step),
+	_polySize(Poly2, Num, Step),
 	PolyNum = 1..Num.
 
 % set basic polynomial properties for node
@@ -333,9 +324,10 @@ _setTempOper(_id(temp, 1,1), add, Step)
 					:-	_multiplyPolys(Poly, Mono, Step).
 
 % NOTE: a standard polynomial is created for each monomial of Poly2
-_tempResult(_id(temp, 1,1), _nodeInfo(numchildren, Num), Step)
+% TODO: polySize only defined for polynomials with 3 terms or fewer!
+_tempResult(_id(temp, 1,1), _nodeInfo(numchildren, Size), Step)
 					:-	_multiplyPolys(Poly1, Poly2, Step),
-						_numTerms(Poly2, Num, Steps).
+						_polySize(Poly2, Size, Step).
 % multiply each pair of monomials
 % each poly/coeff pair of Poly2 will become a separate standard poly
 _multTermsWith(_id(temp, 2, Deg2+1), Coeff2, Step)
@@ -357,14 +349,6 @@ _tempResult(_id(temp, 2, NodeNum), _nodeInfo(Deg + NodeNum - 1, Coeff * Multipli
 						_multTermsWith(_id(temp, 2, NodeNum), Multiplier, Step).
 
 
-% set term count for each polynomial
-
-% TODO: determine if want to keep numterms!
-%_tempResult(_id(temp, 2, Poly), _nodeInfo(numterms, NumMonoms), Step)
-%					:-	_multiplyPolys(Poly1, Poly2, Step),
-%						_numTerms(Poly1, NumMonoms, Step),
-%						_numTerms(Poly2, NumStdPolys, Step),
-%						Poly = 1..NumStdPolys .
 
 % save the result of polynom multiplication
 _writeBinaryOp(Poly, Mono, Step)
@@ -440,12 +424,6 @@ _tempResult(_id(temp, 1,1), _treeInfo(activechild, _id(temp, 2, 1)), Step)
 _tempResult(_id(temp, 1,1), _treeInfo(activechild, _id(temp, 2, 2)), Step)
 					:-	_divideByLeadingCoeff(Poly, Step).
 
-%% set num terms for each case
-%_tempResult(_id(temp, 2,2), _nodeInfo(numterms, Num), Step)
-%					:-	_divideByLeadingCoeff(Poly, Step),
-%						_holds(Poly, _nodeInfo(numterms, Num), Step).
-%_tempResult(_id(temp, 2,1), _nodeInfo(numterms, 1), Step)
-%					:-	_divideByLeadingCoeff(Poly, Step).
 %% TODO: this won't work, fix it
 _setResultTo(Poly, Step)
 					:-	_divideByLeadingCoeff(Poly, Step).
@@ -476,34 +454,13 @@ _tempResult(_id(temp, 1, 1), _nodeInfo(Deg, Coeff), Step)
 						_degree(Deg),
 						_coeff(Coeff).
 
-% count numterms
+% a common term exists
 _commonTerm(Deg, Step)
 					:-	_addTerms(LeftPoly, RightPoly, Step),
 						_holds(LeftPoly, _nodeInfo(Deg, Coeff1), Step),
 						_holds(RightPoly, _nodeInfo(Deg, Coeff2), Step),
 						_degree(Deg),
 						_coeff(Coeff1 + Coeff2).
-% initialize count
-_commonTermCount(0, 0, Step)	:-	_step(Step), not _commonTerm(0, Step),
-						_addTerms(LeftPoly, RightPoly, Step).
-_commonTermCount(0, 1, Step)	:-	_step(Step), _commonTerm(0, Step),
-						_addTerms(LeftPoly, RightPoly, Step).
-
-% iterate to get successive counts
- _commonTermCount(Deg+1, Count+1, Step)
- 					:-	_commonTermCount(Deg, Count, Step),
-						_degree(Deg+1),
-						_commonTerm(Deg+1, Step).
- _commonTermCount(Deg+1, Count, Step)
- 					:-	_commonTermCount(Deg, Count, Step),
-						_degree(Deg+1),
-						not _commonTerm(Deg, Step).
-% finally record the number of terms in the resultant polynomial
-_tempResult(_id(temp, 1, 1), _nodeInfo(numterms, LeftTotal + RightTotal - Count), Step)
-					:-	_addTerms(LeftPoly, RightPoly, Step),
-						_holds(LeftPoly, _nodeInfo(numterms, LeftTotal), Step),
-						_holds(RightPoly, _nodeInfo(numterms, RightTotal), Step),
-						_commonTermCount(maxDegree, Count, Step).
 
 % save the result
 _writeBinaryOp(LeftPoly, RightPoly, Step)

@@ -64,6 +64,9 @@ _isBinomial(Poly, Step)		:-	_step(Step),
 _isTrinomial(Poly, Step)	:-	_step(Step),
 								_node(Poly), 
 								3 { _holds(Poly, _nodeInfo(activechild, ValidChild), Step) : _validChild(ValidChild)} 3.
+_polySize(Poly, 3, Step)	:-	_isTrinomial(Poly, Step).
+_polySize(Poly, 2, Step)	:-	_isBinomial(Poly, Step).
+_polySize(Poly, 1, Step)	:-	_isMonomial(Poly, Step).
 
 _hasTermWithDeg(Poly, Deg, Step)	:-	_holds(Poly, _nodeInfo(Deg, Coeff), Step),
 										_degree(Deg),
