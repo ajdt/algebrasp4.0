@@ -106,8 +106,6 @@ _maxNumPolyTerms(1..9).
 
 _initially(Node, _nodeInfo(Deg, Coeff))	:- _hasMonom(Node, Deg, Coeff).
 
-_initially(Node, _nodeInfo(numterms, Order+1))			:-	_makePolyWithOrder(Node, Order).
-
 % fractions also have numer/denom fields to alias first and second child
 _initially(_id(ParentLayer, ParentNum), _nodeInfo(numer, _id(ChildLayer, FstChildNum)))	
 					:-	_initially(_id(ParentLayer, ParentNum), _nodeInfo(operation, div)),
@@ -121,7 +119,6 @@ _initially(_id(ParentLayer, ParentNum), _nodeInfo(denom, _id(ChildLayer, SndChil
 
 % set right side to zero polynomial
 % _initially(_id(1,2), _nodeInfo(type, poly)).
-% _initially(_id(1,2), _nodeInfo(numterms, 1)).
 % _initially(_id(1,2), _nodeInfo(coeffof(1), _coeff(0))).
 % _initially(_id(1,2), _nodeInfo(degof(1), _degree(0))).
 % code for allocating unused nodes

@@ -53,13 +53,17 @@ _quadWithCommonTerm(Poly, Step)
 				_constMonom(Poly, CCoeff, Step),
 				CCoeff <=5,
 				CCoeff >= - 5.
-_polyTerm(Poly, Term, Step)	:-	_holds(Poly, _nodeInfo(numterms, Num), Step),
-								_numPolyTerms(Term),
-								Term <= Num.
+
 _isPolynomial(Poly, Step)	:-	_holds(Poly, _nodeInfo(type, poly), Step).
-_isMonomial(Poly, Step)	:-	_holds(Poly, _nodeInfo(numterms, 1), Step).
-_isBinomial(Poly, Step)	:-	_holds(Poly, _nodeInfo(numterms, 2), Step).
-_isTrinomial(Poly, Step)	:-	_holds(Poly, _nodeInfo(numterms, 3), Step).
+_isMonomial(Poly, Step)		:-	_step(Step),
+								_node(Poly), 
+								1 { _holds(Poly, _nodeInfo(activechild, ValidChild), Step) : _validChild(ValidChild)} 1.
+_isBinomial(Poly, Step)		:-	_step(Step),
+								_node(Poly), 
+								2 { _holds(Poly, _nodeInfo(activechild, ValidChild), Step) : _validChild(ValidChild)} 2.
+_isTrinomial(Poly, Step)	:-	_step(Step),
+								_node(Poly), 
+								3 { _holds(Poly, _nodeInfo(activechild, ValidChild), Step) : _validChild(ValidChild)} 3.
 
 _hasTermWithDeg(Poly, Deg, Step)	:-	_holds(Poly, _nodeInfo(Deg, Coeff), Step),
 										_degree(Deg),
@@ -92,8 +96,6 @@ _isZeroDegree(Poly, Step)	:-	not _hasHighDegreeTerms(Poly, Step),
 								not _hasTermWithDeg(Poly, 1, Step),
 								_hasTermWithDeg(Poly, 0, Step).
 
-_numTerms(Poly, Num, Step)	:-	_holds(Poly, _nodeInfo(numterms, Num), Step). 
-
 % terms
 _squareMonom(Poly, Coeff, Step)
 							:-	_holds(Poly, _nodeInfo(2, Coeff), Step).
@@ -104,8 +106,6 @@ _constMonom(Poly, Coeff, Step)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% DEFINED POLYNOMIAL CONSTANTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 _introduce(Node, _nodeInfo(type, poly), Step)
-							:-	_setToUnitPoly(Node, Step).
-_introduce(Node, _nodeInfo(numterms, 1), Step)
 							:-	_setToUnitPoly(Node, Step).
 _introduce(Node, _nodeInfo(0, 1), Step)
 							:-	_setToUnitPoly(Node, Step).
