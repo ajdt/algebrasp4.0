@@ -110,8 +110,8 @@ _applicable(_action(distribute, _data(LeftTerm, RightTerm)), Step)
 			:-	_isMul(Root, Step),
 				_termOf(Root, LeftTerm, Step),
 				_termOf(Root, RightTerm, Step),
-				_numTerms(LeftTerm, 2, Step),	% temporary restriction used for testing
-				_numTerms(RightTerm, 2, Step),
+				_polySize(LeftTerm, 2, Step),	% temporary restriction used for testing
+				_polySize(RightTerm, 2, Step),
 				LeftTerm != RightTerm,
 				_isPolynomial(LeftTerm, Step),
 				_isPolynomial(RightTerm, Step).
@@ -130,7 +130,7 @@ ruleParam(distribute, prodsize, 1)
 				_numSubExpressions(Parent, Num, Step), Num > 2.
 ruleParam(distribute, polysize, Num) 
 			:-	_doAction(_action(distribute, _data(LeftTerm, RightTerm)), Step),
-				_numTerms(LeftTerm, Num, Step).
+				_polySize(LeftTerm, Num, Step).
 ruleParam(distribute, degree, 2) 
 			:-	_doAction(_action(distribute, _data(LeftTerm, RightTerm)), Step),
 				_isQuadratic(LeftTerm).

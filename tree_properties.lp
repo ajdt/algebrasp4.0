@@ -63,8 +63,6 @@ _applyNodeOp(Child, delete, Step)	% figure out better way to do this
 
 % deleting a monomial
 % 
-% NOTE: deleteMonomialOnly does not update numterms; useful if multiple deletes occur 
-% leading to multiple updates to numterms (and a race condition)
 _remove(Polynomial, _nodeInfo(Deg, Coeff), Step)
 					:-	_deleteMonomial(Polynomial, Deg, Step),
 						_degree(Deg), _coeff(Coeff),
