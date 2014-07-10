@@ -191,7 +191,7 @@ _applicable(_action(factor, _data(Poly)), Step)
 #show _isQuadratic/2.
 #show _isFactorable/2.
 #show _hasFactors/4.
-#show _applicable/3.
+#show _applicable/2.
 #show _isZero/2.
 #show _isMonomial/2.
 #show _validChild/2.
