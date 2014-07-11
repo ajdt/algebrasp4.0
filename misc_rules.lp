@@ -145,7 +145,7 @@ ruleParam(distribute, degree, 0)
 %================================================================================
 % factor (ax^2 + bx + c) --> (x + e) * (x + d)
 %================================================================================
-_applicable(_action(factor2, _data(Poly)), Step)
+_applicable(_action(factor, _data(Poly)), Step)
 			:-	_isQuadratic(Poly, Step),
 				_squareMonom(Poly, ACoeff, Step),
 				_isFactorable(Poly, Step),
@@ -158,7 +158,7 @@ _applicable(_action(factor2, _data(Poly)), Step)
 				_constMonom(Poly, CCoeff, Step),
 				CCoeff <=5,
 				CCoeff >= - 5.
-_applicable(_action(factor, _data(Poly, divideFirst)), Step)
+_applicable(_action(factor2, _data(Poly, divideFirst)), Step)
 			:-	_quadWithCommonTerm(Poly, Step).
 
 _factorPoly(Poly, Step)
@@ -194,8 +194,11 @@ _applicable(_action(factor, _data(Poly)), Step)
 #show _applicable/2.
 #show _isZero/2.
 #show _isMonomial/2.
-#show _validChild/2.
-:- not action(factorCommTerm).
-:- action(Name), Name != factorCommTerm.
+#show _setTempOper/3.
+#show _initTempAsOper/2.
+#show _tempNode/1.
+#show _introduce/3.
+:- not action(factor).
+%:- action(Name), Name != factor2.
 % TODO: remove this
 %:- _step(Step), not _isMonomial(right_side, Step).

@@ -16,7 +16,7 @@
 % I don't want these constants to be changed, so they're not in gen_param.lp
 #const numLayers 	=	5.
 #const maxChildren	=	2.	% limit on children of operator nodes
-#const maxDepth		=	3.	% limits number of layers used during generation
+#const maxDepth		=	2.	% limits number of layers used during generation
 
 #const right_side	= _id(1,2).	% useful aliases for left/right used by rule files
 #const left_side 	= _id(1,1).
@@ -118,8 +118,8 @@ _initially(_id(ParentLayer, ParentNum), _nodeInfo(denom, _id(ChildLayer, SndChil
 
 
 % set right side to zero polynomial
-% _initially(_id(1,2), _nodeInfo(type, poly)).
-% _initially(_id(1,2), _nodeInfo(0, 0)).
+ _initially(_id(1,2), _nodeInfo(type, poly)).
+ _initially(_id(1,2), _nodeInfo(0, 0)).
 % code for allocating unused nodes
 _freeNode(Node, Step)	% tempNodes don't count as freeNodes
 				:-	_node(Node),
