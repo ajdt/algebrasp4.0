@@ -310,9 +310,14 @@ _tempToPoly(Node, Step)
 
 				% multiplying polynomials
 
+% isolate the two operands (makes some groundings smaller
+_multipliedPoly(Poly1, Step) 
+					:-	_multiplyPolys(Poly1, Poly2, Step).
+_multiplier(Poly2, Step) 
+					:-	_multiplyPolys(Poly1, Poly2, Step).
 % setup parent/child pointers
 _activateTempNode(PolyNum, Step)
-:-	_multiplyPolys(Poly1, Poly2, Step),
+:-	_multiplier(Poly2, Step),
 	_polySize(Poly2, Num, Step),
 	PolyNum = 1..Num.
 
@@ -325,30 +330,29 @@ _tempResult(_id(temp, 2,PolyNum), _nodeInfo(type, poly), Step)
 	:-	_activateTempNode(PolyNum, Step).
 
 
-
-% store result in temp node, TODO: use existing predicates to change operator 
+% store result in temp node
 _setTempOper(_id(temp, 1,1), add, Step)
-					:-	_multiplyPolys(Poly, Mono, Step).
+					:-	_multiplier(Poly2, Step).
 
 % NOTE: a standard polynomial is created for each monomial of Poly2
 % TODO: polySize only defined for polynomials with 3 terms or fewer!
 _tempResult(_id(temp, 1,1), _nodeInfo(numchildren, Size), Step)
-					:-	_multiplyPolys(Poly1, Poly2, Step),
+					:-	_multiplier(Poly2, Step),
 						_polySize(Poly2, Size, Step).
 % multiply each pair of monomials
 % each poly/coeff pair of Poly2 will become a separate standard poly
 _multTermsWith(_id(temp, 2, Deg2+1), Coeff2, Step)
-					:-	_multiplyPolys(Poly1, Poly2, Step),
+					:-	_multiplier(Poly2, Step),
 						_holds(Poly2, _nodeInfo(Deg2, Coeff2), Step),
-						_degree(Deg2),
+						_degree(Deg2), _coeff(Coeff2),
 						not _tempNode(Poly2).
 % Poly2 is distributed across Poly1, so each Poly1 term is assigned to
 % temp nodes
 _origMonom(_id(temp, 2, PolyNum), _mono(Deg1, Coeff1), Step)
-					:-	_multiplyPolys(Poly1, Poly2, Step),
+					:-	_multipliedPoly(Poly1, Step),
 						_tempResult(_id(temp, 2,PolyNum), _nodeInfo(active, yes), Step),
 						_holds(Poly1, _nodeInfo(Deg1, Coeff1), Step),
-						_degree(Deg1),
+						_degree(Deg1), _coeff(Coeff1),
 						not _tempNode(Poly1).
 % multiply each assigned Poly1 term from above with the corresponding monomial
 _tempResult(_id(temp, 2, NodeNum), _nodeInfo(Deg + NodeNum - 1, Coeff * Multiplier), Step)
