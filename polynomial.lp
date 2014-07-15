@@ -42,12 +42,11 @@ _quadWithCommonTerm(Poly, Step)
 				_squareMonom(Poly, ACoeff, Step),
 				_isFactorable(Poly, Step),
 				ACoeff != 1,
-				ACoeff <=5,
-				ACoeff >= - 5,
+				|ACoeff| > 0,
+				|ACoeff| <= 5,
 				_linearMonom(Poly, BCoeff, Step),
-				BCoeff \ ACoeff == 0,
-				ACoeff != 0,
-				(CCoeff \ ACoeff) == 0,
+				%(BCoeff \ ACoeff) == 0, % TODO: why do these cause a floating point error?
+				%(CCoeff \ ACoeff) == 0,
 				BCoeff <=5,
 				BCoeff >= - 5,
 				_constMonom(Poly, CCoeff, Step),
@@ -123,8 +122,8 @@ _unequal(Poly1, Poly2, Step)
 								_holds(Poly1, _nodeInfo(Deg, Coeff), Step),
 								not _holds(Poly2, _nodeInfo(Deg, Coeff), Step),
 								_layerOf(Poly1, Layer),
-								_layerOf(Poly2, Layer),
-								Poly1 < Poly2.
+								_layerOf(Poly2, Layer).
+								%Poly1 < Poly2.
 _equal(Poly1, Poly2, Step)
 							:-	_holds(Poly1, _nodeInfo(type, poly), Step),
 								_holds(Poly2, _nodeInfo(type, poly), Step),
