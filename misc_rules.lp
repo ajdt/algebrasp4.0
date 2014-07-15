@@ -180,6 +180,8 @@ _doAction(_action(factor, _data(Poly)), Step)
 _applicable(_action(factor, _data(Poly)), Step)
 			:-	_factorNext(Poly, Step),
 				_step(Step).
+% rule features -- 
+% 	perfect square, factor out const, b term is zero?, c term is zero?
 #show _divideByLeadingCoeff/2.
 #show _tempResult/3.
 #show _mapto/3.

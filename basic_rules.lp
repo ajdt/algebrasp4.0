@@ -63,6 +63,7 @@ _applicable(_action(divIdent, _data(Div)), Step)
 			:-	_isDiv(Div, Step),
 				_numerOf(Div, Numer, Step),
 				_denomOf(Div, Denom, Step),
+				not _isZero(Denom, Step),
 				_equal(Numer, Denom, Step).
 
 
@@ -91,5 +92,5 @@ _applicable(_action(addCommTerms, _data(LeftPoly, RightPoly)), Step)
 % TODO: delete this, only for debugging purposes
 _addTerms(LeftPoly, RightPoly, Step)
 			:-	_doAction(_action(addCommTerms, _data(LeftPoly, RightPoly)), Step).
-:- not action(addCommTerms).
-:- action(Name), Name != addCommTerms.
+%:- not action(addCommTerms).
+%:- action(Name), Name != addCommTerms.
