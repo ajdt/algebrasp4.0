@@ -67,6 +67,8 @@ _polySize(Poly, 3, Step)	:-	_isTrinomial(Poly, Step).
 _polySize(Poly, 2, Step)	:-	_isBinomial(Poly, Step).
 _polySize(Poly, 1, Step)	:-	_isMonomial(Poly, Step).
 
+_hasZeroTerm(Poly, Step)			:-	_holds(Poly, _nodeInfo(Deg, 0), Step),
+										_degree(Deg).
 _hasTermWithDeg(Poly, Deg, Step)	:-	_holds(Poly, _nodeInfo(Deg, Coeff), Step),
 										_degree(Deg),
 										Coeff != 0.
@@ -81,6 +83,10 @@ _isOne(Poly, Step)	:-	_isMonomial(Poly, Step),
 						_holds(Poly, _nodeInfo(0, 1), Step). % remove _isUnitMonomial?
 _isConst(Poly, Step)	:-	_isMonomial(Poly, Step),
 						_hasTermWithDeg(Poly, 0, Step).
+_isConst(Poly, Step)	:-	_isMonomial(Poly, Step),	% handles case where monomial is just 0
+							_hasZeroTerm(Poly, Step).
+_isXTerm(Poly, Step)	:-	_isMonomial(Poly, Step),
+						_holds(Poly, _nodeInfo(1, 1), Step). 
 
 % XXX: assumes max assignable degree is 3
 _isQuadratic(Poly, Step)	:-	not _hasHighDegreeTerms(Poly, Step),

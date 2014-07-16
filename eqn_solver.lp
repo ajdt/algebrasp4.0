@@ -43,6 +43,14 @@ _actionForStep(S) :- _doAction(Action,S).
 % predicate used to project based on actions taken
 action(Name) :- _doAction(_action(Name, Data), S).
 
+% solvability constraints
+_eqn_solved		:-	_solved(Step).
+_solved(Step)	:-	_isConst(right_side, Step),
+					_isXTerm(left_side, Step).
+:- not _eqn_solved.
+%_isMul(Root, Step),
+%_termOf(Root, Child, Step),
+
 #show _holds/3.
 #show _doAction/2.
 #show action/1.
