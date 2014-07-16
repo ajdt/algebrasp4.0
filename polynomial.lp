@@ -32,9 +32,12 @@ _isUnitMonomial(_monomial(1, Deg))		:-	_monomial(1, Deg).
 _isConstMonomial(_monomial(Coeff, 0))	:-	_monomial(Coeff, 0).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% GENERATING POLYNOMIALS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% pick a monomial at random from set of base monomials
-1 { _hasMonom(Node, Deg, Coeff) : _coeff(Coeff), _baseMonom(Coeff,Deg) } 1 
-			:-	_makePolyWithOrder(Node, Order), _degree(Deg), Deg <= Order.
+% pick exactly one monomial of given order, and for each degree less than
+% the given order, pick at most one monomial
+1 { _hasMonom(Node, Order, Coeff) : _coeff(Coeff), _baseMonom(Coeff,Order) } 1 
+			:-	_makePolyWithOrder(Node, Order).
+0 { _hasMonom(Node, Deg, Coeff) : _coeff(Coeff), _baseMonom(Coeff,Deg) } 1 
+			:-	_makePolyWithOrder(Node, Order), _degree(Deg), Deg < Order.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% POLYNOMIAL PROPERTIES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 _quadWithCommonTerm(Poly, Step)
