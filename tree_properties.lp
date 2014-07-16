@@ -92,7 +92,7 @@ _introduce(Copy, _nodeInfo(X,Y), Step)
 					:-	_copyNodeInfo(Copy, Orig, Step),
 						_holds(Orig, _nodeInfo(X,Y), Step),
 						_degree(X), _coeff(Y),
-						|-Y| <= 10.	% TODO: remove restriction on coeff and degrees, used to see if grounding shrinks
+						|-Y| <= maxCoeff.	% TODO: remove restriction on coeff and degrees, used to see if grounding shrinks
 _introduce(Copy, _nodeInfo(X,Y), Step)
 					:-	_copyNodeInfo(Copy, Orig, Step),
 						_holds(Orig, _nodeInfo(X,Y), Step),
@@ -102,7 +102,7 @@ _introduce(Copy, _nodeInfo(X,Y), Step)
 					:-	_copyNodeInfo(Copy, Orig, Step),
 						_tempResult(Orig, _nodeInfo(X,Y), Step),
 						_degree(X), _coeff(Y),
-						|-Y| <= 10.	% TODO: find out why grounding yields coefficients that are beyond preset bounds
+						|-Y| <= maxCoeff.	% TODO: find out why grounding yields coefficients that are beyond preset bounds
 _introduce(Copy, _nodeInfo(X,Y), Step)
 					:-	_copyNodeInfo(Copy, Orig, Step),
 						_tempResult(Orig, _nodeInfo(X,Y), Step),
