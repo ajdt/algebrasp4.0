@@ -47,7 +47,7 @@ action(Name) :- _doAction(_action(Name, Data), S).
 _eqn_solved		:-	_solved(Step).
 _solved(Step)	:-	_isConst(right_side, Step),
 					_isXTerm(left_side, Step).
-:- not _eqn_solved.
+%:- not _eqn_solved.
 %_isMul(Root, Step),
 %_termOf(Root, Child, Step),
 

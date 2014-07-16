@@ -16,7 +16,7 @@
 % I don't want these constants to be changed, so they're not in gen_param.lp
 #const numLayers 	=	5.
 #const maxChildren	=	2.	% limit on children of operator nodes
-#const maxDepth		=	2.	% limits number of layers used during generation
+#const maxDepth		=	3.	% limits number of layers used during generation
 
 #const right_side	= _id(1,2).	% useful aliases for left/right used by rule files
 #const left_side 	= _id(1,1).
@@ -135,4 +135,9 @@ _freeNode(Node, Step)
 :- _freeNode(FreeNode, Step), _step(Step), 2 {_mapto(Node, FreeNode, Step) : _node(Node) }.
 
 
+				%%% fraction constraints 
+% fractions should not have zero denominators
+:- _isDiv(Frac, Step),
+	_denomOf(Frac, Denom, Step),
+	_isZero(Denom, Step).
 #show _initially/2.
