@@ -308,6 +308,55 @@ _tempToPoly(Node, Step)
 
 				% Arithmetic Operations
 
+				% adding fractions (same denom)
+
+%	1. generate temp result -- root is a division operation
+%	2. numerator is sum of previous numerators
+%	3. denom is common denominator from before
+
+% isolate the two fractions
+_rightFraction(RightFrac, Step)
+					:-	_addFrac(LeftFrac, RightFrac, Step).
+_leftFraction(LeftFrac, Step)
+					:-	_addFrac(LeftFrac, RightFrac, Step).
+
+_deleteChildrenOf(RightFrac, Step)
+					:-	_rightFraction(RightFrac, Step).
+__applyNodeOp(RightFrac, clear, Step)
+					:-	_rightFraction(RightFrac, Step).
+% copy denom to right frac
+_copyNodeInfo(RightFrac, Numer, Step)
+					:-	_rightFraction(RightFrac, Step),
+						_numerOf(RightFrac, Numer, Step).
+% TODO: remove frac fields from lhs
+% convert root to div node and add appropriate terms
+_update(Root, _nodeInfo(operation, div), Step)
+					:-	_rightFraction(RightFrac, Step),
+						_termOf(Root, RightFrac, Step).
+_introduce(Root, _nodeInfo(denom, RightFrac), Step)
+					:-	_rightFraction(RightFrac, Step),
+						_termOf(Root, RightFrac, Step).
+_introduce(Root, _nodeInfo(numer, LeftFrac), Step)
+					:-	_leftFraction(LeftFrac, Step),
+						_termOf(Root, LeftFrac, Step).
+% convert left fraction into sum of a and c
+_update(LeftFrac, _nodeInfo(operation, add), Step)
+					:-	_leftFraction(LeftFrac, Step).
+
+% TODO: not clear what is going on here (to an outsider, or me in a week)
+% replace left frac's denom with copy of c term
+_replaceLDenomWithRNum(LeftDenom, Step)
+					:-	_leftFraction(LeftFrac, Step),
+						_denomOf(LeftFrac, LeftDenom, Step).
+
+_applyNodeOp(LeftDenom, clear, Step)
+					:-	_replaceLDenomWithRNum(LeftDenom, Step).
+_copyNodeInfo(LeftDenom, RightNumer, Step)
+					:-	_replaceLDenomWithRNum(LeftDenom, Step),
+						_rightFraction(RightFrac, Step),
+						_numerOf(RightFrac, RightNumer, Step).
+
+
 				% multiplying polynomials
 
 % isolate the two operands (makes some groundings smaller

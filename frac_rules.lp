@@ -59,5 +59,29 @@ _changeOperator(LeftFrac, mul, Step)
 			:-	_doAction(_action(multFrac, _data(LeftFrac, RightFrac)), Step).
 _changeOperator(RightFrac, mul, Step)
 			:-	_doAction(_action(multFrac, _data(LeftFrac, RightFrac)), Step).
-:- not action(multFrac).
-:- action(Name), Name != multFrac.
+
+%================================================================================
+% addSameFrac: a/b + c/b --> (a+c)/b
+%================================================================================
+_applicable(_action(addSameFrac, _data(LeftFrac, RightFrac)), Step)
+			:-	_isAdd(FracSum, Step),
+				_termOf(FracSum, LeftFrac, Step),
+				_termOf(FracSum, RightFrac, Step),
+				LeftFrac < RightFrac,
+				_isDiv(LeftFrac, Step),
+				_isDiv(RightFrac, Step),
+				% compare denominators of both fractions
+				_denomOf(LeftFrac, LeftDenom, Step),
+				_denomOf(RightFrac, RightDenom, Step),
+				_equal(LeftDenom, RightDenom, Step).
+
+%	performing action
+
+%	1. generate temp result -- root is a division operation
+%	2. numerator is sum of previous numerators
+%	3. denom is common denominator from before
+_addFrac(LeftFrac, RightFrac, Step)
+			:-	_applicable(_action(addSameFrac, _data(LeftFrac, RightFrac)), Step).
+
+:- not action(addSameFrac).
+:- action(Name), Name != addSameFrac.
