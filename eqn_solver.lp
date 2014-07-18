@@ -30,6 +30,10 @@ _holds(Node, Info, S+1) 	:-	_introduce(Node, Info, S),
 _holds(Node, Info, S+1) 	:-	_update(Node, Info, S),
 								_step(S+1).
 
+_remove(Node, _nodeInfo(FieldName, Value), Step)	% removing a single field
+							:-	_removeField(Node, FieldName, Step),
+								_holds(Node, _nodeInfo(FieldName, Value), Step).
+
 				%selecting rules
 % select no more than one action per step
 { _doAction(Action, S) : _applicable(Action, S) } 1 :- _step(S).
