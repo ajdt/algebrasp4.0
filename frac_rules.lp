@@ -95,8 +95,8 @@ _applicable(_action(addDiffFrac, _data(LeftFrac, RightFrac)), Step)
 
 %	performing action
 
-%_addFrac(LeftFrac, RightFrac, Step)
-%			:-	_applicable(_action(addDiffFrac, _data(LeftFrac, RightFrac)), Step).
+_addDiffFrac(LeftFrac, RightFrac, Step)
+			:-	_applicable(_action(addDiffFrac, _data(LeftFrac, RightFrac)), Step).
 
 :- not action(addDiffFrac).
 :- action(Name), Name != addDiffFrac.

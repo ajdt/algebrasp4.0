@@ -369,6 +369,55 @@ _copyNodeInfo(LeftDenom, RightNumer, Step)
 						_rightFraction(RightFrac, Step),
 						_numerOf(RightFrac, RightNumer, Step).
 
+				% ADDING FRACTIONS (DIFFERENT DENOM)
+% 0. isolate the two fraction terms
+_rightDiffFraction(RightFrac, Step)
+					:-	_addDiffFrac(LeftFrac, RightFrac, Step).
+_leftDiffFraction(LeftFrac, Step)
+					:-	_addDiffFrac(LeftFrac, RightFrac, Step).
+
+% 1. set right fraction to (d * c)
+_changeOperator(RightFrac, mul, Step)
+					:-	_rightDiffFraction(RightFrac, Step).
+_applyNodeOp(RightNumer, clear, Step)	% clear numerator and replace it with CTerm
+					:-	_rightDiffFraction(RightFrac, Step),
+						_numerOf(RightFrac, RightNumer, Step).
+_copyNodeInfo(RightNumer, CTerm, Step)
+					:-	_rightDiffFraction(RightFrac, Step),
+						_numerOf(RightFrac, RightNumer, Step),
+						_leftDiffFraction(LeftFrac, Step),
+						_denomOf(LeftFrac, CTerm, Step).
+% 2. convert root to div node and add numer/denom fields
+%_update(Root, _nodeInfo(operation, div), Step)
+%					:-	_rightDiffFraction(RightFrac, Step),
+%						_termOf(Root, RightFrac, Step).
+%_introduce(Root, _nodeInfo(denom, RightFrac), Step)
+%					:-	_rightDiffFraction(RightFrac, Step),
+%						_termOf(Root, RightFrac, Step).
+%_introduce(Root, _nodeInfo(numer, LeftFrac), Step)
+%					:-	_leftDiffFraction(LeftFrac, Step),
+%						_termOf(Root, LeftFrac, Step).
+%% 3. convert left fraction into sum of a and c
+%_update(LeftFrac, _nodeInfo(operation, add), Step)
+%					:-	_leftDiffFraction(LeftFrac, Step).
+% remove frac fields from lhs
+%_removeField(LeftFrac, numer, Step)
+%					:-	_leftDiffFraction(LeftFrac, Step).
+%_removeField(LeftFrac, denom, Step)
+%					:-	_leftDiffFraction(LeftFrac, Step).
+%
+%% 4. replace left frac's denom with copy of c term
+%_replaceLeftDenomWithRightNum(LeftDenom, Step)
+%					:-	_leftDiffFraction(LeftFrac, Step),
+%						_denomOf(LeftFrac, LeftDenom, Step).
+%
+%_applyNodeOp(LeftDenom, clear, Step)
+%					:-	_replaceLeftDenomWithRightNum(LeftDenom, Step).
+%_copyNodeInfo(LeftDenom, RightNumer, Step)
+%					:-	_replaceLeftDenomWithRightNum(LeftDenom, Step),
+%						_rightDiffFraction(RightFrac, Step),
+%						_numerOf(RightFrac, RightNumer, Step).
+
 
 				% multiplying polynomials
 
