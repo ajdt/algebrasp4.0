@@ -77,11 +77,26 @@ _applicable(_action(addSameFrac, _data(LeftFrac, RightFrac)), Step)
 
 %	performing action
 
-%	1. generate temp result -- root is a division operation
-%	2. numerator is sum of previous numerators
-%	3. denom is common denominator from before
 _addFrac(LeftFrac, RightFrac, Step)
 			:-	_applicable(_action(addSameFrac, _data(LeftFrac, RightFrac)), Step).
 
-:- not action(addSameFrac).
-:- action(Name), Name != addSameFrac.
+%================================================================================
+% addDiffFrac: a/c + b/d --> (ad+bc)/(cd)
+%================================================================================
+_applicable(_action(addDiffFrac, _data(LeftFrac, RightFrac)), Step)
+			:-	_isAdd(FracSum, Step),
+				_termOf(FracSum, LeftFrac, Step),
+				_termOf(FracSum, RightFrac, Step),
+				LeftFrac < RightFrac,
+				_isDiv(LeftFrac, Step),
+				_isDiv(RightFrac, Step),
+				_allChildrenArePolynoms(LeftFrac, Step),
+				_allChildrenArePolynoms(RightFrac, Step).
+
+%	performing action
+
+%_addFrac(LeftFrac, RightFrac, Step)
+%			:-	_applicable(_action(addDiffFrac, _data(LeftFrac, RightFrac)), Step).
+
+:- not action(addDiffFrac).
+:- action(Name), Name != addDiffFrac.

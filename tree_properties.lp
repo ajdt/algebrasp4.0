@@ -3,6 +3,7 @@
 _isMul(Node, Step)	:-	_holds(Node, _nodeInfo(operation, mul), Step).
 _isAdd(Node, Step)	:-	_holds(Node, _nodeInfo(operation, add), Step).
 _isDiv(Node, Step)	:-	_holds(Node, _nodeInfo(operation, div), Step).
+_isOper(Node, Step)	:-	_holds(Node, _nodeInfo(type, oper), Step).
 
 _numSubExpressions(Node, NumKids, Step)	
 					:-	_holds(Node, _nodeInfo(numchildren, NumKids), Step).
@@ -13,6 +14,20 @@ _numerOf(Fraction, Numer, Step)
 					:-	_holds(Fraction, _nodeInfo(numer, Numer), Step).
 _denomOf(Fraction, Denom, Step)
 					:-	_holds(Fraction, _nodeInfo(denom, Denom), Step).
+
+% predicates to check if operator's children are all polynomials (leaves)
+_hasNonPolynomialChild(Node, Step)
+					:-	_node(Node), 
+						_step(Step),
+						_isOper(Node, Step),
+						_termOf(Node, Child, Step),
+						not _isPolynomial(Child, Step).
+_allChildrenArePolynoms(Node, Step)
+					:-	_node(Node), 
+						_step(Step),
+						_isOper(Node, Step),
+						not _hasNonPolynomialChild(Node, Step).
+
 
 
 
