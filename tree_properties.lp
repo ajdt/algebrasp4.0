@@ -406,16 +406,73 @@ _tempResult(_id(temp,1,1), _treeInfo(activechild, _id(temp,2,1)), Step)
 					:-	_action(addDiffFrac, Step). 
 _tempResult(_id(temp,1,1), _treeInfo(activechild, _id(temp,2,2)), Step)
 					:-	_action(addDiffFrac, Step). 
+
 % populate children with proper values
 % TODO: refactor this, it's too complex and you'll likely end up reusing the code anyway
-_tempResult(_id(temp,2,1), _nodeInfo(type, poly), Step)
+				% left child is a*d
+_tempResult(_id(temp, 2,1), _nodeInfo(type, oper), Step)
 					:-	_action(addDiffFrac, Step). 
-_tempResult(_id(temp,2,1), _nodeInfo(0, 1), Step)
+_tempResult(_id(temp, 2,1), _nodeInfo(operation, mul), Step)
 					:-	_action(addDiffFrac, Step). 
-_tempResult(_id(temp,2,2), _nodeInfo(type, poly), Step)
+	% set children
+_tempResult(_id(temp,2,1), _treeInfo(activechild, _id(temp,3,1)), Step)
 					:-	_action(addDiffFrac, Step). 
-_tempResult(_id(temp,2,2), _nodeInfo(1, 1), Step)
+_tempResult(_id(temp,2,1), _treeInfo(activechild, _id(temp,3,2)), Step)
 					:-	_action(addDiffFrac, Step). 
+	% child values
+_tempResult(_id(temp,3,1), _nodeInfo(type, poly), Step)
+					:-	_action(addDiffFrac, Step). 
+_copyPolyToTemp(_id(temp,3,1), LeftNumer, Step)
+					:-	_action(addDiffFrac, Step),
+						_leftDiffFraction(LeftFrac, Step),
+						_numerOf(LeftFrac, LeftNumer, Step). 
+_tempResult(_id(temp,3,2), _nodeInfo(type, poly), Step)
+					:-	_action(addDiffFrac, Step). 
+_copyPolyToTemp(_id(temp,3,2), RightDenom, Step)
+					:-	_action(addDiffFrac, Step),
+						_rightDiffFraction(RightFrac, Step),
+						_denomOf(RightFrac, RightDenom, Step). 
+% TODO
+% put this elsewhere, copying a polynomial to a temp node
+_tempResult(TempNode, _nodeInfo(Field,Value), Step)
+					:-	_copyPolyToTemp(TempNode, Poly, Step),
+						_holds(Poly, _nodeInfo(Field,Value), Step),
+						_degree(Field).
+
+				% right child is a*d
+_tempResult(_id(temp, 2,2), _nodeInfo(type, oper), Step)
+					:-	_action(addDiffFrac, Step). 
+_tempResult(_id(temp, 2,2), _nodeInfo(operation, mul), Step)
+					:-	_action(addDiffFrac, Step). 
+	% set children
+_tempResult(_id(temp,2,2), _treeInfo(activechild, _id(temp,3,3)), Step)
+					:-	_action(addDiffFrac, Step). 
+_tempResult(_id(temp,2,2), _treeInfo(activechild, _id(temp,3,4)), Step)
+					:-	_action(addDiffFrac, Step). 
+	% child values
+_tempResult(_id(temp,3,3), _nodeInfo(type, poly), Step)
+					:-	_action(addDiffFrac, Step). 
+_copyPolyToTemp(_id(temp,3,3), LeftDenom, Step)
+					:-	_action(addDiffFrac, Step),
+						_leftDiffFraction(LeftFrac, Step),
+						_denomOf(LeftFrac, LeftDenom, Step). 
+_tempResult(_id(temp,3,4), _nodeInfo(type, poly), Step)
+					:-	_action(addDiffFrac, Step). 
+_copyPolyToTemp(_id(temp,3,4), RightNumer, Step)
+					:-	_action(addDiffFrac, Step),
+						_rightDiffFraction(RightFrac, Step),
+						_numerOf(RightFrac, RightNumer, Step). 
+% TODO: come up with better way to use copyMappedSubtree
+_copyMappedSubtree(_id(temp,2,1), Step)
+					:-	_action(addDiffFrac, Step).
+_copyMappedSubtree(_id(temp,2,2), Step)
+					:-	_action(addDiffFrac, Step).
+#show _copyPolyToTemp/3.
+#show _tempResult/3.
+#show _copyNodeInfo/3.
+#show _mapto/3.
+#show _introduce/3.
+#show _copyMappedSubtree/2.
 %_update(LeftFrac, _nodeInfo(operation, add), Step)
 %					:-	_leftDiffFraction(LeftFrac, Step).
 % remove frac fields from lhs
