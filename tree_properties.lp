@@ -387,17 +387,35 @@ _copyNodeInfo(RightNumer, CTerm, Step)
 						_numerOf(RightFrac, RightNumer, Step),
 						_leftDiffFraction(LeftFrac, Step),
 						_denomOf(LeftFrac, CTerm, Step).
+% TODO: remove frac fields here and wherever necessary (create separate frac fields thingy)
+
 % 2. convert root to div node and add numer/denom fields
-%_update(Root, _nodeInfo(operation, div), Step)
-%					:-	_rightDiffFraction(RightFrac, Step),
-%						_termOf(Root, RightFrac, Step).
-%_introduce(Root, _nodeInfo(denom, RightFrac), Step)
-%					:-	_rightDiffFraction(RightFrac, Step),
-%						_termOf(Root, RightFrac, Step).
-%_introduce(Root, _nodeInfo(numer, LeftFrac), Step)
-%					:-	_leftDiffFraction(LeftFrac, Step),
-%						_termOf(Root, LeftFrac, Step).
-%% 3. convert left fraction into sum of a and c
+_changeToDiv(Root, RightFrac, LeftFrac, Step)
+					:-	_addDiffFrac(LeftFrac, RightFrac, Step),
+						_termOf(Root, RightFrac, Step).
+%% 3. clear left fraction, set temp result to left fraction
+_setResultTo(LeftFrac, Step)
+				:-	_leftDiffFraction(LeftFrac, Step).
+%% 4. set temp result to (a*d + b*c)
+_tempResult(_id(temp, 1,1), _nodeInfo(type, oper), Step)
+					:-	_action(addDiffFrac, Step). 
+_tempResult(_id(temp, 1,1), _nodeInfo(operation, add), Step)
+					:-	_action(addDiffFrac, Step). 
+	% set children
+_tempResult(_id(temp,1,1), _treeInfo(activechild, _id(temp,2,1)), Step)
+					:-	_action(addDiffFrac, Step). 
+_tempResult(_id(temp,1,1), _treeInfo(activechild, _id(temp,2,2)), Step)
+					:-	_action(addDiffFrac, Step). 
+% populate children with proper values
+% TODO: refactor this, it's too complex and you'll likely end up reusing the code anyway
+_tempResult(_id(temp,2,1), _nodeInfo(type, poly), Step)
+					:-	_action(addDiffFrac, Step). 
+_tempResult(_id(temp,2,1), _nodeInfo(0, 1), Step)
+					:-	_action(addDiffFrac, Step). 
+_tempResult(_id(temp,2,2), _nodeInfo(type, poly), Step)
+					:-	_action(addDiffFrac, Step). 
+_tempResult(_id(temp,2,2), _nodeInfo(1, 1), Step)
+					:-	_action(addDiffFrac, Step). 
 %_update(LeftFrac, _nodeInfo(operation, add), Step)
 %					:-	_leftDiffFraction(LeftFrac, Step).
 % remove frac fields from lhs

@@ -45,7 +45,8 @@ _actionForStep(S) :- _doAction(Action,S).
 :- _step(S), _step(S+1), not _actionForStep(S), _actionForStep(S+1).
 
 % predicate used to project based on actions taken
-action(Name) :- _doAction(_action(Name, Data), S).
+_action(Name, Step)	:-	_doAction(_action(Name, Data), Step).
+action(Name)		:-	_action(Name, Step).
 
 % solvability constraints
 _eqn_solved		:-	_solved(Step).
