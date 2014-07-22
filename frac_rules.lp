@@ -17,6 +17,17 @@ _cancelTerm(NumerC, Step)
 _cancelTerm(DenomC, Step)
 			:-	_doAction(_action(fracCancel, _data(NumerC, DenomC)), Step).
 %	rule features
+ruleParam(fracCancel, termSize, 0)
+			:-	_doAction(_action(fracCancel, _data(NumerC, DenomC)), Step),
+				_isMonomial(NumerC, Step).
+ruleParam(fracCancel, termSize, 1)
+			:-	_doAction(_action(fracCancel, _data(NumerC, DenomC)), Step),
+				_isBinomial(NumerC, Step).
+ruleParam(fracCancel, termSize, 2)
+			:-	_doAction(_action(fracCancel, _data(NumerC, DenomC)), Step),
+				_isPolynomial(NumerC, Step),
+				not _isMonomial(NumerC, Step),
+				not _isBinomial(NumerC, Step).
 
 %================================================================================
 % fracDiv: a/c / b/c --> a/b
