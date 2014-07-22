@@ -94,5 +94,23 @@ _applicable(_action(addCommTerms, _data(LeftPoly, RightPoly)), Step)
 % TODO: delete this, only for debugging purposes
 _addTerms(LeftPoly, RightPoly, Step)
 			:-	_doAction(_action(addCommTerms, _data(LeftPoly, RightPoly)), Step).
+
+% problem parameters
+ruleParam(addCommTerms, polynomsSize, 0) 
+			:-	_doAction(_action(addCommTerms, _data(LeftPoly, RightPoly)), Step),
+				_isMonomial(LeftPoly, Step),
+				_isMonomial(RightPoly, Step).
+ruleParam(addCommTerms, polynomsSize, 1) 
+			:-	_doAction(_action(addCommTerms, _data(LeftPoly, RightPoly)), Step),
+				_isMonomial(LeftPoly, Step),
+				not _isMonomial(RightPoly, Step).
+ruleParam(addCommTerms, polynomsSize, 2) 
+			:-	_doAction(_action(addCommTerms, _data(LeftPoly, RightPoly)), Step),
+				not _isMonomial(LeftPoly, Step),
+				_isMonomial(RightPoly, Step).
+ruleParam(addCommTerms, polynomsSize, 2) 
+			:-	_doAction(_action(addCommTerms, _data(LeftPoly, RightPoly)), Step),
+				not _isMonomial(LeftPoly, Step),
+				not _isMonomial(RightPoly, Step).
 %:- not action(addCommTerms).
 %:- action(Name), Name != addCommTerms.
