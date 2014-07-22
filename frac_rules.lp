@@ -98,5 +98,5 @@ _applicable(_action(addDiffFrac, _data(LeftFrac, RightFrac)), Step)
 _addDiffFrac(LeftFrac, RightFrac, Step)
 			:-	_applicable(_action(addDiffFrac, _data(LeftFrac, RightFrac)), Step).
 
-:- not action(addDiffFrac).
-:- action(Name), Name != addDiffFrac.
+%:- not action(addDiffFrac).
+%:- action(Name), Name != addDiffFrac.

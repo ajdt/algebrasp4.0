@@ -86,6 +86,8 @@ _applicable(_action(addCommTerms, _data(LeftPoly, RightPoly)), Step)
 			:-	_isAdd(Root, Step),
 				_termOf(Root, LeftPoly, Step),
 				_termOf(Root, RightPoly, Step),
+				_isPolynomial(LeftPoly, Step),
+				_isPolynomial(RightPoly, Step),
 				LeftPoly != RightPoly.
 
 
