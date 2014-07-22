@@ -56,6 +56,16 @@ _solved(Step)	:-	_isConst(right_side, Step),
 %_isMul(Root, Step),
 %_termOf(Root, Child, Step),
 
+% counting number of steps that have rule applications
+_numRuleApplications(Step)
+				:-	_actionForStep(Step), 
+					not _actionForStep(Step+1),
+					_step(Step),
+					_step(Step+1).
+_numRuleApplications(Step)
+				:-	_actionForStep(Step), 
+					not _step(Step+1).
+
 #show _holds/3.
 #show _doAction/2.
 #show action/1.
