@@ -90,6 +90,15 @@ _applicable(_action(addSameFrac, _data(LeftFrac, RightFrac)), Step)
 
 _addFrac(LeftFrac, RightFrac, Step)
 			:-	_applicable(_action(addSameFrac, _data(LeftFrac, RightFrac)), Step).
+ruleParam(addSameFrac, denomSize, 0)
+			:-	_doAction(_action(addSameFrac, _data(LeftFrac, RightFrac)), Step),
+				_denomOf(LeftFrac, Denom, Step),
+				_isMonomial(Denom, Step).
+ruleParam(addSameFrac, denomSize, 1)
+			:-	_doAction(_action(addSameFrac, _data(LeftFrac, RightFrac)), Step),
+				_denomOf(LeftFrac, Denom, Step),
+				_isPolynomial(Denom, Step),
+				not _isMonomial(Denom, Step).
 
 %================================================================================
 % addDiffFrac: a/c + b/d --> (ad+bc)/(cd)
@@ -107,7 +116,7 @@ _applicable(_action(addDiffFrac, _data(LeftFrac, RightFrac)), Step)
 %	performing action
 
 _addDiffFrac(LeftFrac, RightFrac, Step)
-			:-	_applicable(_action(addDiffFrac, _data(LeftFrac, RightFrac)), Step).
+			:-	_doAction(_action(addDiffFrac, _data(LeftFrac, RightFrac)), Step).
 
 %:- not action(addDiffFrac).
 %:- action(Name), Name != addDiffFrac.

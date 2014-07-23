@@ -200,7 +200,7 @@ _applicable(_action(factor, _data(Poly)), Step)
 #show _initTempAsOper/2.
 #show _tempNode/1.
 #show _introduce/3.
-:- not action(factor).
+%:- not action(factor).
 %:- action(Name), Name != factor2.
 % TODO: remove this
 %:- _step(Step), not _isMonomial(right_side, Step).
