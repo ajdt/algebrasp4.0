@@ -62,10 +62,6 @@ _validChild(_id(temp, Layer1, Num1), _id(temp, Layer2, Num2))
 _type(oper;poly).
 _operator(div;mul;add).
 _childCount(2..maxChildren).
-_side(left; right).
-_side(_id(1,1), left).
-_side(_id(1,2), right).
-
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% PROBLEM GENERATION %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -77,6 +73,7 @@ _initially(Node, _nodeInfo(active,yes))	:-	_root(Node).
  _initially(Node, _nodeInfo(type, poly))							:-	_initially(Node, _nodeInfo(active,yes)),
 																		_depth(Node, Depth), Depth = maxDepth.
 
+% assign operation to operator node
 1 { _initially(Node, _nodeInfo(operation, Op)) : _operator(Op) } 1	:-	_initially(Node, _nodeInfo(type, oper)).
 
 
@@ -132,48 +129,38 @@ _freeNode(Node, Step)
 1 { _mapto(OldNode, NewNode, Step) : _freeNode(NewNode, Step), _layerOf(NewNode, Layer) } 1
 				:-	_mapNode(OldNode, Layer, Step).
 
+% each freeNode can be mapped to at most one other node
 :- _freeNode(FreeNode, Step), _step(Step), 2 {_mapto(Node, FreeNode, Step) : _node(Node) }.
 
 
-				%%% fraction constraints 
-% fractions should not have zero denominators
-:- _isDiv(Frac, Step),
-	_denomOf(Frac, Denom, Step),
-	_isZero(Denom, Step).
-
-% fractions should also not have denominators that reduce to zero (as in "0+0" or "0*0")
-% a node is nonzero if one of it's non-leaf nodes is nonzero
-% TODO: simplify this code a bit
-_notReducibleToZero(Parent, Step)
-				:-	_node(Parent),
-					_step(Step),
-					not _isPolynomial(Parent, Step),
-					_termOf(Parent, Child, Step),
-					_isNonZero(Child, Step).
-
-% a node is non-zero if one of its leaves is not zero
-_notReducibleToZero(Parent, Step)
-				:-	_node(Parent),
-					_termOf(Parent, Child, Step),
-					_isPolynomial(Child, Step),
-					not _isZero(Child, Step).
-% product nodes cannot have any child be zero
-_reducibleToZero(Parent, Step)
-				:-	_isMul(Parent, Step),
-					_termOf(Parent, Child, Step),
-					_isZero(Child, Step).
-
-% no denominator should ever be reducible to zero
-:-	_isDiv(Frac, Step),
-	_denomOf(Frac, Denom, Step),
-	not _isPolynomial(Denom, Step),
-	not _notReducibleToZero(Denom, Step).
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% FRACTION CONSTRAINTS  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% no denominator should be reducible to zero
 :-	_isDiv(Frac, Step), 
 	_denomOf(Frac, Denom, Step),
 	_reducibleToZero(Denom, Step).
 
-#show _isNonZero/2.
-#show _isZero/2.
+% defining reducibility to zero
+_reducibleToZero(Node, Step)
+				:-	_isPolynomial(Node, Step),
+					_isZero(Node, Step).
+_notReducibleToZero(Node, Step)
+				:-	_isPolynomial(Node, Step),
+				not _isZero(Node, Step).
+_notReducibleToZero(Node, Step)
+				:-	_isOper(Node, Step),
+					not _isMul(Node, Step),
+					_termOf(Node, Child, Step),
+					_notReducibleToZero(Child, Step).
+_reducibleToZero(Node, Step)	% mul nodes cannot have any term that is reducible to zero
+				:-	_isMul(Node, Step),
+					_termOf(Node, Child, Step),
+					_reducibleToZero(Child, Step).
+_reducibleToZero(Node, Step)
+				:-	_isOper(Node, Step),
+					not _notReducibleToZero(Node, Step).
+_notReducibleToZero(Node, Step)
+				:-	_isOper(Node, Step),
+					not _reducibleToZero(Node, Step).
+
 
 #show _initially/2.
