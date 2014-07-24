@@ -110,7 +110,7 @@ _applicable(_action(distribute, _data(LeftTerm, RightTerm)), Step)
 			:-	_isMul(Root, Step),
 				_termOf(Root, LeftTerm, Step),
 				_termOf(Root, RightTerm, Step),
-				_polySize(LeftTerm, 2, Step),	% temporary restriction used for testing
+				_polySize(LeftTerm, 2, Step),	% TODO: remove, temporary restriction used for testing
 				_polySize(RightTerm, 2, Step),
 				LeftTerm != RightTerm,
 				_isPolynomial(LeftTerm, Step),

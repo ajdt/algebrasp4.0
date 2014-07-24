@@ -21,8 +21,9 @@ _baseMonom(Coeff, 0)		:-	_coeff(Coeff), |Coeff| < maxAssignConstCoeff.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% GENERATING POLYNOMIALS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% pick exactly one monomial of given order, and for each degree less than
-% the given order, pick at most one monomial
+% given order (degree) of polynomial to generate,
+% pick exactly one monomial of given order, and at most one monomial for each 
+% lesser degree
 1 { _hasMonom(Node, Order, Coeff) : _coeff(Coeff), _baseMonom(Coeff,Order) } 1 
 			:-	_makePolyWithOrder(Node, Order).
 0 { _hasMonom(Node, Deg, Coeff) : _coeff(Coeff), _baseMonom(Coeff,Deg) } 1 

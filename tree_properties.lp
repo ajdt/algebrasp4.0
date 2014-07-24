@@ -502,6 +502,7 @@ _multipliedPoly(Poly1, Step)
 _multiplier(Poly2, Step) 
 					:-	_multiplyPolys(Poly1, Poly2, Step).
 % setup parent/child pointers
+% TODO: warning, polySize is undefined if polynomials has more than four terms
 _activateTempNode(PolyNum, Step)
 :-	_multiplier(Poly2, Step),
 	_polySize(Poly2, Num, Step),
