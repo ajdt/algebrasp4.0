@@ -191,6 +191,8 @@ _swapTerms(Numer, Denom, Step)
 %================================================================================
 % 			NODE ALLOCATION
 %================================================================================
+% NOTE: mapNodeRec just maps a subtree
+%		copyMappedSubtree will copy a subtree that has been mapped, to a new tree
 
 	%%%% mapping a subtree or a temp subtree %%%%
 _mapNodeRec(Child, Layer+1, Step)
@@ -200,7 +202,7 @@ _mapNodeRec(Child, Layer+1, Step)
 						_node(Node),
 						_step(Step).
 
-_mapNodeRec(Child, Layer+1, Step)	% separate version for temp nodes
+_mapNodeRec(Child, Layer+1, Step)	% separate version for mpaping temp node subtrees
 					:-	_mapNodeRec(Node, Layer, Step),
 						_tempResult(Node, _treeInfo(activechild, Child), Step),
 						_layer(Layer),
@@ -240,9 +242,8 @@ _mapNodeRec(Node, Layer + 1, Step)
 						_layerOf(Node, Layer).
 
 	%%%% setting results (saving a temp result) %%%%
-% copy over parent/child links
+% setResultTo() indicates what node to set temp result to (always rooted at _id(temp,1,1) )
 
-% TODO: alternative -- map entire subtree, but ensure temp,1,1 maps to root node
 % NOTE: all shallow copying for mapped-to nodes is handled elsewhere
 _introduce(Root, _treeInfo(activechild, RegNode), Step)
 					:-	_mapto(TempNode, RegNode, Step),
