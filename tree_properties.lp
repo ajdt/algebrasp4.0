@@ -330,12 +330,8 @@ _changeToDiv(Root, RightFrac, LeftFrac, Step)
 % 3. convert left fraction into sum of a and c
 _update(LeftFrac, _nodeInfo(operation, add), Step)
 					:-	_leftFraction(LeftFrac, Step).
-% remove frac fields from lhs
-_removeField(LeftFrac, numer, Step)
+_removeFracFields(LeftFrac, Step)
 					:-	_leftFraction(LeftFrac, Step).
-_removeField(LeftFrac, denom, Step)
-					:-	_leftFraction(LeftFrac, Step).
-
 % 4. replace left frac's denom with copy of c term
 _replaceLeftDenomWithRightNum(LeftDenom, Step)
 					:-	_leftFraction(LeftFrac, Step),
