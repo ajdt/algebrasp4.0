@@ -188,26 +188,6 @@ _swapTerms(Numer, Denom, Step)
 					:-	_swapNumerDenom(Frac, Step),
 						_numerOf(Frac, Numer, Step),
 						_denomOf(Frac, Denom, Step).
-	%%%% group terms %%%%
-_shiftDownSubtree(Term1, Step)
-					:-	_groupTerms(Term1, Term2, Step).
-_shiftDownSubtree(Term2, Step)
-					:-	_groupTerms(Term1, Term2, Step).
-_applyNodeOp(Term2, delete, Step)
-					:-	_groupTerms(Term1, Term2, Step).
-_changeOperator(Term1, mul, Step)
-					:-	_groupTerms(Term1, Term2, Step).
-% initialize new fields for Term1
-_introduce(Term1, _nodeInfo(numchildren, 2), Step)
-					:-	_changeOperator(Term1, mul, Step).
-_introduce(Term1, _treeInfo(activechild, NewTerm), Step)
-					:-	_changeOperator(Term1, mul, Step),
-						_mapto(Term1, NewTerm, Step).
-_introduce(Term1, _treeInfo(activechild, NewTerm), Step)
-					:-	_groupTerms(Term1, Term2, Step),
-						_mapto(Term2, NewTerm, Step).
-% a deallocate children of predicate?
-
 %================================================================================
 % 			NODE ALLOCATION
 %================================================================================
