@@ -94,7 +94,11 @@ _applyNodeOp(Child, delete, Step)	% figure out better way to do this
 						_termOf(Parent, Child, Step).
 
 
-					% Copying a Node
+%================================================================================
+% 			COPYING A NODE
+%================================================================================
+% NOTE: shallowCopy copies both data and pointers, copyNodeInfo copies
+%		only _nodeInfo data
 _introduce(Copy, Info, Step)
 					:-	_shallowCopy(Copy, Orig, Step),
 						_holds(Orig, Info, Step).
@@ -105,7 +109,7 @@ _introduce(Copy, _nodeInfo(X,Y), Step)
 					:-	_copyNodeInfo(Copy, Orig, Step),
 						_holds(Orig, _nodeInfo(X,Y), Step),
 						_degree(X), _coeff(Y),
-						|-Y| <= maxCoeff.	% TODO: remove restriction on coeff and degrees, used to see if grounding shrinks
+						|-Y| <= maxCoeff.	
 _introduce(Copy, _nodeInfo(X,Y), Step)
 					:-	_copyNodeInfo(Copy, Orig, Step),
 						_holds(Orig, _nodeInfo(X,Y), Step),
@@ -127,9 +131,9 @@ _shallowCopy(Node1, Node2, Step)
 _shallowCopy(Node2, Node1, Step)
 					:-	_swapTerms(Node1, Node2, Step).
 
-
-							%				CHANGE NODE OPERATOR
-% change node operator
+%================================================================================
+% 			CHANGE OPERATOR TYPE
+%================================================================================
 _update(Node, _nodeInfo(operation, Oper), Step)
 					:-	_changeOperator(Node, Oper, Step),
 						_holds(Node, _nodeInfo(type, oper), Step).
@@ -151,6 +155,7 @@ _removeFracFields(Node, Step)
 					:-	_changeOperator(Node, Oper, Step),
 						_holds(Node, _nodeInfo(operation, div), Step).
 
+% if changing a div operator, remove fractional fields
 _remove(DivNode, _nodeInfo(numer, X), Step)
 					:-	_removeFracFields(DivNode, Step),
 						_holds(DivNode, _nodeInfo(numer, X), Step).
