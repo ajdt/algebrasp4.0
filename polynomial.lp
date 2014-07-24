@@ -71,6 +71,14 @@ _hasHighDegreeTerms(Poly, Step)	:-	_hasTermWithDeg(Poly, Deg, Step),
 _isZero(Poly, Step)	:-	_isMonomial(Poly, Step),
 						_degree(Deg),
 						_holds(Poly, _nodeInfo(Deg, 0), Step). % remove _isZeroMonomial?
+% a polynomial is zero if it's reducible to zero as well
+_isZero(Poly, Step)	:-	_isPolynomial(Poly, Step),
+						not _notReducibleToZero(Poly, Step).
+_notReducibleToZero(Poly, Step)	
+					:-	_isPolynomial(Poly, Step),
+						_degree(Deg),
+						_holds(Poly, _nodeInfo(Deg, Coeff), Step),
+						Coeff != 0.
 
 _isOne(Poly, Step)	:-	_isMonomial(Poly, Step),
 						_holds(Poly, _nodeInfo(0, 1), Step). % remove _isUnitMonomial?
