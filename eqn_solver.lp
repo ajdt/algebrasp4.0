@@ -16,12 +16,6 @@ _holds(Node, Info, S+1) 	:-	_holds(Node, Info, S),
 								not _tempNode(Node),
 								not _remove(Node, Info, S).
 
-_remove(Node, _nodeInfo(FieldName, FieldValue), S) 	:-	_update(Node, _nodeInfo(FieldName, NewValue), S),
-														_holds(Node, _nodeInfo(FieldName, FieldValue), S).
-_remove(Node, _treeInfo(FieldName, FieldValue), S) 	:-	_update(Node, _treeInfo(FieldName, NewValue), S),
-														_holds(Node, _treeInfo(FieldName, FieldValue), S).
-
-
 % 						### Introducing facts
 %--------------------------------------------------------------------------------
 % Note: to update a field means to remove old field and add the new field value
@@ -30,41 +24,54 @@ _holds(Node, Info, S+1) 	:-	_introduce(Node, Info, S),
 _holds(Node, Info, S+1) 	:-	_update(Node, Info, S),
 								_step(S+1).
 
-_remove(Node, _nodeInfo(FieldName, Value), Step)	% removing a single field
+% 						### Removing facts
+%--------------------------------------------------------------------------------
+_remove(Node, _nodeInfo(FieldName, FieldValue), S) 	:-	_update(Node, _nodeInfo(FieldName, NewValue), S),
+														_holds(Node, _nodeInfo(FieldName, FieldValue), S).
+_remove(Node, _treeInfo(FieldName, FieldValue), S) 	:-	_update(Node, _treeInfo(FieldName, NewValue), S),
+														_holds(Node, _treeInfo(FieldName, FieldValue), S).
+% removing a single field
+_remove(Node, _nodeInfo(FieldName, Value), Step)	
 							:-	_removeField(Node, FieldName, Step),
 								_holds(Node, _nodeInfo(FieldName, Value), Step).
 
-				%selecting rules
+% 						### Selecting actions
+%--------------------------------------------------------------------------------
 % select no more than one action per step
+% NOTE: polynomial rules can instantiate a _doAction() to force next action in a sequence of steps
 { _doAction(Action, S) : _applicable(Action, S) } 1 :- _step(S).
 :- _step(Step), 2 { _doAction(Action, Step) : _applicable(Action, Step) }.
-% NOTE: polynomial rules can instantiate a _doAction() to force next action in a sequence of steps
 
-				% ensure all steps are done first
-_actionForStep(S) :- _doAction(Action,S).
-:- _step(S), _step(S+1), not _actionForStep(S), _actionForStep(S+1).
+% ensure all rule applications are done first
+_stepHasAction(S) :- _doAction(Action,S).
+:- _step(S), _step(S+1), not _stepHasAction(S), _stepHasAction(S+1).
 
+% 						### Action properties
+%--------------------------------------------------------------------------------
 % predicate used to project based on actions taken
 _action(Name, Step)	:-	_doAction(_action(Name, Data), Step).
 action(Name)		:-	_action(Name, Step).
 
-% solvability constraints
+% counting number of steps that have rule applications
+_numRuleApplications(Step)
+				:-	_stepHasAction(Step), 
+					not _stepHasAction(Step+1),
+					_step(Step),
+					_step(Step+1).
+_numRuleApplications(Step)
+				:-	_stepHasAction(Step), 
+					not _step(Step+1).
+
+% 						### Solvability constraints
+%--------------------------------------------------------------------------------
+% 
 _eqn_solved		:-	_solved(Step).
-_solved(Step)	:-	_isConst(right_side, Step),
+_solved(Step)	:-	_isConst(right_side, Step),	% condition: 	x = c
 					_isXTerm(left_side, Step).
 %:- not _eqn_solved.
 %_isMul(Root, Step),
 %_termOf(Root, Child, Step),
 
-% counting number of steps that have rule applications
-_numRuleApplications(Step)
-				:-	_actionForStep(Step), 
-					not _actionForStep(Step+1),
-					_step(Step),
-					_step(Step+1).
-_numRuleApplications(Step)
-				:-	_actionForStep(Step), 
-					not _step(Step+1).
 
 #show _holds/3.
 #show _doAction/2.
