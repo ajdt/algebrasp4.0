@@ -143,6 +143,7 @@ _freeNode(Node, Step)
 
 % fractions should also not have denominators that reduce to zero (as in "0+0" or "0*0")
 % a node is nonzero if one of it's non-leaf nodes is nonzero
+% TODO: simplify this code a bit
 _notReducibleToZero(Parent, Step)
 				:-	_node(Parent),
 					_step(Step),
@@ -156,12 +157,21 @@ _notReducibleToZero(Parent, Step)
 					_termOf(Parent, Child, Step),
 					_isPolynomial(Child, Step),
 					not _isZero(Child, Step).
+% product nodes cannot have any child be zero
+_reducibleToZero(Parent, Step)
+				:-	_isMul(Parent, Step),
+					_termOf(Parent, Child, Step),
+					_isZero(Child, Step).
 
 % no denominator should ever be reducible to zero
 :-	_isDiv(Frac, Step),
 	_denomOf(Frac, Denom, Step),
 	not _isPolynomial(Denom, Step),
 	not _notReducibleToZero(Denom, Step).
+
+:-	_isDiv(Frac, Step), 
+	_denomOf(Frac, Denom, Step),
+	_reducibleToZero(Denom, Step).
 
 #show _isNonZero/2.
 #show _isZero/2.
