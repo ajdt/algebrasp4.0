@@ -140,4 +140,30 @@ _freeNode(Node, Step)
 :- _isDiv(Frac, Step),
 	_denomOf(Frac, Denom, Step),
 	_isZero(Denom, Step).
+
+% fractions should also not have denominators that reduce to zero (as in "0+0" or "0*0")
+% a node is nonzero if one of it's non-leaf nodes is nonzero
+_notReducibleToZero(Parent, Step)
+				:-	_node(Parent),
+					_step(Step),
+					not _isPolynomial(Parent, Step),
+					_termOf(Parent, Child, Step),
+					_isNonZero(Child, Step).
+
+% a node is non-zero if one of its leaves is not zero
+_notReducibleToZero(Parent, Step)
+				:-	_node(Parent),
+					_termOf(Parent, Child, Step),
+					_isPolynomial(Child, Step),
+					not _isZero(Child, Step).
+
+% no denominator should ever be reducible to zero
+:-	_isDiv(Frac, Step),
+	_denomOf(Frac, Denom, Step),
+	not _isPolynomial(Denom, Step),
+	not _notReducibleToZero(Denom, Step).
+
+#show _isNonZero/2.
+#show _isZero/2.
+
 #show _initially/2.
