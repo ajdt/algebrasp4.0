@@ -41,6 +41,7 @@ _applyNodeOpRecursive(Child, Op, Step)
 					:-	_applyNodeOpRecursive(Node, Op, Step),
 						_termOf(Node, Child, Step).
 
+% applying the operations
 _remove(Node, Info, Step)	% clearing a node
 					:-	_applyNodeOp(Node, clear, Step),
 						_holds(Node, Info, Step),
@@ -55,7 +56,20 @@ _deallocated(Node, Step)	% deallocating a node
 					:-	_applyNodeOp(Node, deallocate, Step).
 _remove(Node, _nodeInfo(active, yes), Step)	
 					:-	_applyNodeOp(Node, deallocate, Step).
-					%	MISC DELETE PROPERTIES
+%================================================================================
+% 			MISC DELETE PROPERTIES
+%================================================================================
+% canceling a term
+_applyNodeOp(Term, delete, Step)	
+					:-	_cancelTerm(Term, Step).	% want both versions of cancelTerm for now (arity 2 and 3)
+_cancelTerm(Term, Step)	
+					:-	_cancelTerm(Expr, Term, Step),
+						_node(Term).
+
+_deleteMonomial(Poly, Term, Step)					% cancelTerm also means removing a monomterm from polynom
+					:-	_cancelTerm(Poly, Term, Step),
+						not _node(Term).
+
 % deleting a node means to remove all parent pointers, and the entire subtree rooted at that node
 _deleteChildReferences(Parent, Child, Step)
 					:-	_cancelTerm(Child, Step),	% cancelTerm/2 means term is its own node
@@ -67,29 +81,17 @@ _update(Parent, _nodeInfo(numchildren, NumKids - 1), Step)
 % remove parent pointer to child
 _remove(Parent, _treeInfo(activechild, Term), Step)
 					:-	_deleteChildReferences(Parent, Term, Step).
-% 'recursively' delete all children
-_applyNodeOp(Child, delete, Step)	% figure out better way to do this
-					:-	_deleteChildrenOf(Parent, Step),
-						_termOf(Parent, Child, Step).
 
 % deleting a monomial
-% 
 _remove(Polynomial, _nodeInfo(Deg, Coeff), Step)
 					:-	_deleteMonomial(Polynomial, Deg, Step),
 						_degree(Deg), _coeff(Coeff),
 						_holds(Polynomial, _nodeInfo(Deg, Coeff), Step).
 
-
-% canceling a term
-_deleteMonomial(Poly, Term, Step)		
-					:-	_cancelTerm(Poly, Term, Step),
-						not _node(Term).
-
-_cancelTerm(Term, Step)	
-					:-	_cancelTerm(Expr, Term, Step),
-						_node(Term).
-_applyNodeOp(Term, delete, Step)	
-					:-	_cancelTerm(Term, Step).	% want both versions of cancelTerm for now 
+% 'recursively' delete all children
+_applyNodeOp(Child, delete, Step)	% figure out better way to do this
+					:-	_deleteChildrenOf(Parent, Step),
+						_termOf(Parent, Child, Step).
 
 
 					% Copying a Node
