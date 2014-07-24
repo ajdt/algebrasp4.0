@@ -97,7 +97,7 @@ _isZeroDegree(Poly, Step)	:-	not _hasHighDegreeTerms(Poly, Step),
 								not _hasTermWithDeg(Poly, 1, Step),
 								_hasTermWithDeg(Poly, 0, Step).
 
-% terms
+% coefficients of second, first, and zero degree
 _squareMonom(Poly, Coeff, Step)
 							:-	_holds(Poly, _nodeInfo(2, Coeff), Step).
 _linearMonom(Poly, Coeff, Step)
@@ -129,13 +129,3 @@ _equal(Poly1, Poly2, Step)
 								not _unequal(Poly1, Poly2, Step), % didn't want to include separate _unequal rule for symmetry
 								not _unequal(Poly2, Poly1, Step).
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% POLYNOMIAL OPERATIONS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% TODO: update later due to changed polynomial representation
-_update(Poly, _nodeInfo(coeffof(Term1), _coeff(Coeff1+Coeff2)), Step)
-							:-	_addTerms(Poly, Term1, Term2, Step),
-								_holds(Poly, _nodeInfo(coeffof(Term1), _coeff(Coeff1)), Step),
-								_holds(Poly, _nodeInfo(coeffof(Term2), _coeff(Coeff2)), Step).
-% TODO: update later due to changed polynomial representation
-_cancelTerm(Poly, Term2, Step)
-							:-	_addTerms(Poly, Term1, Term2, Step).
