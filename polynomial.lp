@@ -15,21 +15,10 @@ _coeff(-1*maxCoeff..maxCoeff).
 _degree(0..maxDegree).
 
 % _baseMonom are used to initialize polynomials, they're a subset of allowable monomials
-_baseMonom(Coeff, 2)		:-	_coeff(Coeff), Coeff < maxAssignSquareCoeff, Coeff >= 0 .
-_baseMonom(Coeff, 2)		:-	_coeff(Coeff), -1*Coeff < maxAssignSquareCoeff, -1*Coeff >= 0 .
-_baseMonom(Coeff, 1)		:-	_coeff(Coeff), Coeff < maxAssignLinearCoeff, Coeff >= 0 .
-_baseMonom(Coeff, 1)		:-	_coeff(Coeff), -1*Coeff < maxAssignLinearCoeff, -1*Coeff >= 0 .
-_baseMonom(Coeff, 0)		:-	_coeff(Coeff), Coeff < maxAssignConstCoeff, Coeff >= 0 .
-_baseMonom(Coeff, 0)		:-	_coeff(Coeff), -1*Coeff < maxAssignConstCoeff, -1*Coeff >= 0 .
+_baseMonom(Coeff, 2)		:-	_coeff(Coeff), |Coeff| < maxAssignSquareCoeff.
+_baseMonom(Coeff, 1)		:-	_coeff(Coeff), |Coeff| < maxAssignLinearCoeff.
+_baseMonom(Coeff, 0)		:-	_coeff(Coeff), |Coeff| < maxAssignConstCoeff.
 
-% monomial definitions
-_monomial(Coeff, Deg)		:-	_coeff(Coeff),
-								_degree(Deg). 
-
-% monomial properties
-_isZeroMonomial(_monomial(0, Deg))		:-	_monomial(0, Deg).
-_isUnitMonomial(_monomial(1, Deg))		:-	_monomial(1, Deg).
-_isConstMonomial(_monomial(Coeff, 0))	:-	_monomial(Coeff, 0).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% GENERATING POLYNOMIALS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % pick exactly one monomial of given order, and for each degree less than
