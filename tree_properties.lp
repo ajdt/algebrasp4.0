@@ -1,4 +1,6 @@
-%Operator properties
+%================================================================================
+% 			OPERATOR PROPERTIES
+%================================================================================
 
 _isMul(Node, Step)	:-	_holds(Node, _nodeInfo(operation, mul), Step).
 _isAdd(Node, Step)	:-	_holds(Node, _nodeInfo(operation, add), Step).
@@ -28,15 +30,9 @@ _allChildrenArePolynoms(Node, Step)
 						_isOper(Node, Step),
 						not _hasNonPolynomialChild(Node, Step).
 
-
-
-
-% are there enough free nodes for tree to expand?
-_canGrowTreeFromNode(_id(Layer, Number), Step)	
-					:-	_node(_id(Layer, Number)), Layer <= maxDepth, _step(Step).
-
-
-							%				NODE OPERATIONS
+%================================================================================
+% 			NODE OPERATIONS
+%================================================================================
 _nodeOper(delete;deallocate;clear).
 
 _applyNodeOp(Node, Op, Step)
