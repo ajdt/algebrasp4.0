@@ -321,17 +321,12 @@ _applyNodeOp(RightFrac, clear, Step)
 					:-	_rightFraction(RightFrac, Step).
 _copyNodeInfo(RightFrac, BTerm, Step)
 					:-	_rightFraction(RightFrac, Step),
-						_numerOf(RightFrac, BTerm, Step).
+						_denomOf(RightFrac, BTerm, Step).
 % 2. convert root to div node and add numer/denom fields
-_update(Root, _nodeInfo(operation, div), Step)
+_changeToDiv(Root, RightFrac, LeftFrac, Step)
 					:-	_rightFraction(RightFrac, Step),
+						_leftFraction(LeftFrac, Step),
 						_termOf(Root, RightFrac, Step).
-_introduce(Root, _nodeInfo(denom, RightFrac), Step)
-					:-	_rightFraction(RightFrac, Step),
-						_termOf(Root, RightFrac, Step).
-_introduce(Root, _nodeInfo(numer, LeftFrac), Step)
-					:-	_leftFraction(LeftFrac, Step),
-						_termOf(Root, LeftFrac, Step).
 % 3. convert left fraction into sum of a and c
 _update(LeftFrac, _nodeInfo(operation, add), Step)
 					:-	_leftFraction(LeftFrac, Step).
