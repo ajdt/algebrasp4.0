@@ -216,7 +216,7 @@ _copyNodeInfo(NewNode, OldNode, Step)
 					:-	_mapto(OldNode, NewNode, Step).
 
 % copy pointers
-_copyMappedSubtree(Child, Step)		% TODO: unnecessary??
+_copyMappedSubtree(Child, Step)		
 					:-	_copyMappedSubtree(Node, Step),
 						_termOf(Node, Child, Step).
 % set parent/child properties for nodes mapped-to 
@@ -307,6 +307,8 @@ _tempResult(TempNode, _nodeInfo(Field,Value), Step)
 _setTempToPoly(TempNode, Step)
 					:-	_copyPolyToTemp(TempNode, Poly, Step).
 _tempResult(TempNode, _nodeInfo(type, poly), Step)
+					:-	_setTempToPoly(TempNode, Step).
+_tempResult(TempNode, _nodeInfo(active, yes), Step)
 					:-	_setTempToPoly(TempNode, Step).
 
 % setting a node to child
@@ -427,37 +429,11 @@ _copyPolyToTemp(_id(temp,3,3), LeftDenom, Step)
 _copyPolyToTemp(_id(temp,3,4), RightNumer, Step)
 					:-	_rightDiffFraction(RightFrac, Step),
 						_numerOf(RightFrac, RightNumer, Step). 
-% TODO: come up with better way to use copyMappedSubtree
+% TODO: change so setResultTo initiates copying
 _copyMappedSubtree(_id(temp,2,1), Step)
 					:-	_action(addDiffFrac, Step).
 _copyMappedSubtree(_id(temp,2,2), Step)
 					:-	_action(addDiffFrac, Step).
-#show _copyPolyToTemp/3.
-#show _tempResult/3.
-#show _copyNodeInfo/3.
-#show _mapto/3.
-#show _introduce/3.
-#show _copyMappedSubtree/2.
-%_update(LeftFrac, _nodeInfo(operation, add), Step)
-%					:-	_leftDiffFraction(LeftFrac, Step).
-% remove frac fields from lhs
-%_removeField(LeftFrac, numer, Step)
-%					:-	_leftDiffFraction(LeftFrac, Step).
-%_removeField(LeftFrac, denom, Step)
-%					:-	_leftDiffFraction(LeftFrac, Step).
-%
-%% 4. replace left frac's denom with copy of c term
-%_replaceLeftDenomWithRightNum(LeftDenom, Step)
-%					:-	_leftDiffFraction(LeftFrac, Step),
-%						_denomOf(LeftFrac, LeftDenom, Step).
-%
-%_applyNodeOp(LeftDenom, clear, Step)
-%					:-	_replaceLeftDenomWithRightNum(LeftDenom, Step).
-%_copyNodeInfo(LeftDenom, RightNumer, Step)
-%					:-	_replaceLeftDenomWithRightNum(LeftDenom, Step),
-%						_rightDiffFraction(RightFrac, Step),
-%						_numerOf(RightFrac, RightNumer, Step).
-
 
 				% multiplying polynomials
 
@@ -476,9 +452,7 @@ _activateTempNode(PolyNum, Step)
 % set basic polynomial properties for node
 _tempResult(_id(temp, 1,1), _treeInfo(activechild, _id(temp, 2, PolyNum)), Step)
 	:-	_activateTempNode(PolyNum, Step).
-_tempResult(_id(temp, 2,PolyNum), _nodeInfo(active, yes), Step)
-	:-	_activateTempNode(PolyNum, Step).
-_tempResult(_id(temp, 2,PolyNum), _nodeInfo(type, poly), Step)
+_setTempToPoly(_id(temp, 2, PolyNum), Step)
 	:-	_activateTempNode(PolyNum, Step).
 
 
