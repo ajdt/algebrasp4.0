@@ -304,6 +304,11 @@ _tempResult(TempNode, _nodeInfo(Field,Value), Step)
 					:-	_copyPolyToTemp(TempNode, Poly, Step),
 						_holds(Poly, _nodeInfo(Field,Value), Step),
 						_degree(Field).
+_setTempToPoly(TempNode, Step)
+					:-	_copyPolyToTemp(TempNode, Poly, Step).
+_tempResult(TempNode, _nodeInfo(type, poly), Step)
+					:-	_setTempToPoly(TempNode, Step).
+
 % setting a node to child
 _tempResult(Parent, _treeInfo(activechild, Child), Step)
 				:-	_setTempChild(Parent, Child, Step).
@@ -400,18 +405,12 @@ _setTempChild(_id(temp,2,1), _id(temp,3,1), Step)
 					:-	_action(addDiffFrac, Step). 
 _setTempChild(_id(temp,2,1), _id(temp,3,2), Step)
 					:-	_action(addDiffFrac, Step). 
-	% child values
-_tempResult(_id(temp,3,1), _nodeInfo(type, poly), Step)
-					:-	_action(addDiffFrac, Step). 
+% copy over a and d nodes
 _copyPolyToTemp(_id(temp,3,1), LeftNumer, Step)
-					:-	_action(addDiffFrac, Step),
-						_leftDiffFraction(LeftFrac, Step),
+					:-	_leftDiffFraction(LeftFrac, Step),
 						_numerOf(LeftFrac, LeftNumer, Step). 
-_tempResult(_id(temp,3,2), _nodeInfo(type, poly), Step)
-					:-	_action(addDiffFrac, Step). 
 _copyPolyToTemp(_id(temp,3,2), RightDenom, Step)
-					:-	_action(addDiffFrac, Step),
-						_rightDiffFraction(RightFrac, Step),
+					:-	_rightDiffFraction(RightFrac, Step),
 						_denomOf(RightFrac, RightDenom, Step). 
 
 
