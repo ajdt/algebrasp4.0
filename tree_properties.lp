@@ -372,15 +372,16 @@ _changeToDiv(Root, RightFrac, LeftFrac, Step)
 _setResultTo(LeftFrac, Step)
 				:-	_leftDiffFraction(LeftFrac, Step).
 %% 4. set temp result to (a*d + b*c)
-_tempResult(_id(temp, 1,1), _nodeInfo(type, oper), Step)
-					:-	_action(addDiffFrac, Step). 
-_tempResult(_id(temp, 1,1), _nodeInfo(operation, add), Step)
+_setTempOper(_id(temp,1,1), add, Step)
 					:-	_action(addDiffFrac, Step). 
 	% set children
-_tempResult(_id(temp,1,1), _treeInfo(activechild, _id(temp,2,1)), Step)
+_setTempChild(_id(temp,1,1), _id(temp,2,1), Step)
 					:-	_action(addDiffFrac, Step). 
-_tempResult(_id(temp,1,1), _treeInfo(activechild, _id(temp,2,2)), Step)
+_setTempChild(_id(temp,1,1), _id(temp,2,2), Step)
 					:-	_action(addDiffFrac, Step). 
+
+_tempResult(Parent, _treeInfo(activechild, Child), Step)
+				:-	_setTempChild(Parent, Child, Step).
 
 % populate children with proper values
 % TODO: refactor this, it's too complex and you'll likely end up reusing the code anyway
