@@ -278,7 +278,9 @@ _deleteChildrenOf(Root, Step)
 					:-	_writeBinaryOp(Root, Step).
 
 
-				% Setting Temp Operations
+%================================================================================
+% 			SETTING TEMP OPERATIONS
+%================================================================================
 _initTempAsOper(Node, Step)				
 					:-	_setTempOper(Node, Oper, Step),
 						_tempNode(Node).
@@ -296,6 +298,15 @@ _tempResult(Node, _nodeInfo(active, yes), Step)
 					:-	_tempToPoly(Node, Step).
 _tempResult(Node, _nodeInfo(active, yes), Step)
 					:-	_tempToPoly(Node, Step).
+
+% copying: polynomial to temp node
+_tempResult(TempNode, _nodeInfo(Field,Value), Step)
+					:-	_copyPolyToTemp(TempNode, Poly, Step),
+						_holds(Poly, _nodeInfo(Field,Value), Step),
+						_degree(Field).
+% setting a node to child
+_tempResult(Parent, _treeInfo(activechild, Child), Step)
+				:-	_setTempChild(Parent, Child, Step).
 
 % setting temp node to a binomial
 _tempResult(Node, _nodeInfo(0, Coeff), Step)
@@ -380,20 +391,14 @@ _setTempChild(_id(temp,1,1), _id(temp,2,1), Step)
 _setTempChild(_id(temp,1,1), _id(temp,2,2), Step)
 					:-	_action(addDiffFrac, Step). 
 
-_tempResult(Parent, _treeInfo(activechild, Child), Step)
-				:-	_setTempChild(Parent, Child, Step).
-
 % populate children with proper values
 % TODO: refactor this, it's too complex and you'll likely end up reusing the code anyway
 				% left child is a*d
-_tempResult(_id(temp, 2,1), _nodeInfo(type, oper), Step)
+_setTempOper(_id(temp,2,1), mul, Step)
 					:-	_action(addDiffFrac, Step). 
-_tempResult(_id(temp, 2,1), _nodeInfo(operation, mul), Step)
+_setTempChild(_id(temp,2,1), _id(temp,3,1), Step)
 					:-	_action(addDiffFrac, Step). 
-	% set children
-_tempResult(_id(temp,2,1), _treeInfo(activechild, _id(temp,3,1)), Step)
-					:-	_action(addDiffFrac, Step). 
-_tempResult(_id(temp,2,1), _treeInfo(activechild, _id(temp,3,2)), Step)
+_setTempChild(_id(temp,2,1), _id(temp,3,2), Step)
 					:-	_action(addDiffFrac, Step). 
 	% child values
 _tempResult(_id(temp,3,1), _nodeInfo(type, poly), Step)
@@ -408,12 +413,7 @@ _copyPolyToTemp(_id(temp,3,2), RightDenom, Step)
 					:-	_action(addDiffFrac, Step),
 						_rightDiffFraction(RightFrac, Step),
 						_denomOf(RightFrac, RightDenom, Step). 
-% TODO
-% put this elsewhere, copying a polynomial to a temp node
-_tempResult(TempNode, _nodeInfo(Field,Value), Step)
-					:-	_copyPolyToTemp(TempNode, Poly, Step),
-						_holds(Poly, _nodeInfo(Field,Value), Step),
-						_degree(Field).
+
 
 				% right child is a*d
 _tempResult(_id(temp, 2,2), _nodeInfo(type, oper), Step)
