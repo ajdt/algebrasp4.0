@@ -63,9 +63,12 @@ _polySize(Poly, 1, Step)	:-	_isMonomial(Poly, Step).
 _hasZeroTerm(Poly, Step)			:-	_holds(Poly, _nodeInfo(Deg, 0), Step),
 										_degree(Deg).
 _hasTermWithDeg(Poly, Deg, Step)	:-	_holds(Poly, _nodeInfo(Deg, Coeff), Step),
+										_degree(Deg).
+_hasNonZeroTermWithDeg(Poly, Deg, Step)	
+									:-	_holds(Poly, _nodeInfo(Deg, Coeff), Step),
 										_degree(Deg),
 										Coeff != 0.
-_hasHighDegreeTerms(Poly, Step)	:-	_hasTermWithDeg(Poly, Deg, Step),
+_hasHighDegreeTerms(Poly, Step)	:-	_hasNonZeroTermWithDeg(Poly, Deg, Step),
 									Deg > 3.
 
 _isZero(Poly, Step)	:-	_isMonomial(Poly, Step),
@@ -83,7 +86,7 @@ _notReducibleToZero(Poly, Step)
 _isOne(Poly, Step)	:-	_isMonomial(Poly, Step),
 						_holds(Poly, _nodeInfo(0, 1), Step). % remove _isUnitMonomial?
 _isConst(Poly, Step)	:-	_isMonomial(Poly, Step),
-						_hasTermWithDeg(Poly, 0, Step).
+						_hasNonZeroTermWithDeg(Poly, 0, Step).
 _isConst(Poly, Step)	:-	_isMonomial(Poly, Step),	% handles case where monomial is just 0
 							_hasZeroTerm(Poly, Step).
 _isXTerm(Poly, Step)	:-	_isMonomial(Poly, Step),
@@ -91,19 +94,19 @@ _isXTerm(Poly, Step)	:-	_isMonomial(Poly, Step),
 
 % XXX: assumes max assignable degree is 3
 _isQuadratic(Poly, Step)	:-	not _hasHighDegreeTerms(Poly, Step),
-								not _hasTermWithDeg(Poly, 3, Step),
-								_hasTermWithDeg(Poly, 2, Step).
+								not _hasNonZeroTermWithDeg(Poly, 3, Step),
+								_hasNonZeroTermWithDeg(Poly, 2, Step).
 								
 _isLinear(Poly, Step)		:-	not _hasHighDegreeTerms(Poly, Step),
-								not _hasTermWithDeg(Poly, 3, Step),
-								not _hasTermWithDeg(Poly, 2, Step),
-								_hasTermWithDeg(Poly, 1, Step).
+								not _hasNonZeroTermWithDeg(Poly, 3, Step),
+								not _hasNonZeroTermWithDeg(Poly, 2, Step),
+								_hasNonZeroTermWithDeg(Poly, 1, Step).
 
 _isZeroDegree(Poly, Step)	:-	not _hasHighDegreeTerms(Poly, Step),
-								not _hasTermWithDeg(Poly, 3, Step),
-								not _hasTermWithDeg(Poly, 2, Step),
-								not _hasTermWithDeg(Poly, 1, Step),
-								_hasTermWithDeg(Poly, 0, Step).
+								not _hasNonZeroTermWithDeg(Poly, 3, Step),
+								not _hasNonZeroTermWithDeg(Poly, 2, Step),
+								not _hasNonZeroTermWithDeg(Poly, 1, Step),
+								_hasNonZeroTermWithDeg(Poly, 0, Step).
 
 % coefficients of second, first, and zero degree
 _squareMonom(Poly, Coeff, Step)
