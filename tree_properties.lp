@@ -277,6 +277,13 @@ _cancelTerm(RightPoly, Step)
 _deleteChildrenOf(Root, Step)
 					:-	_writeBinaryOp(Root, Step).
 
+% map the temp subtree
+_mapto(_id(temp,1,1), Root, Step)
+					:-	_setResultTo(Root, Step),
+						_tempResult(_id(temp,1,1), _treeInfo(activechild, TempNode), Step).
+_mapNodeRec(_id(temp,1,1), Layer, Step)
+					:-	_setResultTo(_id(Layer,Num), Step).
+					
 
 %================================================================================
 % 			SETTING TEMP OPERATIONS
@@ -443,14 +450,13 @@ _multipliedPoly(Poly1, Step)
 _multiplier(Poly2, Step) 
 					:-	_multiplyPolys(Poly1, Poly2, Step).
 % setup parent/child pointers
-% TODO: warning, polySize is undefined if polynomials has more than four terms
-_activateTempNode(PolyNum, Step)
+% TODO: warning, second layer must have enough nodes to deal with these polynomials
+_activateTempNode(Deg+1, Step)
 :-	_multiplier(Poly2, Step),
-	_polySize(Poly2, Num, Step),
-	PolyNum = 1..Num.
+	_hasTermWithDeg(Poly2, Deg, Step).
 
 % set basic polynomial properties for node
-_tempResult(_id(temp, 1,1), _treeInfo(activechild, _id(temp, 2, PolyNum)), Step)
+_setTempChild(_id(temp, 1,1), _id(temp, 2, PolyNum), Step)
 	:-	_activateTempNode(PolyNum, Step).
 _setTempToPoly(_id(temp, 2, PolyNum), Step)
 	:-	_activateTempNode(PolyNum, Step).
