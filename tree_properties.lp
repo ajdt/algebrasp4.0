@@ -70,9 +70,21 @@ _deleteMonomial(Poly, Term, Step)					% cancelTerm also means removing a monomte
 					:-	_cancelTerm(Poly, Term, Step),
 						not _node(Term).
 
+% canceling a term depends on number of children its parent has
+% case "2 children" : we replace parent with it's other child
+% case "3 or more children" : just cancel the desired term
+
+_cancelChildReplaceParent(Child, Step)
+					:-	_cancelTerm(Child, Step),
+						_termOf(Parent, Child, Step),
+						_numSubExpressions(Parent, 2, Step).
+_cancelChildOnly(Child, Step)
+					:-	_cancelTerm(Child, Step),
+						_termOf(Parent, Child, Step),
+						_numSubExpressions(Parent, NumKids, Step), NumKids > 2.
 % deleting a node means to remove all parent pointers, and the entire subtree rooted at that node
 _deleteChildReferences(Parent, Child, Step)
-					:-	_cancelTerm(Child, Step),	% cancelTerm/2 means term is its own node
+					:-	_cancelChildOnly(Child, Step),	% cancelTerm/2 means term is its own node
 						_termOf(Parent, Child, Step).	
 % update parent's child count
 _update(Parent, _nodeInfo(numchildren, NumKids - 1), Step)
@@ -92,6 +104,15 @@ _remove(Polynomial, _nodeInfo(Deg, Coeff), Step)
 _applyNodeOp(Child, delete, Step)	% figure out better way to do this
 					:-	_deleteChildrenOf(Parent, Step),
 						_termOf(Parent, Child, Step).
+% cancelling the child and replacing the parent node
+_applyNodeOp(Parent, clear, Step)
+					:-	_cancelChildReplaceParent(Child, Step),
+						_termOf(Parent, Child, Step).
+_shallowCopy(Parent, OtherChild, Step)
+					:-	_cancelChildReplaceParent(Child, Step),
+						_termOf(Parent, Child, Step),
+						_termOf(Parent, OtherChild, Step),
+						OtherChild != Child .
 
 
 %================================================================================
