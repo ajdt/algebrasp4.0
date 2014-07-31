@@ -15,24 +15,6 @@ _swapTerms(Term1, Term2, Step)
 			:-	_doAction(_action(swap, _data(Term1, Term2)), Step).
 
 
-%================================================================================
-% addIdentity: a*x^b + 0 ----> a*x^b 
-%================================================================================
-
-_applicable(_action(addIdent, _data(Plus, ZeroTerm)), Step)
-			:-	_isAdd(Plus, Step),
-				_termOf(Plus, ZeroTerm, Step),
-				_numSubExpressions(Plus, Num, Step), Num >= 2,
-				_isZero(ZeroTerm, Step).
-
-_applicable(_action(addIdent, _data(Poly, ZeroTerm)), Step)
-			:-	_isPolynomial(Poly, Step),
-				_polyTerm(Poly, ZeroTerm, Step),
-				not _isMonomial(Poly, Step),
-				_isZeroMonomial(ZeroTerm).
-
-_cancelTerm(Plus, ZeroTerm, Step) 
-			:-	_doAction(_action(addIdent, _data(Plus, ZeroTerm)), Step).
 
 %================================================================================
 % multIdentity: a*x^b * 1 ----> a*x^b 
@@ -81,6 +63,7 @@ ruleParam(divIdent, cancelType, 1)
 %================================================================================
 % addCommonTerms: a*x^b + c*x^b ----> (a+c)*x^b
 %================================================================================
+% contains as a special case:		addIdentity: a*x^b + 0 ----> a*x^b 
 
 _applicable(_action(addCommTerms, _data(LeftPoly, RightPoly)), Step)
 			:-	_isAdd(Root, Step),
@@ -91,11 +74,27 @@ _applicable(_action(addCommTerms, _data(LeftPoly, RightPoly)), Step)
 				LeftPoly != RightPoly.
 
 
-% TODO: delete this, only for debugging purposes
+% Rule application: if either term is zero, then we just cancel the term
 _addTerms(LeftPoly, RightPoly, Step)
-			:-	_doAction(_action(addCommTerms, _data(LeftPoly, RightPoly)), Step).
+			:-	_doAction(_action(addCommTerms, _data(LeftPoly, RightPoly)), Step),
+				not _isZero(RightPoly, Step),
+				not _isZero(LeftPoly, Step).
+_cancelTerm(Plus, LeftPoly, Step) 
+			:-	_doAction(_action(addCommTerms, _data(LeftPoly, RightPoly)), Step),
+				_termOf(Plus, LeftPoly, Step),
+				_isZero(LeftPoly, Step).
+_cancelTerm(Plus, RightPoly, Step) 
+			:-	_doAction(_action(addCommTerms, _data(LeftPoly, RightPoly)), Step),
+				not _isZero(LeftPoly, Step),		% want @ most one cancellation
+				_termOf(Plus, RightPoly, Step),
+				_isZero(RightPoly, Step).
 
 % problem parameters
+ruleParam(addCommTerms, identityTerm, 0) 
+			:-	_cancelTerm(Plus, ZeroTerm, Step).
+ruleParam(addCommTerms, identityTerm, 1) 
+			:-	_addTerms(LeftPoly, RightPoly, Step).
+
 ruleParam(addCommTerms, polynomsSize, 0) 
 			:-	_doAction(_action(addCommTerms, _data(LeftPoly, RightPoly)), Step),
 				_isMonomial(LeftPoly, Step),
@@ -112,5 +111,3 @@ ruleParam(addCommTerms, polynomsSize, 2)
 			:-	_doAction(_action(addCommTerms, _data(LeftPoly, RightPoly)), Step),
 				not _isMonomial(LeftPoly, Step),
 				not _isMonomial(RightPoly, Step).
-%:- not action(addCommTerms).
-%:- action(Name), Name != addCommTerms.
