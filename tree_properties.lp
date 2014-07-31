@@ -515,8 +515,15 @@ _tempResult(_id(temp, 2, NodeNum), _nodeInfo(Deg + NodeNum - 1, Coeff * Multipli
 
 
 % save the result of polynom multiplication
-_writeBinaryOp(Poly, Mono, Step)
-					:-	_multiplyPolys(Poly, Mono, Step).
+_writeBinaryOp(Poly1, Poly2, Step)
+					:-	_multiplyPolys(Poly1, Poly2, Step),
+						not _isMonomial(Poly2, Step).
+% explain why this is done
+_copyNodeInfo(Parent, _id(temp,2,NodeNum), Step) % use multiplier predicate to make grounding smaller
+					:-	_multiplyPolys(Poly1, Poly2, Step),
+						_isMonomial(Poly2, Step),
+						_termOf(Parent, Poly2, Step),
+						_activateTempNode(NodeNum, Step).
 
 
 
