@@ -1,3 +1,4 @@
+#const tempRoot	= _id(temp,1,1).
 %================================================================================
 % 			OPERATOR PROPERTIES
 %================================================================================
@@ -476,12 +477,9 @@ _setTempToPoly(_id(temp, 2,Deg+1), Step)
 :-	_multiplier(Poly2, Step),
 	_hasTermWithDeg(Poly2, Deg, Step).
 
-% set parent/child relationship for each generated polynom
-#const tempRoot	= _id(temp,1,1).
+% result is a sum of polynomials, so set root node to 'add' operator
 _setTempChild(tempRoot, PolyChild, Step)
 	:-	_setTempToPoly(PolyChild, Step).
-
-% store result in temp node
 _setTempOper(tempRoot, add, Step)
 					:-	_multiplier(Poly2, Step).
 
@@ -490,6 +488,7 @@ _setTempOper(tempRoot, add, Step)
 _tempResult(tempRoot, _nodeInfo(numchildren, Size), Step)
 					:-	_multiplier(Poly2, Step),
 						_polySize(Poly2, Size, Step).
+
 % multiply each pair of monomials
 % each poly/coeff pair of Poly2 will become a separate standard poly
 _multTermsWith(_id(temp, 2, Deg2+1), Coeff2, Step)
@@ -504,7 +503,6 @@ _tempResult(_id(temp, 2, NodeNum), _nodeInfo(Deg + NodeNum - 1, Coeff * Multipli
 						_holds(Poly1, _nodeInfo(Deg, Coeff), Step),
 						_degree(Deg), _coeff(Coeff),
 						_multTermsWith(_id(temp, 2, NodeNum), Multiplier, Step).
-
 
 
 % save the result of polynom multiplication
