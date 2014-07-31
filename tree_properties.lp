@@ -470,13 +470,13 @@ _multipliedPoly(Poly1, Step)
 					:-	_multiplyPolys(Poly1, Poly2, Step).
 _multiplier(Poly2, Step) 
 					:-	_multiplyPolys(Poly1, Poly2, Step).
-% setup parent/child pointers
+% generate one polynomial for each monom term of multiplier
 % TODO: warning, second layer must have enough nodes to deal with these polynomials
 _setTempToPoly(_id(temp, 2,Deg+1), Step)
 :-	_multiplier(Poly2, Step),
 	_hasTermWithDeg(Poly2, Deg, Step).
 
-% set basic polynomial properties for node
+% set parent/child relationship for each generated polynom
 #const tempRoot	= _id(temp,1,1).
 _setTempChild(tempRoot, PolyChild, Step)
 	:-	_setTempToPoly(PolyChild, Step).
@@ -497,17 +497,12 @@ _multTermsWith(_id(temp, 2, Deg2+1), Coeff2, Step)
 						_holds(Poly2, _nodeInfo(Deg2, Coeff2), Step),
 						_degree(Deg2), _coeff(Coeff2),
 						not _tempNode(Poly2).
-% Poly2 is distributed across Poly1, so each Poly1 term is assigned to
-% temp nodes
-_origMonom(_id(temp, 2, PolyNum), _mono(Deg1, Coeff1), Step)
-					:-	_multipliedPoly(Poly1, Step),
-						_tempResult(_id(temp, 2,PolyNum), _nodeInfo(active, yes), Step),
-						_holds(Poly1, _nodeInfo(Deg1, Coeff1), Step),
-						_degree(Deg1), _coeff(Coeff1),
-						not _tempNode(Poly1).
 % multiply each assigned Poly1 term from above with the corresponding monomial
+% recall: NodeNum corresponds to degree of multiplier (see multTermsWith above)
 _tempResult(_id(temp, 2, NodeNum), _nodeInfo(Deg + NodeNum - 1, Coeff * Multiplier), Step)
-					:-	_origMonom(_id(temp, 2, NodeNum), _mono(Deg, Coeff), Step),
+					:-	_multipliedPoly(Poly1, Step),
+						_holds(Poly1, _nodeInfo(Deg, Coeff), Step),
+						_degree(Deg), _coeff(Coeff),
 						_multTermsWith(_id(temp, 2, NodeNum), Multiplier, Step).
 
 
