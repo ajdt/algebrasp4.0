@@ -15,28 +15,6 @@ _swapTerms(Term1, Term2, Step)
 			:-	_doAction(_action(swap, _data(Term1, Term2)), Step).
 
 
-
-%================================================================================
-% multIdentity: a*x^b * 1 ----> a*x^b 
-%================================================================================
-
-_applicable(_action(mulIdent, _data(Mul, UnitTerm)), Step)
-			:-	_isMul(Mul, Step),
-				_termOf(Mul, UnitTerm, Step),
-				_numSubExpressions(Mul, Num, Step), Num >= 2,
-				_isOne(UnitTerm, Step).
-
-
-_cancelTerm(Mul, UnitTerm, Step) 
-			:-	_doAction(_action(mulIdent, _data(Mul, UnitTerm)), Step).
-% problem parameters
-ruleParam(mulIdent, exprSize, 0) 
-			:-	_doAction(_action(mulIdent, _data(Mul, UnitTerm)), Step),
-				_numSubExpressions(Mul, 2, Step).
-ruleParam(mulIdent, exprSize, 1) 
-			:-	_doAction(_action(mulIdent, _data(Mul, UnitTerm)), Step),
-				_numSubExpressions(Mul, Num, Step), Num > 2.
-
 %================================================================================
 % divIdentity: A / A ----> 1
 %================================================================================

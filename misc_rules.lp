@@ -88,20 +88,43 @@ _changeOperator(Root, mul, Step)
 %================================================================================
 % distribute (a + b ) * c --> a*c + b*c
 %================================================================================
+% contains as special case:		multIdentity: a*x^b * 1 ----> a*x^b 
 _applicable(_action(distribute, _data(LeftTerm, RightTerm)), Step)
 			:-	_isMul(Root, Step),
 				_termOf(Root, LeftTerm, Step),
 				_termOf(Root, RightTerm, Step),
-				_polySize(LeftTerm, 2, Step),	% TODO: remove, temporary restriction used for testing
-				_polySize(RightTerm, 2, Step),
 				LeftTerm != RightTerm,
 				_isPolynomial(LeftTerm, Step),
 				_isPolynomial(RightTerm, Step).
 
+% apply the rule
 _multiplyPolys(LeftTerm, RightTerm, Step)
 			:-	_doAction(_action(distribute, _data(LeftTerm, RightTerm)), Step).
 
+
 % features for the rule
+%ruleParam(distribute, identity, 0) 
+%			:-	_cancelMulTerm(Mul, UnitTerm, Step).	
+ruleParam(distribute, identity, 0) 
+			:-	_multiplyPolys(LeftTerm, RightTerm, Step),
+				_isOne(LeftTerm, Step).
+ruleParam(distribute, identity, 1) 
+			:-	_multiplyPolys(LeftTerm, RightTerm, Step),
+				_isMonomial(LeftTerm, Step),
+				_isMonomial(RightTerm, Step).
+ruleParam(distribute, identity, 2) 
+			:-	_multiplyPolys(LeftTerm, RightTerm, Step),
+				not _isMonomial(LeftTerm, Step),
+				_isMonomial(RightTerm, Step).
+ruleParam(distribute, identity, 2) 
+			:-	_multiplyPolys(LeftTerm, RightTerm, Step),
+				_isMonomial(LeftTerm, Step),
+				not _isMonomial(RightTerm, Step).
+ruleParam(distribute, identity, 3) 
+			:-	_multiplyPolys(LeftTerm, RightTerm, Step),
+				not _isMonomial(LeftTerm, Step),
+				not _isMonomial(RightTerm, Step).
+
 ruleParam(distribute, prodsize, 0) 
 			:-	_doAction(_action(distribute, _data(LeftTerm, RightTerm)), Step),
 				_termOf(Parent, LeftTerm, Step),
