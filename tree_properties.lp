@@ -472,24 +472,22 @@ _multiplier(Poly2, Step)
 					:-	_multiplyPolys(Poly1, Poly2, Step).
 % setup parent/child pointers
 % TODO: warning, second layer must have enough nodes to deal with these polynomials
-_activateTempNode(Deg+1, Step)
+_setTempToPoly(_id(temp, 2,Deg+1), Step)
 :-	_multiplier(Poly2, Step),
 	_hasTermWithDeg(Poly2, Deg, Step).
 
 % set basic polynomial properties for node
-_setTempChild(_id(temp, 1,1), _id(temp, 2, PolyNum), Step)
-	:-	_activateTempNode(PolyNum, Step).
-_setTempToPoly(_id(temp, 2, PolyNum), Step)
-	:-	_activateTempNode(PolyNum, Step).
-
+#const tempRoot	= _id(temp,1,1).
+_setTempChild(tempRoot, PolyChild, Step)
+	:-	_setTempToPoly(PolyChild, Step).
 
 % store result in temp node
-_setTempOper(_id(temp, 1,1), add, Step)
+_setTempOper(tempRoot, add, Step)
 					:-	_multiplier(Poly2, Step).
 
 % NOTE: a standard polynomial is created for each monomial of Poly2
 % TODO: polySize only defined for polynomials with 3 terms or fewer!
-_tempResult(_id(temp, 1,1), _nodeInfo(numchildren, Size), Step)
+_tempResult(tempRoot, _nodeInfo(numchildren, Size), Step)
 					:-	_multiplier(Poly2, Step),
 						_polySize(Poly2, Size, Step).
 % multiply each pair of monomials
@@ -521,11 +519,11 @@ _writeBinaryOp(Poly1, Poly2, Step)
 
 % if multiplying by a monomial, then result is a single
 % polynomial not a sum of polynomials
-_copyNodeInfo(Parent, _id(temp,2,TempNode), Step) 
+_copyNodeInfo(Parent, TempNode, Step) 
 					:-	_multiplier(Poly2, Step),
 						_isMonomial(Poly2, Step),
 						_termOf(Parent, Poly2, Step),
-						_activateTempNode(TempNode, Step).
+						_setTempToPoly(TempNode, Step).
 
 
 
