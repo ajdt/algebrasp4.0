@@ -121,11 +121,16 @@ _shallowCopy(Parent, OtherChild, Step)
 %================================================================================
 % NOTE: shallowCopy copies both data and pointers, copyNodeInfo copies
 %		only _nodeInfo data
-_introduce(Copy, Info, Step)
-					:-	_shallowCopy(Copy, Orig, Step),
-						_holds(Orig, Info, Step).
 _applyNodeOp(Copy, clear, Step)
 					:-	_shallowCopy(Copy, Orig, Step).
+_copyChildPtrs(Copy, Orig, Step)
+					:-	_shallowCopy(Copy, Orig, Step).
+_copyNodeInfo(Copy, Orig, Step)
+					:-	_shallowCopy(Copy, Orig, Step).
+% copying just child pointers
+_introduce(Copy, _treeInfo(activechild, Child), Step)
+					:-	_copyChildPtrs(Copy, Orig, Step),
+						_termOf(Orig, Child, Step).
 % copying just nodeInfo
 _introduce(Copy, _nodeInfo(X,Y), Step)
 					:-	_copyNodeInfo(Copy, Orig, Step),
@@ -158,11 +163,11 @@ _shallowCopy(Node2, Node1, Step)
 %================================================================================
 _update(Node, _nodeInfo(operation, Oper), Step)
 					:-	_changeOperator(Node, Oper, Step),
-						_holds(Node, _nodeInfo(type, oper), Step).
+						_isOper(Node, Step).
 
 _transformToOper(Node, Oper, Step)
 					:-	_changeOperator(Node, Oper, Step),
-						not _holds(Node, _nodeInfo(type, oper), Step).
+						not _isOper(Node, Step).
 
 % changing to div requires providing numer and denom fields too
 _changeOperator(Node, div, Step)
@@ -175,7 +180,7 @@ _introduce(Node, _nodeInfo(denom, Denom), Step)
 % removing fractional fields, if necessary
 _removeFracFields(Node, Step)
 					:-	_changeOperator(Node, Oper, Step),
-						_holds(Node, _nodeInfo(operation, div), Step).
+						_isDiv(Node, Step).
 
 % if changing a div operator, remove fractional fields
 _remove(DivNode, _nodeInfo(numer, X), Step)
@@ -277,10 +282,14 @@ _copyNodeInfo(Root, _id(temp, 1,1), Step)
 
 _applyNodeOp(Root, clear, Step)
 					:-	_setResultTo(Root, Step).
-
+%_applyNodeOpRecursive(Root, delete, Step)	% want to delete entire subtree
 _mapNodeRec(Child, Layer+1, Step)	% this is incorrect.
 					:-	_setResultTo(_id(Layer, Num), Step),
 						_tempResult(_id(temp, 1,1), _treeInfo(activechild, Child), Step).
+
+#show _mapNodeRec/3. % todo: ensure temp,1,1 is mapped to at most one node
+#show _mapto/3.
+#show _multiplyPolys/3.
 %------------------------------ 
 	%%%% SAVE the result of a binary operation (uses setResultTo) %%%%
 _setResultTo(Root, Step)	
@@ -296,9 +305,6 @@ _setResultTo(LeftPoly, Step)
 _cancelTerm(RightPoly, Step)
 					:-	_writeBinaryOp(LeftPoly, RightPoly, Step),
 						_setResultTo(LeftPoly, Step).
-_deleteChildrenOf(Root, Step)
-					:-	_writeBinaryOp(Root, Step).
-
 % map the temp subtree
 _mapto(_id(temp,1,1), Root, Step)
 					:-	_setResultTo(Root, Step),
