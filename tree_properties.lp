@@ -280,7 +280,7 @@ _introduce(Root, _treeInfo(activechild, RegNode), Step)
 _copyNodeInfo(Root, _id(temp, 1,1), Step)
 					:-	_setResultTo(Root, Step).
 
-_applyNodeOp(Root, clear, Step)
+_applyNodeOpRecursive(Root, delete, Step)
 					:-	_setResultTo(Root, Step).
 %_applyNodeOpRecursive(Root, delete, Step)	% want to delete entire subtree
 _mapNodeRec(Child, Layer+1, Step)	% this is incorrect.
