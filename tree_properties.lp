@@ -350,6 +350,10 @@ _tempResult(TempNode, _nodeInfo(active, yes), Step)
 _tempResult(Parent, _treeInfo(activechild, Child), Step)
 				:-	_setTempChild(Parent, Child, Step).
 
+% setting num children for  a temp Node
+_tempResult(TempNode, _nodeInfo(numchildren, ChildCount), Step)
+					:-	_setTempNumChildren(TempNode, ChildCount, Step).
+
 % setting temp node to a binomial
 _tempResult(Node, _nodeInfo(0, Coeff), Step)
 					:-	_tempToBinomial(Node, Coeff, Step).
@@ -543,10 +547,10 @@ _isFactorable(Poly, Step)
 1 { _factorsOfPoly(Poly, DCoeff, ECoeff, Step) : _hasFactors(Poly, DCoeff, ECoeff, Step) } 1
 					:-	_factorPoly(Poly, Step).
 						
-% set temp root to product of binomials
+% set temp root to product of two binomials
 _setTempOper(_id(temp, 1,1), mul, Step)
 					:-	_factorPoly(Poly, Step).
-_tempResult(_id(temp, 1,1), _nodeInfo(numchildren, 2), Step)
+_setTempNumChildren(tempRoot, 2, Step)
 					:-	_factorPoly(Poly, Step).
 
 % set two temp nodes to be the first deg binomials of factored form 
@@ -556,7 +560,7 @@ _tempToBinomial(_id(temp, 2, 2), ECoeff, Step)
 					:-	_factorsOfPoly(Poly, ECoeff, DCoeff, Step).
 
 % set the parent/child pointers
-_tempResult(_id(temp, 1,1), _treeInfo(activechild, _id(temp, 2, ChildNo)), Step)
+_tempResult(tempRoot, _treeInfo(activechild, _id(temp, 2, ChildNo)), Step)
 					:-	_factorPoly(Poly, Step),
 						ChildNo = 1..2.
 % map the nodes. NOTE: This is a good bit of code to DRY up
@@ -569,7 +573,7 @@ _setResultTo(Poly, Step)
 					:-	_factorPoly(Poly, Step).
 
 % dividing by leading coeff
-_setTempOper(_id(temp, 1,1), mul, Step)
+_setTempOper(tempRoot, mul, Step)
 					:-	_divideByLeadingCoeff(Poly, Step).
 _tempToPoly(_id(temp, 2,1), Step)
 					:-	_divideByLeadingCoeff(Poly, Step).
@@ -589,9 +593,9 @@ _tempResult(_id(temp, 2,1), _nodeInfo(0, ACoeff), Step)
 					:-	_divideByLeadingCoeff(Poly, Step),
 						_squareMonom(Poly, ACoeff, Step),
 						_coeff(ACoeff).
-_tempResult(_id(temp, 1,1), _treeInfo(activechild, _id(temp, 2, 1)), Step)
+_tempResult(tempRoot, _treeInfo(activechild, _id(temp, 2, 1)), Step)
 					:-	_divideByLeadingCoeff(Poly, Step).
-_tempResult(_id(temp, 1,1), _treeInfo(activechild, _id(temp, 2, 2)), Step)
+_tempResult(tempRoot, _treeInfo(activechild, _id(temp, 2, 2)), Step)
 					:-	_divideByLeadingCoeff(Poly, Step).
 
 %% TODO: this won't work, fix it
@@ -601,9 +605,9 @@ _setResultTo(Poly, Step)
 
 
 					%	Add Terms
-_tempToPoly(_id(temp, 1,1), Step)
+_tempToPoly(tempRoot, Step)
 					:-	_addTerms(LeftPoly, RightPoly, Step).
-_tempResult(_id(temp, 1, 1), _nodeInfo(Deg, Coeff1 + Coeff2), Step)
+_tempResult(tempRoot, _nodeInfo(Deg, Coeff1 + Coeff2), Step)
 					:-	_addTerms(LeftPoly, RightPoly, Step),
 						_holds(LeftPoly, _nodeInfo(Deg, Coeff1), Step),
 						_holds(RightPoly, _nodeInfo(Deg, Coeff2), Step),
@@ -611,13 +615,13 @@ _tempResult(_id(temp, 1, 1), _nodeInfo(Deg, Coeff1 + Coeff2), Step)
 						_coeff(Coeff1 + Coeff2).
 
 % incorporate monomials that don't have a common term
-_tempResult(_id(temp, 1, 1), _nodeInfo(Deg, Coeff), Step)
+_tempResult(tempRoot, _nodeInfo(Deg, Coeff), Step)
 					:-	_addTerms(LeftPoly, RightPoly, Step),
 						_holds(LeftPoly, _nodeInfo(Deg, Coeff), Step),
 						not	_hasTermWithDeg(RightPoly, Deg, Step),
 						_degree(Deg),
 						_coeff(Coeff).
-_tempResult(_id(temp, 1, 1), _nodeInfo(Deg, Coeff), Step)
+_tempResult(tempRoot, _nodeInfo(Deg, Coeff), Step)
 					:-	_addTerms(LeftPoly, RightPoly, Step),
 						_holds(RightPoly, _nodeInfo(Deg, Coeff), Step),
 						not	_hasTermWithDeg(LeftPoly, Deg, Step),
