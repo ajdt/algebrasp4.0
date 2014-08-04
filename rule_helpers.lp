@@ -148,6 +148,8 @@ _tempResult(_id(temp, 2, NodeNum), _nodeInfo(Deg + NodeNum - 1, Coeff * Multipli
 					:-	_multipliedPoly(Poly1, Step),
 						_holds(Poly1, _nodeInfo(Deg, Coeff), Step),
 						_degree(Deg), _coeff(Coeff),
+						_coeff(Multiplier),
+						_coeff(Coeff * Multiplier),
 						_multTermsWith(_id(temp, 2, NodeNum), Multiplier, Step).
 
 

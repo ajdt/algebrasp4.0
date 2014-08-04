@@ -312,7 +312,7 @@ _mapNodeRec(_id(temp,1,1), Layer, Step)
 					
 
 %================================================================================
-% 			SETTING TEMP OPERATIONS
+% 			SETTING TEMP NODE OPERATIONS
 %================================================================================
 _initTempAsOper(Node, Step)				
 					:-	_setTempOper(Node, Oper, Step),
