@@ -287,9 +287,6 @@ _mapNodeRec(Child, Layer+1, Step)	% this is incorrect.
 					:-	_setResultTo(_id(Layer, Num), Step),
 						_tempResult(_id(temp, 1,1), _treeInfo(activechild, Child), Step).
 
-#show _mapNodeRec/3. % todo: ensure temp,1,1 is mapped to at most one node
-#show _mapto/3.
-#show _multiplyPolys/3.
 %------------------------------ 
 	%%%% SAVE the result of a binary operation (uses setResultTo) %%%%
 _setResultTo(Root, Step)	
@@ -627,14 +624,6 @@ _tempResult(tempRoot, _nodeInfo(Deg, Coeff), Step)
 						not	_hasTermWithDeg(LeftPoly, Deg, Step),
 						_degree(Deg),
 						_coeff(Coeff).
-
-% a common term exists
-_commonTerm(Deg, Step)
-					:-	_addTerms(LeftPoly, RightPoly, Step),
-						_holds(LeftPoly, _nodeInfo(Deg, Coeff1), Step),
-						_holds(RightPoly, _nodeInfo(Deg, Coeff2), Step),
-						_degree(Deg),
-						_coeff(Coeff1 + Coeff2).
 
 % save the result
 _writeBinaryOp(LeftPoly, RightPoly, Step)
