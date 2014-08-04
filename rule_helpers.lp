@@ -144,11 +144,15 @@ _multTermsWith(_id(temp, 2, Deg2+1), Coeff2, Step)
 						not _tempNode(Poly2).
 % multiply each assigned Poly1 term from above with the corresponding monomial
 % recall: NodeNum corresponds to degree of multiplier (see multTermsWith above)
-_tempResult(_id(temp, 2, NodeNum), _nodeInfo(Deg + NodeNum - 1, Coeff * Multiplier), Step)
+_multipliedTerm(Deg, Coeff, Step)
 					:-	_multipliedPoly(Poly1, Step),
 						_holds(Poly1, _nodeInfo(Deg, Coeff), Step),
 						_degree(Deg), _coeff(Coeff),
+						|Coeff| <= maxAssignableCoeff.
+_tempResult(_id(temp, 2, NodeNum), _nodeInfo(Deg + NodeNum - 1, Coeff * Multiplier), Step)
+					:-	_multipliedTerm(Deg, Coeff, Step),
 						_coeff(Multiplier),
+						|Multiplier| <= maxAssignableCoeff, % XXX: won't allow two multiplications exceeding bounds
 						_coeff(Coeff * Multiplier),
 						_multTermsWith(_id(temp, 2, NodeNum), Multiplier, Step).
 

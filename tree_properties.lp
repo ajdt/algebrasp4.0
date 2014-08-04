@@ -135,21 +135,25 @@ _introduce(Copy, _treeInfo(activechild, Child), Step)
 % copying just nodeInfo
 _introduce(Copy, _nodeInfo(X,Y), Step)
 					:-	_copyNodeInfo(Copy, Orig, Step),
+						Orig != Copy,
 						_holds(Orig, _nodeInfo(X,Y), Step),
 						_degree(X), _coeff(Y),
 						|-Y| <= maxCoeff.	
 _introduce(Copy, _nodeInfo(X,Y), Step)
 					:-	_copyNodeInfo(Copy, Orig, Step),
+						Orig != Copy,
 						_holds(Orig, _nodeInfo(X,Y), Step),
 						not _degree(X).
 % copying nodeInfo from temp node
 _introduce(Copy, _nodeInfo(X,Y), Step)
 					:-	_copyNodeInfo(Copy, Orig, Step),
+						Orig != Copy,
 						_tempResult(Orig, _nodeInfo(X,Y), Step),
 						_degree(X), _coeff(Y),
 						|-Y| <= maxCoeff.	% TODO: find out why grounding yields coefficients that are beyond preset bounds
 _introduce(Copy, _nodeInfo(X,Y), Step)
 					:-	_copyNodeInfo(Copy, Orig, Step),
+						Orig != Copy,
 						_tempResult(Orig, _nodeInfo(X,Y), Step),
 						not _degree(X). 
 
