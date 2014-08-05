@@ -174,6 +174,8 @@ _constMonom(Poly, Coeff, Step)
 							:-	_holds(Poly, _polyInfo(0, Coeff), Step).
 
 %% poly properties for treeNodes
+_isPolynomial(Node, Step)
+							:-	_holds(Node, _nodeInfo(type, poly), Step).
 _polyProperty(Node, Property, Step)
 							:-	_polyProperty(Poly, Property, Step),
 								_holds(Node, _nodeInfo(polynom, Poly), Step).
@@ -201,18 +203,18 @@ _introduce(Node, _nodeInfo(polynom, one), Step)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% POLYNOMS EQUALITY %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % NOTE: only care about equality comparisons when nodes are in the same layer
 _unequal(Poly1, Poly2, Step)
-							:-	_node(Poly1),	
-								_node(Poly2),
-								not _tempNode(Poly1),
-								not _tempNode(Poly2),
-								_holds(Poly1, _nodeInfo(Deg, Coeff), Step),
-								not _holds(Poly2, _nodeInfo(Deg, Coeff), Step),
-								_layerOf(Poly1, Layer),
-								_layerOf(Poly2, Layer).
+							:-	_polyNode(Poly1),	
+								_polyNode(Poly2),
+								_holds(Poly1, _polyInfo(Deg, Coeff), Step),
+								not _holds(Poly2, _polyInfo(Deg, Coeff), Step).
 								%Poly1 < Poly2.
 _equal(Poly1, Poly2, Step)
-							:-	_holds(Poly1, _nodeInfo(type, poly), Step),
-								_holds(Poly2, _nodeInfo(type, poly), Step),
+							:-	_usedPolyNode(Poly1, Step),	% don't care about equality for unallocated nodes
+								_usedPolyNode(Poly2, Step),
+								_step(Step),
 								not _unequal(Poly1, Poly2, Step), % didn't want to include separate _unequal rule for symmetry
 								not _unequal(Poly2, Poly1, Step).
-
+_equal(TreeNode1, TreeNode1, Step)
+							:-	_polynomOf(TreeNode1, Poly1, Step),
+								_polynomOf(TreeNode2, Poly2, Step),
+								_equal(Poly1, Poly2, Step).
