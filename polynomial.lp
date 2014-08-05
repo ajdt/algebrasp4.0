@@ -21,27 +21,27 @@ _baseMonom(Coeff, 0)		:-	_coeff(Coeff), |Coeff| < maxAssignConstCoeff.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% POLYNOMIAL NODES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-#const numPolyNodes	=	10.
-_polyNode(_id(poly, NodeNum))
-			:-	NodeNum = 1..numPolyNodes.
-_usedPolyNode(PolyNode, Step)
-			:-	_holds(PolyNode, allocated, Step).
+#const numPolynomials	=	10.
+_polynomial(_id(poly, NodeNum))
+			:-	NodeNum = 1..numPolynomials.
+_activePolynom(Polynom, Step)
+			:-	_holds(Polynom, allocated, Step).
 
-_freePolyNode(PolyNode, Step)	% any node that is not allocated is free
-			:-	_polyNode(PolyNode),
+_inactivePolynom(Polynom, Step)	% any node that is not allocated is free
+			:-	_polynomial(Polynom),
 				_step(Step),
-				not _usedPolyNode(PolyNode, Step).
+				not _activePolynom(Polynom, Step).
 
 % allocating polynomials initially (works differently)
 _polyNotAllocatedTwice(Poly)	
-			:-	_polyNode(Poly), 0 { _assignPolyToNode(Poly, Node) : _node(Node) } 1 .
-:-	_polyNode(Poly), not _polyNotAllocatedTwice(Poly).
+			:-	_polynomial(Poly), 0 { _assignPolyToNode(Poly, Node) : _node(Node) } 1 .
+:-	_polynomial(Poly), not _polyNotAllocatedTwice(Poly).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% GENERATING POLYNOMIALS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % given order (degree) of polynomial to generate,
 % pick exactly one monomial of given order, and at most one monomial for each 
 % lesser degree
-1 { _assignPolyToNode(Poly, Node)	:	_polyNode(Poly)	} 1
+1 { _assignPolyToNode(Poly, Node)	:	_polynomial(Poly)	} 1
 			:-	_makePolyWithOrder(Node, Order).
 
 1 { _hasMonom(Node, Order, Coeff) : _coeff(Coeff), _baseMonom(Coeff,Order) } 1 
@@ -49,7 +49,7 @@ _polyNotAllocatedTwice(Poly)
 0 { _hasMonom(Node, Deg, Coeff) : _coeff(Coeff), _baseMonom(Coeff,Deg) } 1 
 			:-	_makePolyWithOrder(Node, Order), _degree(Deg), Deg < Order.
 
-% TODO: change this later, so hasMonom(...) directly adds monomials to polyNodes
+% TODO: change this later, so hasMonom(...) directly adds monomials to polynomials
 _initially(Poly, allocated)
 			:-	_assignPolyToNode(Poly, Node).
 _initially(Poly, _polyInfo(Deg, Coeff))
@@ -57,45 +57,43 @@ _initially(Poly, _polyInfo(Deg, Coeff))
 				_assignPolyToNode(Poly, Node).
 % garbage collecting polynomials
 _garbageCollectPoly(Poly, Step)				%	apply GC to every poly that doesn't have any pointers to it anymore
-			:-	_polyNode(Poly),
+			:-	_polynomial(Poly),
 				_holds(Poly, allocated, Step),
 				not _polyConst(Poly),
 				_step(Step),
 				0 { _holds(Node, _nodeInfo(polynom, Poly), Step) : _node(Node) } 0.
 _remove(Poly, Info, Step)
 			:-	_garbageCollectPoly(Poly, Step),
-				_polyNode(Poly),
+				_polynomial(Poly),
 				_holds(Poly, Info, Step).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% POLYNOMIAL PROPERTIES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 _quadWithCommonTerm(Poly, Step)
-			:-	_isQuadratic(Poly, Step),
+			:-	_polyProperty(Poly, is_quadratic, Step),
+				_polyProperty(Poly, is_factorable, Step),
 				_squareMonom(Poly, ACoeff, Step),
-				_isFactorable(Poly, Step),
 				ACoeff != 1,
 				|ACoeff| > 0,
 				|ACoeff| <= 5,
 				_linearMonom(Poly, BCoeff, Step),
 				%(BCoeff \ ACoeff) == 0, % TODO: why do these cause a floating point error?
 				%(CCoeff \ ACoeff) == 0,
-				BCoeff <=5,
-				BCoeff >= - 5,
+				|BCoeff| <=5,
 				_constMonom(Poly, CCoeff, Step),
-				CCoeff <=5,
-				CCoeff >= - 5.
+				|CCoeff| <=5.
 
-%% polynomial properties for polyNodes
+%% polynomial properties
 _polyProperty(Poly, is_monomial, Step)
 							:-	_step(Step),
-								_polyNode(Poly), 
+								_polynomial(Poly), 
 								1 { _holds(Poly, _polyInfo(Deg, Coeff), Step) : _degree(Deg), _coeff(Coeff)} 1.
 _polyProperty(Poly, is_binomial, Step)
 							:-	_step(Step),
-								_polyNode(Poly), 
+								_polynomial(Poly), 
 								2 { _holds(Poly, _polyInfo(Deg, Coeff), Step) : _degree(Deg), _coeff(Coeff)} 2.
 _polyProperty(Poly, is_trinomial, Step)
 							:-	_step(Step),
-								_polyNode(Poly), 
+								_polynomial(Poly), 
 								3 { _holds(Poly, _polyInfo(Deg, Coeff), Step) : _degree(Deg), _coeff(Coeff)} 3.
 
 % some basic size predicates: used in lieu of having an actual size field (more expensive)
@@ -123,11 +121,11 @@ _polyProperty(Poly, is_zero, Step)
 								_holds(Poly, _polyInfo(Deg, 0), Step). 
 % a polynomial is zero if it's reducible to zero as well
 _polyProperty(Poly, is_zero, Step)
-							:-	_polyNode(Poly),
+							:-	_polynomial(Poly),
 								_step(Step),
 								not _polyProperty(Poly, not_reducible_to_zero, Step).
 _polyProperty(Poly, not_reducible_to_zero, Step)	
-							:-	_polyNode(Poly),
+							:-	_polynomial(Poly),
 								_degree(Deg),
 								_holds(Poly, _polyInfo(Deg, Coeff), Step),
 								Coeff != 0.
@@ -203,14 +201,14 @@ _introduce(Node, _nodeInfo(polynom, one), Step)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% POLYNOMS EQUALITY %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % NOTE: only care about equality comparisons when nodes are in the same layer
 _unequal(Poly1, Poly2, Step)
-							:-	_polyNode(Poly1),	
-								_polyNode(Poly2),
+							:-	_polynomial(Poly1),	
+								_polynomial(Poly2),
 								_holds(Poly1, _polyInfo(Deg, Coeff), Step),
 								not _holds(Poly2, _polyInfo(Deg, Coeff), Step).
 								%Poly1 < Poly2.
 _equal(Poly1, Poly2, Step)
-							:-	_usedPolyNode(Poly1, Step),	% don't care about equality for unallocated nodes
-								_usedPolyNode(Poly2, Step),
+							:-	_activePolynom(Poly1, Step),	% don't care about equality for unallocated nodes
+								_activePolynom(Poly2, Step),
 								_step(Step),
 								not _unequal(Poly1, Poly2, Step), % didn't want to include separate _unequal rule for symmetry
 								not _unequal(Poly2, Poly1, Step).

@@ -103,7 +103,7 @@ _maxNumPolyTerms(1..9).
 
 _initially(Node, _nodeInfo(polynom, Poly))	
 					:-	_assignPolyToNode(Poly, Node),
-						_polyNode(Poly),
+						_polynomial(Poly),
 						_node(Node).
 
 % fractions also have numer/denom fields to alias first and second child

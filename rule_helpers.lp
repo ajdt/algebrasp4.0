@@ -183,7 +183,7 @@ _hasFactors(Poly, DCoeff, ECoeff, Step)
 						CCoeff == DCoeff * ECoeff,
 						_coeff(BCoeff),
 						_coeff(CCoeff).
-_isFactorable(Poly, Step)
+_polyProperty(Poly, is_factorable, Step)
 				:-	_hasFactors(Poly, DCoeff, ECoeff, Step).
 %		factoring a quadratic
 1 { _factorsOfPoly(Poly, DCoeff, ECoeff, Step) : _hasFactors(Poly, DCoeff, ECoeff, Step) } 1
