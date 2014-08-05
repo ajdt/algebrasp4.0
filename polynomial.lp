@@ -50,9 +50,21 @@ _polyNotAllocatedTwice(Poly)
 			:-	_makePolyWithOrder(Node, Order), _degree(Deg), Deg < Order.
 
 % TODO: change this later, so hasMonom(...) directly adds monomials to polyNodes
+_initially(Poly, allocated)
+			:-	_assignPolyToNode(Poly, Node).
 _initially(Poly, _polyInfo(Deg, Coeff))
 			:-	_hasMonom(Node, Deg, Coeff),
 				_assignPolyToNode(Poly, Node).
+% garbage collecting polynomials
+_garbageCollectPoly(Poly, Step)				%	apply GC to every poly that doesn't have any pointers to it anymore
+			:-	_polyNode(Poly),
+				_holds(Poly, allocated, Step),
+				_step(Step),
+				0 { _holds(Node, _nodeInfo(polynom, Poly), Step) : _node(Node) } 0.
+_remove(Poly, Info, Step)
+			:-	_garbageCollectPoly(Poly, Step),
+				_polyNode(Poly),
+				_holds(Poly, Info, Step).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% POLYNOMIAL PROPERTIES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 _quadWithCommonTerm(Poly, Step)
