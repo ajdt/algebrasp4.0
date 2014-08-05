@@ -101,7 +101,10 @@ _maxNumPolyTerms(1..9).
 1 { _makePolyWithOrder(Node, Order) : _degree(Order) , Order <= maxAssignableDegree } 1 	
 					:-	_initially(Node, _nodeInfo(type, poly)).
 
-_initially(Node, _nodeInfo(Deg, Coeff))	:- _hasMonom(Node, Deg, Coeff).
+_initially(Node, _nodeInfo(polynom, Poly))	
+					:-	_assignPolyToNode(Poly, Node),
+						_polyNode(Poly),
+						_node(Node).
 
 % fractions also have numer/denom fields to alias first and second child
 _initially(_id(ParentLayer, ParentNum), _nodeInfo(numer, _id(ChildLayer, FstChildNum)))	

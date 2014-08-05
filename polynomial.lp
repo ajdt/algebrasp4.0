@@ -83,75 +83,104 @@ _quadWithCommonTerm(Poly, Step)
 				CCoeff <=5,
 				CCoeff >= - 5.
 
-_isPolynomial(Poly, Step)	:-	_holds(Poly, _nodeInfo(type, poly), Step).
-_isMonomial(Poly, Step)		:-	_step(Step),
-								_node(Poly), 
-								1 { _holds(Poly, _nodeInfo(Deg, Coeff), Step) : _degree(Deg), _coeff(Coeff)} 1.
-_isBinomial(Poly, Step)		:-	_step(Step),
-								_node(Poly), 
-								2 { _holds(Poly, _nodeInfo(Deg, Coeff), Step) : _degree(Deg), _coeff(Coeff)} 2.
-_isTrinomial(Poly, Step)	:-	_step(Step),
-								_node(Poly), 
-								3 { _holds(Poly, _nodeInfo(Deg, Coeff), Step) : _degree(Deg), _coeff(Coeff)} 3.
-_polySize(Poly, 3, Step)	:-	_isTrinomial(Poly, Step).
-_polySize(Poly, 2, Step)	:-	_isBinomial(Poly, Step).
-_polySize(Poly, 1, Step)	:-	_isMonomial(Poly, Step).
+%% polynomial properties for polyNodes
+_polyProperty(Poly, is_monomial, Step)
+							:-	_step(Step),
+								_polyNode(Poly), 
+								1 { _holds(Poly, _polyInfo(Deg, Coeff), Step) : _degree(Deg), _coeff(Coeff)} 1.
+_polyProperty(Poly, is_binomial, Step)
+							:-	_step(Step),
+								_polyNode(Poly), 
+								2 { _holds(Poly, _polyInfo(Deg, Coeff), Step) : _degree(Deg), _coeff(Coeff)} 2.
+_polyProperty(Poly, is_trinomial, Step)
+							:-	_step(Step),
+								_polyNode(Poly), 
+								3 { _holds(Poly, _polyInfo(Deg, Coeff), Step) : _degree(Deg), _coeff(Coeff)} 3.
 
-_hasZeroTerm(Poly, Step)			:-	_holds(Poly, _nodeInfo(Deg, 0), Step),
-										_degree(Deg).
-_hasTermWithDeg(Poly, Deg, Step)	:-	_holds(Poly, _nodeInfo(Deg, Coeff), Step),
-										_degree(Deg).
-_hasNonZeroTermWithDeg(Poly, Deg, Step)	
-									:-	_holds(Poly, _nodeInfo(Deg, Coeff), Step),
-										_degree(Deg),
-										Coeff != 0.
-_hasHighDegreeTerms(Poly, Step)	:-	_hasNonZeroTermWithDeg(Poly, Deg, Step),
-									Deg > 3.
+% some basic size predicates: used in lieu of having an actual size field (more expensive)
+_polySize(Poly, 3, Step)	:-	_polyProperty(Poly, is_trinomial, Step).
+_polySize(Poly, 2, Step)	:-	_polyProperty(Poly, is_binomial, Step).
+_polySize(Poly, 1, Step)	:-	_polyProperty(Poly, is_monomial, Step).
 
-_isZero(Poly, Step)	:-	_isMonomial(Poly, Step),
-						_degree(Deg),
-						_holds(Poly, _nodeInfo(Deg, 0), Step). % remove _isZeroMonomial?
+_polyProperty(Poly, has_zero_term, Step)			
+							:-	_holds(Poly, _polyInfo(Deg, 0), Step),
+								_degree(Deg).
+_polyProperty(Poly, has_term_with_deg(Deg), Step)			
+							:-	_holds(Poly, _polyInfo(Deg, Coeff), Step),
+								_degree(Deg).
+_polyProperty(Poly, has_nonzero_term_with_deg(Deg), Step)			
+							:-	_holds(Poly, _polyInfo(Deg, Coeff), Step),
+								_degree(Deg),
+								Coeff != 0.
+_polyProperty(Poly, has_high_deg_terms, Step)			
+							:-	_polyProperty(Poly, has_nonzero_term_with_deg(Deg), Step),
+								Deg > 3.
+
+_polyProperty(Poly, is_zero, Step)			
+							:-	_polyProperty(Poly, is_monomial, Step),
+								_degree(Deg),
+								_holds(Poly, _polyInfo(Deg, 0), Step). 
 % a polynomial is zero if it's reducible to zero as well
-_isZero(Poly, Step)	:-	_isPolynomial(Poly, Step),
-						not _notReducibleToZero(Poly, Step).
-_notReducibleToZero(Poly, Step)	
-					:-	_isPolynomial(Poly, Step),
-						_degree(Deg),
-						_holds(Poly, _nodeInfo(Deg, Coeff), Step),
-						Coeff != 0.
+_polyProperty(Poly, is_zero, Step)
+							:-	_polyNode(Poly),
+								_step(Step),
+								not _polyProperty(Poly, not_reducible_to_zero, Step).
+_polyProperty(Poly, not_reducible_to_zero, Step)	
+							:-	_polyNode(Poly),
+								_degree(Deg),
+								_holds(Poly, _polyInfo(Deg, Coeff), Step),
+								Coeff != 0.
 
-_isOne(Poly, Step)	:-	_isMonomial(Poly, Step),
-						_holds(Poly, _nodeInfo(0, 1), Step). % remove _isUnitMonomial?
-_isConst(Poly, Step)	:-	_isMonomial(Poly, Step),
-						_hasNonZeroTermWithDeg(Poly, 0, Step).
-_isConst(Poly, Step)	:-	_isMonomial(Poly, Step),	% handles case where monomial is just 0
-							_hasZeroTerm(Poly, Step).
-_isXTerm(Poly, Step)	:-	_isMonomial(Poly, Step),
-						_holds(Poly, _nodeInfo(1, 1), Step). 
+_polyProperty(Poly, is_one, Step)	
+							:-	_polyProperty(Poly, is_monomial, Step),
+								_holds(Poly, _polyInfo(0, 1), Step). 
+_polyProperty(Poly, is_const, Step)
+							:-	_polyProperty(Poly, is_monomial, Step),
+								_polyProperty(Poly, has_nonzero_term_with_deg(0), Step).
+_polyProperty(Poly, is_const, Step)
+							:-	_polyProperty(Poly, is_monomial, Step),	% handles case where monomial is zero coeff but higher degree
+								_polyProperty(Poly, has_zero_term, Step).
+_polyProperty(Poly, is_xterm, Step)
+							:-	_polyProperty(Poly, is_monomial, Step),
+								_holds(Poly, _polyInfo(1, 1), Step). 
 
 % XXX: assumes max assignable degree is 3
-_isQuadratic(Poly, Step)	:-	not _hasHighDegreeTerms(Poly, Step),
-								not _hasNonZeroTermWithDeg(Poly, 3, Step),
-								_hasNonZeroTermWithDeg(Poly, 2, Step).
+_polyProperty(Poly, is_quadratic, Step)	
+							:-	not _polyProperty(Poly, has_high_deg_terms, Step),
+								not _polyProperty(Poly, has_nonzero_term_with_deg(3), Step),
+								_polyProperty(Poly, has_nonzero_term_with_deg(2), Step).
 								
-_isLinear(Poly, Step)		:-	not _hasHighDegreeTerms(Poly, Step),
-								not _hasNonZeroTermWithDeg(Poly, 3, Step),
-								not _hasNonZeroTermWithDeg(Poly, 2, Step),
-								_hasNonZeroTermWithDeg(Poly, 1, Step).
+_polyProperty(Poly, is_linear, Step)	
+							:-	not _polyProperty(Poly, has_high_deg_terms, Step),
+								not _polyProperty(Poly, has_nonzero_term_with_deg(3), Step),
+								not _polyProperty(Poly, has_nonzero_term_with_deg(2), Step),
+								_polyProperty(Poly, has_nonzero_term_with_deg(1), Step).
 
-_isZeroDegree(Poly, Step)	:-	not _hasHighDegreeTerms(Poly, Step),
-								not _hasNonZeroTermWithDeg(Poly, 3, Step),
-								not _hasNonZeroTermWithDeg(Poly, 2, Step),
-								not _hasNonZeroTermWithDeg(Poly, 1, Step),
-								_hasNonZeroTermWithDeg(Poly, 0, Step).
+_polyProperty(Poly, is_zero_deg, Step)	
+							:-	not _polyProperty(Poly, has_high_deg_terms, Step),
+								not _polyProperty(Poly, has_nonzero_term_with_deg(3), Step),
+								not _polyProperty(Poly, has_nonzero_term_with_deg(2), Step),
+								not _polyProperty(Poly, has_nonzero_term_with_deg(1), Step),
+								_polyProperty(Poly, has_nonzero_term_with_deg(0), Step).
 
 % coefficients of second, first, and zero degree
+% NOTE: not polyproperties b/c we don't want these to be inherited by treeNodes
 _squareMonom(Poly, Coeff, Step)
-							:-	_holds(Poly, _nodeInfo(2, Coeff), Step).
+							:-	_holds(Poly, _polyInfo(2, Coeff), Step).
 _linearMonom(Poly, Coeff, Step)
-							:-	_holds(Poly, _nodeInfo(1, Coeff), Step).
+							:-	_holds(Poly, _polyInfo(1, Coeff), Step).
 _constMonom(Poly, Coeff, Step)
-							:-	_holds(Poly, _nodeInfo(0, Coeff), Step).
+							:-	_holds(Poly, _polyInfo(0, Coeff), Step).
+
+%% poly properties for treeNodes
+_polyProperty(Node, Property, Step)
+							:-	_polyProperty(Poly, Property, Step),
+								_holds(Node, _nodeInfo(polynom, Poly), Step).
+
+
+
+							%% ** left off here
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% DEFINED POLYNOMIAL CONSTANTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 _introduce(Node, _nodeInfo(type, poly), Step)
