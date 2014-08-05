@@ -59,6 +59,7 @@ _initially(Poly, _polyInfo(Deg, Coeff))
 _garbageCollectPoly(Poly, Step)				%	apply GC to every poly that doesn't have any pointers to it anymore
 			:-	_polyNode(Poly),
 				_holds(Poly, allocated, Step),
+				not _polyConst(Poly),
 				_step(Step),
 				0 { _holds(Node, _nodeInfo(polynom, Poly), Step) : _node(Node) } 0.
 _remove(Poly, Info, Step)
@@ -183,9 +184,18 @@ _polyProperty(Node, Property, Step)
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% DEFINED POLYNOMIAL CONSTANTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+#const zero	= _id(poly, 0).
+#const one	= _id(poly, 1).
+_polyConst(zero ; one).
+
+_initially(zero, _polyInfo(1,0)).
+_initially(one, _polyInfo(1,1)).
+_initially(Const, allocated)		:-	_polyConst(Const).
+
+% setting a treeNode to a constant poly
 _introduce(Node, _nodeInfo(type, poly), Step)
 							:-	_setToUnitPoly(Node, Step).
-_introduce(Node, _nodeInfo(0, 1), Step)
+_introduce(Node, _nodeInfo(polynom, one), Step)
 							:-	_setToUnitPoly(Node, Step).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% POLYNOMS EQUALITY %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
