@@ -20,14 +20,39 @@ _baseMonom(Coeff, 1)		:-	_coeff(Coeff), |Coeff| < maxAssignLinearCoeff.
 _baseMonom(Coeff, 0)		:-	_coeff(Coeff), |Coeff| < maxAssignConstCoeff.
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% POLYNOMIAL NODES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+#const numPolyNodes	=	10.
+_polyNode(_id(poly, NodeNum))
+			:-	NodeNum = 1..numPolyNodes.
+_usedPolyNode(PolyNode, Step)
+			:-	_holds(PolyNode, allocated, Step).
+
+_freePolyNode(PolyNode, Step)	% any node that is not allocated is free
+			:-	_polyNode(PolyNode),
+				_step(Step),
+				not _usedPolyNode(PolyNode, Step).
+
+% allocating polynomials initially (works differently)
+_polyNotAllocatedTwice(Poly)	
+			:-	_polyNode(Poly), 0 { _assignPolyToNode(Poly, Node) : _node(Node) } 1 .
+:-	_polyNode(Poly), not _polyNotAllocatedTwice(Poly).
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% GENERATING POLYNOMIALS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % given order (degree) of polynomial to generate,
 % pick exactly one monomial of given order, and at most one monomial for each 
 % lesser degree
+1 { _assignPolyToNode(Poly, Node)	:	_polyNode(Poly)	} 1
+			:-	_makePolyWithOrder(Node, Order).
+
 1 { _hasMonom(Node, Order, Coeff) : _coeff(Coeff), _baseMonom(Coeff,Order) } 1 
 			:-	_makePolyWithOrder(Node, Order).
 0 { _hasMonom(Node, Deg, Coeff) : _coeff(Coeff), _baseMonom(Coeff,Deg) } 1 
 			:-	_makePolyWithOrder(Node, Order), _degree(Deg), Deg < Order.
+
+% TODO: change this later, so hasMonom(...) directly adds monomials to polyNodes
+_initially(Poly, _polyInfo(Deg, Coeff))
+			:-	_hasMonom(Node, Deg, Coeff),
+				_assignPolyToNode(Poly, Node).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% POLYNOMIAL PROPERTIES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 _quadWithCommonTerm(Poly, Step)
