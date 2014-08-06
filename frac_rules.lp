@@ -19,15 +19,15 @@ _cancelTerm(DenomC, Step)
 %	rule features
 ruleParam(fracCancel, termSize, 0)
 			:-	_doAction(_action(fracCancel, _data(NumerC, DenomC)), Step),
-				_isMonomial(NumerC, Step).
+				_polyProperty(NumerC,is_monomial, Step).
 ruleParam(fracCancel, termSize, 1)
 			:-	_doAction(_action(fracCancel, _data(NumerC, DenomC)), Step),
-				_isBinomial(NumerC, Step).
+				_polyProperty(NumerC,is_binomial, Step).
 ruleParam(fracCancel, termSize, 2)
 			:-	_doAction(_action(fracCancel, _data(NumerC, DenomC)), Step),
 				_isPolynomial(NumerC, Step),
-				not _isMonomial(NumerC, Step),
-				not _isBinomial(NumerC, Step).
+				not _polyProperty(NumerC,is_monomial, Step),
+				not _polyProperty(NumerC,is_binomial, Step).
 
 %================================================================================
 % fracDiv: a/c / b/c --> a/b
@@ -93,12 +93,12 @@ _addFrac(LeftFrac, RightFrac, Step)
 ruleParam(addSameFrac, denomSize, 0)
 			:-	_doAction(_action(addSameFrac, _data(LeftFrac, RightFrac)), Step),
 				_denomOf(LeftFrac, Denom, Step),
-				_isMonomial(Denom, Step).
+				_polyProperty(Denom, is_monomial, Step).
 ruleParam(addSameFrac, denomSize, 1)
 			:-	_doAction(_action(addSameFrac, _data(LeftFrac, RightFrac)), Step),
 				_denomOf(LeftFrac, Denom, Step),
 				_isPolynomial(Denom, Step),
-				not _isMonomial(Denom, Step).
+				not _polyProperty(Denom, is_monomial, Step).
 
 %================================================================================
 % addDiffFrac: a/c + b/d --> (ad+bc)/(cd)
