@@ -23,7 +23,7 @@ _baseMonom(Coeff, 0)		:-	_coeff(Coeff), |Coeff| < maxAssignConstCoeff.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% POLYNOMIAL NODES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 #const numPolynomials	=	10.
 _polynomial(_id(poly, NodeNum))
-			:-	NodeNum = 1..numPolynomials.
+			:-	NodeNum = 0..numPolynomials+1.
 _activePolynom(Polynom, Step)
 			:-	_holds(Polynom, allocated, Step).
 
@@ -41,7 +41,7 @@ _polyNotAllocatedTwice(Poly)
 % given order (degree) of polynomial to generate,
 % pick exactly one monomial of given order, and at most one monomial for each 
 % lesser degree
-1 { _assignPolyToNode(Poly, Node)	:	_polynomial(Poly)	} 1
+1 { _assignPolyToNode(Poly, Node)	:	_polynomial(Poly), not _polyConst(Poly)	} 1
 			:-	_makePolyWithOrder(Node, Order).
 
 1 { _hasMonom(Node, Order, Coeff) : _coeff(Coeff), _baseMonom(Coeff,Order) } 1 
@@ -203,16 +203,28 @@ _introduce(Node, _nodeInfo(polynom, one), Step)
 _unequal(Poly1, Poly2, Step)
 							:-	_polynomial(Poly1),	
 								_polynomial(Poly2),
+								Poly1 != Poly2,
 								_holds(Poly1, _polyInfo(Deg, Coeff), Step),
 								not _holds(Poly2, _polyInfo(Deg, Coeff), Step).
 								%Poly1 < Poly2.
 _equal(Poly1, Poly2, Step)
 							:-	_activePolynom(Poly1, Step),	% don't care about equality for unallocated nodes
 								_activePolynom(Poly2, Step),
+								Poly1 != Poly2,
 								_step(Step),
 								not _unequal(Poly1, Poly2, Step), % didn't want to include separate _unequal rule for symmetry
 								not _unequal(Poly2, Poly1, Step).
-_equal(TreeNode1, TreeNode1, Step)
+_equal(TreeNode1, TreeNode2, Step)
 							:-	_polynomOf(TreeNode1, Poly1, Step),
 								_polynomOf(TreeNode2, Poly2, Step),
+								TreeNode1 != TreeNode2,
 								_equal(Poly1, Poly2, Step).
+_polynomOf(TreeNode, Poly, Step)
+							:-	_holds(TreeNode, _nodeInfo(polynom, Poly), Step).
+#show _equal/3.
+#show _isDiv/2.
+#show _numerOf/3.
+#show _polynomial/1.
+#show _denomOf/3.
+#show _polynomOf/3.
+			
