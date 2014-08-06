@@ -136,26 +136,12 @@ _introduce(Copy, _treeInfo(activechild, Child), Step)
 _introduce(Copy, _nodeInfo(X,Y), Step)
 					:-	_copyNodeInfo(Copy, Orig, Step),
 						Orig != Copy,
-						_holds(Orig, _nodeInfo(X,Y), Step),
-						_degree(X), _coeff(Y),
-						|-Y| <= maxCoeff.	
-_introduce(Copy, _nodeInfo(X,Y), Step)
-					:-	_copyNodeInfo(Copy, Orig, Step),
-						Orig != Copy,
-						_holds(Orig, _nodeInfo(X,Y), Step),
-						not _degree(X).
+						_holds(Orig, _nodeInfo(X,Y), Step).
 % copying nodeInfo from temp node
 _introduce(Copy, _nodeInfo(X,Y), Step)
 					:-	_copyNodeInfo(Copy, Orig, Step),
 						Orig != Copy,
-						_tempResult(Orig, _nodeInfo(X,Y), Step),
-						_degree(X), _coeff(Y),
-						|-Y| <= maxCoeff.	% TODO: find out why grounding yields coefficients that are beyond preset bounds
-_introduce(Copy, _nodeInfo(X,Y), Step)
-					:-	_copyNodeInfo(Copy, Orig, Step),
-						Orig != Copy,
-						_tempResult(Orig, _nodeInfo(X,Y), Step),
-						not _degree(X). 
+						_tempResult(Orig, _nodeInfo(X,Y), Step).
 
 % swap nodes (nodes become shallow copies of each other)
 _shallowCopy(Node1, Node2, Step)
@@ -328,19 +314,13 @@ _tempResult(Node, _nodeInfo(type, oper), Step)
 					:-	_initTempAsOper(Node, Step).
 _tempResult(Node, _nodeInfo(active, yes), Step) 
 					:-	_initTempAsOper(Node, Step).
-% setting a temp node to a polynomial
-_tempResult(Node, _nodeInfo(type, poly), Step)
-					:-	_tempToPoly(Node, Step).
-_tempResult(Node, _nodeInfo(active, yes), Step)
-					:-	_tempToPoly(Node, Step).
-_tempResult(Node, _nodeInfo(active, yes), Step)
-					:-	_tempToPoly(Node, Step).
 
 % copying: polynomial to temp node
-_tempResult(TempNode, _nodeInfo(Field,Value), Step)
-					:-	_copyPolyToTemp(TempNode, Poly, Step),
-						_holds(Poly, _nodeInfo(Field,Value), Step),
+_tempResult(TempNode, _nodeInfo(polynom,Poly), Step)
+					:-	_copyPolyToTemp(TempNode, PolyNode, Step),
+						_holds(PolyNode, _nodeInfo(polynom,Poly), Step),
 						_degree(Field).
+% setting temp node to poly (no terms)
 _setTempToPoly(TempNode, Step)
 					:-	_copyPolyToTemp(TempNode, Poly, Step).
 _tempResult(TempNode, _nodeInfo(type, poly), Step)

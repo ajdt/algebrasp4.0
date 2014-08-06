@@ -217,9 +217,9 @@ _setResultTo(Poly, Step)
 % dividing by leading coeff
 _setTempOper(tempRoot, mul, Step)
 					:-	_divideByLeadingCoeff(Poly, Step).
-_tempToPoly(_id(temp, 2,1), Step)
+_setTempToPoly(_id(temp, 2,1), Step)
 					:-	_divideByLeadingCoeff(Poly, Step).
-_tempToPoly(_id(temp, 2,2), Step)
+_setTempToPoly(_id(temp, 2,2), Step)
 					:-	_divideByLeadingCoeff(Poly, Step).
 
 				% TODO: Restore this later
@@ -247,7 +247,7 @@ _setResultTo(Poly, Step)
 
 
 					%	Add Terms
-_tempToPoly(tempRoot, Step)
+_setTempToPoly(tempRoot, Step)
 					:-	_addTerms(LeftPoly, RightPoly, Step).
 _tempResult(tempRoot, _nodeInfo(Deg, Coeff1 + Coeff2), Step)
 					:-	_addTerms(LeftPoly, RightPoly, Step),

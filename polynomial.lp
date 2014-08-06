@@ -37,6 +37,15 @@ _polyNotAllocatedTwice(Poly)
 			:-	_polynomial(Poly), 0 { _assignPolyToNode(Poly, Node) : _node(Node) } 1 .
 :-	_polynomial(Poly), not _polyNotAllocatedTwice(Poly).
 
+% same logic but for time steps
+_polyNotAllocatedTwice(Poly, Step)	
+			:-	_polynomial(Poly),
+				_step(Step),
+				0 { _assignPolyToNode(Poly, Node, Step) : _node(Node) } 1 .
+:-	_step(Step),
+	_polynomial(Poly), 
+	not _polyNotAllocatedTwice(Poly, Step).
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% GENERATING POLYNOMIALS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % given order (degree) of polynomial to generate,
 % pick exactly one monomial of given order, and at most one monomial for each 
@@ -66,6 +75,18 @@ _remove(Poly, Info, Step)
 			:-	_garbageCollectPoly(Poly, Step),
 				_polynomial(Poly),
 				_holds(Poly, Info, Step).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% POLYNOMIAL ALLOCATION %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% code for creating a new poly, and adding terms to it
+1 { _assignPolyToNode(Polynom, Node, Step)	:	_inactivePolynom(Polynom, Step) } 1
+			:-	_allocatePolyToNode(Node, Step).
+_introduce(Polynom, allocated, Step)
+			:-	_assignPolyToNode(Polynom, Node, Step).
+
+% adding terms
+_introduce(Polynom, _polyInfo(Deg, Coeff), Step)
+			:-	_addTermToNewPoly(Polynom, Deg, Coeff, Step),
+				_polynomial(Polynom).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% POLYNOMIAL PROPERTIES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 _quadWithCommonTerm(Poly, Step)
