@@ -3,7 +3,7 @@
 %================================================================================
 
 _applicable(_action(numerSimp, _data(left_side)), Step)
-			:-	_isZero(right_side, Step),
+			:-	_polyProperty(right_side, is_zero, Step),
 				_isDiv(left_side, Step),
 				_numerOf(left_side, Numer, Step), % TODO: remove these last two constraints when rule can handle arbitrary subexpr
 				_denomOf(left_side, Denom, Step), 
@@ -23,11 +23,11 @@ _applyNodeOp(Denom, delete, Step)
 ruleParam(numerSimp, numerSize, 0) 
 			:-	_doAction(_action(numerSimp, _data(FracRoot)), Step),
 				_numerOf(FracRoot, Numer, Step),
-				_isMonomial(Numer, Step).
+				_polyProperty(Numer, is_monomial, Step).
 ruleParam(numerSimp, numerSize, 1) 
 			:-	_doAction(_action(numerSimp, _data(FracRoot)), Step),
 				_numerOf(FracRoot, Numer, Step),
-				_isBinomial(Numer, Step).
+				_polyProperty(Numer, is_binomial, Step).
 
 %================================================================================
 % factorCommTerm:	(ac + bc ) --> (a + b) * c
@@ -110,20 +110,20 @@ ruleParam(distribute, identity, 0)
 				_isOne(LeftTerm, Step).
 ruleParam(distribute, identity, 1) 
 			:-	_multiplyPolys(LeftTerm, RightTerm, Step),
-				_isMonomial(LeftTerm, Step),
-				_isMonomial(RightTerm, Step).
+				_polyProperty(LeftTerm, is_monomial, Step),
+				_polyProperty(RightTerm, is_monomial, Step).
 ruleParam(distribute, identity, 2) 
 			:-	_multiplyPolys(LeftTerm, RightTerm, Step),
-				not _isMonomial(LeftTerm, Step),
-				_isMonomial(RightTerm, Step).
+				not _polyProperty(LeftTerm, is_monomial, Step),
+				_polyProperty(RightTerm, is_monomial, Step).
 ruleParam(distribute, identity, 2) 
 			:-	_multiplyPolys(LeftTerm, RightTerm, Step),
-				_isMonomial(LeftTerm, Step),
-				not _isMonomial(RightTerm, Step).
+				_polyProperty(LeftTerm, is_monomial, Step),
+				not _polyProperty(RightTerm, is_monomial, Step).
 ruleParam(distribute, identity, 3) 
 			:-	_multiplyPolys(LeftTerm, RightTerm, Step),
-				not _isMonomial(LeftTerm, Step),
-				not _isMonomial(RightTerm, Step).
+				not _polyProperty(LeftTerm, is_monomial, Step),
+				not _polyProperty(RightTerm, is_monomial, Step).
 
 ruleParam(distribute, prodsize, 0) 
 			:-	_doAction(_action(distribute, _data(LeftTerm, RightTerm)), Step),
@@ -138,22 +138,22 @@ ruleParam(distribute, polysize, Num)
 				_polySize(LeftTerm, Num, Step).
 ruleParam(distribute, degree, 2) 
 			:-	_doAction(_action(distribute, _data(LeftTerm, RightTerm)), Step),
-				_isQuadratic(LeftTerm).
+				_polyProperty(LeftTerm, is_quadratic, Step).
 ruleParam(distribute, degree, 1) 
 			:-	_doAction(_action(distribute, _data(LeftTerm, RightTerm)), Step),
-				_isLinear(LeftTerm).
+				_polyProperty(LeftTerm, is_linear, Step).
 ruleParam(distribute, degree, 0) 
 			:-	_doAction(_action(distribute, _data(LeftTerm, RightTerm)), Step),
-				_isLinear(LeftTerm),
-				_isLinear(RightTerm).
+				_polyProperty(LeftTerm, is_linear, Step),
+				_polyProperty(RightTerm, is_linear, Step).
 
 %================================================================================
 % factor (ax^2 + bx + c) --> (x + e) * (x + d)
 %================================================================================
 _applicable(_action(factor, _data(Poly)), Step)
-			:-	_isQuadratic(Poly, Step),
+			:-	_polyProperty(Poly, is_quadratic, Step),
 				_squareMonom(Poly, ACoeff, Step),
-				_isFactorable(Poly, Step),
+				_polyProperty(Poly, is_factorable, Step),
 				ACoeff == 1,
 				ACoeff <=5,
 				ACoeff >= - 5,
@@ -176,7 +176,7 @@ _divideByLeadingCoeff(Poly, Step)
 _factorNext(StdPoly, Step+1)
 			:-	_divideByLeadingCoeff(Poly, Step),
 				_termOf(Poly, StdPoly, Step+1),
-				_isQuadratic(StdPoly, Step+1).
+				_polyProperty(StdPoly, is_quadratic, Step+1).
 				%_isFactorable(StdPoly, Step+1).
 %
 _doAction(_action(factor, _data(Poly)), Step)

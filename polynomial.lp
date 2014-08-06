@@ -221,10 +221,3 @@ _equal(TreeNode1, TreeNode2, Step)
 								_equal(Poly1, Poly2, Step).
 _polynomOf(TreeNode, Poly, Step)
 							:-	_holds(TreeNode, _nodeInfo(polynom, Poly), Step).
-#show _equal/3.
-#show _isDiv/2.
-#show _numerOf/3.
-#show _polynomial/1.
-#show _denomOf/3.
-#show _polynomOf/3.
-			
