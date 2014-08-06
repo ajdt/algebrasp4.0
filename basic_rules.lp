@@ -55,17 +55,17 @@ _applicable(_action(addCommTerms, _data(LeftPoly, RightPoly)), Step)
 % Rule application: if either term is zero, then we just cancel the term
 _addTerms(LeftPoly, RightPoly, Step)
 			:-	_doAction(_action(addCommTerms, _data(LeftPoly, RightPoly)), Step),
-				not _isZero(RightPoly, Step),
-				not _isZero(LeftPoly, Step).
+				not _polyProperty(RightPoly, is_zero, Step),
+				not _polyProperty(LeftPoly, is_zero, Step).
 _cancelTerm(Plus, LeftPoly, Step) 
 			:-	_doAction(_action(addCommTerms, _data(LeftPoly, RightPoly)), Step),
 				_termOf(Plus, LeftPoly, Step),
-				_isZero(LeftPoly, Step).
+				_polyProperty(LeftPoly, is_zero, Step).
 _cancelTerm(Plus, RightPoly, Step) 
 			:-	_doAction(_action(addCommTerms, _data(LeftPoly, RightPoly)), Step),
-				not _isZero(LeftPoly, Step),		% want @ most one cancellation
+				not _polyProperty(LeftPoly, is_zero, Step), % want @ most one cancellation
 				_termOf(Plus, RightPoly, Step),
-				_isZero(RightPoly, Step).
+				_polyProperty(RightPoly, is_zero, Step).
 
 % problem parameters
 ruleParam(addCommTerms, identityTerm, 0) 
@@ -75,17 +75,20 @@ ruleParam(addCommTerms, identityTerm, 1)
 
 ruleParam(addCommTerms, polynomsSize, 0) 
 			:-	_doAction(_action(addCommTerms, _data(LeftPoly, RightPoly)), Step),
-				_isMonomial(LeftPoly, Step),
-				_isMonomial(RightPoly, Step).
+				_polyProperty(LeftPoly, is_monomial, Step),
+				_polyProperty(RightPoly, is_monomial, Step).
 ruleParam(addCommTerms, polynomsSize, 1) 
 			:-	_doAction(_action(addCommTerms, _data(LeftPoly, RightPoly)), Step),
-				_isMonomial(LeftPoly, Step),
-				not _isMonomial(RightPoly, Step).
+				_polyProperty(LeftPoly, is_monomial, Step),
+				not _polyProperty(RightPoly, is_monomial, Step).
 ruleParam(addCommTerms, polynomsSize, 2) 
 			:-	_doAction(_action(addCommTerms, _data(LeftPoly, RightPoly)), Step),
-				not _isMonomial(LeftPoly, Step),
-				_isMonomial(RightPoly, Step).
+				not _polyProperty(LeftPoly, is_monomial, Step),
+				_polyProperty(RightPoly, is_monomial, Step).
 ruleParam(addCommTerms, polynomsSize, 2) 
 			:-	_doAction(_action(addCommTerms, _data(LeftPoly, RightPoly)), Step),
-				not _isMonomial(LeftPoly, Step),
-				not _isMonomial(RightPoly, Step).
+				not _polyProperty(LeftPoly, is_monomial, Step),
+				not _polyProperty(RightPoly, is_monomial, Step).
+
+
+

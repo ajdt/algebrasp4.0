@@ -26,27 +26,33 @@ def wrapWithPredicate(parser, left='nodeInfo(', right=')'):
 	return left + parser + right
 def wrapFact(parser, left='initially(', right=')'):
 	return wrapWithPredicate( node_parser + ',' + parser, left, right)
+def wrapPolyFact(parser, left='initially(', right=')'):
+	return wrapWithPredicate( poly_parser + ',' + parser, left, right)
 
 node_parser		=	'id(' + Word(nums) + ',' + Word(nums) + ')'
 coeff			=	Word(nums + '-')
 deg				=	Word(nums)
+poly_parser             =       'id(' + Word(alphas) + ',' + Word(nums) + ')' 
 
 type_parser		=	wrapFact(wrapWithPredicate(Word(alphas) + ',' + Word(alphas)))
 oper_parser		=	wrapFact(wrapWithPredicate(Word(alphas) + ',' + Word(alphas)))
-child_parser 	= 	wrapFact(wrapWithPredicate(Word(alphas) + ',' + node_parser, 'treeInfo('))
-mono_parser		=	wrapFact(wrapWithPredicate(deg + ',' + coeff ))
+child_parser 	        = 	wrapFact(wrapWithPredicate(Word(alphas) + ',' + node_parser, 'treeInfo('))
 op_symbols 		= 	{'add' : '+' , 'div' : '/' , 'mul' : '*' }
+mono_parser		=	wrapPolyFact(wrapWithPredicate(deg + ',' + coeff, left='polyInfo('))
+poly_refs_parser	=	wrapFact(wrapWithPredicate(Word(alphas) + ',' + poly_parser))
 
 
 
-all_parsers = [ node_parser, mono_parser, type_parser, oper_parser,	child_parser ]
+all_parsers = [ node_parser, mono_parser, type_parser, oper_parser, child_parser, poly_refs_parser]
 
 step_type_parser		=	wrapFact(wrapWithPredicate(Word(alphas) + ',' + Word(alphas)), 'holds(', ',' + Word(nums) + ')' )
 step_oper_parser		=	wrapFact(wrapWithPredicate(Word(alphas) + ',' + Word(alphas)), 'holds(', ',' + Word(nums) + ')' )
 step_child_parser 		= 	wrapFact(wrapWithPredicate(Word(alphas) + ',' + node_parser, 'treeInfo('), 'holds(', ',' + Word(nums) + ')' )
 step_mono_parser		=	wrapFact(wrapWithPredicate(deg + ',' + coeff), 'holds(', ',' + Word(nums) + ')' )
+step_poly_parser		=	wrapPolyFact(wrapWithPredicate(deg + ',' + coeff, left='polyInfo('), 'holds(', ',' + Word(nums) + ')' )
+step_poly_refs_parser		=	wrapFact(wrapWithPredicate(Word(alphas) + ',' + poly_parser), 'holds(', ',' + Word(nums) + ')' )
 
-step_parsers = [ step_type_parser, step_oper_parser, step_child_parser, step_mono_parser]
+step_parsers = [ step_type_parser, step_oper_parser, step_child_parser, step_mono_parser, step_poly_parser, step_poly_refs_parser]
 
 def findParserMatchingPredicate(predicate, parser_list=all_parsers):
 	for parser in parser_list:
@@ -79,6 +85,7 @@ def makeDictDict():
 def formSolutionString(predicates_list):
 	# one dictionary per predicate type
 	types, operator			= defaultdict(dict), defaultdict(dict)
+	polynom			        = defaultdict(dict)
 	monom					= defaultdict(makeDefDict)
 	children 				= defaultdict(makeDefDict)
 
@@ -91,6 +98,8 @@ def formSolutionString(predicates_list):
 
 		if field == 'type':
 			types[step][node] = ''.join(data[1:])
+		if field == 'polynom':
+			polynom[step][node] = ''.join(data[1:])
 		elif field == 'operation':
 			operator[step][node] = ''.join(data[1:])
 		elif field == 'activechild':
@@ -100,14 +109,9 @@ def formSolutionString(predicates_list):
 			coeff = data[1]
 			deg = field
 			monom[step][node].append((deg, coeff))
-	#print 'types', types, '\n\n'
-	#print 'operator', operator, '\n\n'
-	#print 'mono', mono, '\n\n'
-	#print 'children', children, '\n\n'
-	# print 
 	all_steps = []
 	for solve_step in sorted(types.keys()):
-		all_steps.append( str(solve_step) + ': ' + eqnString(types[solve_step], operator[solve_step], monom[solve_step], children[solve_step]))
+		all_steps.append( str(solve_step) + ': ' + eqnString(types[solve_step], operator[solve_step], polynom[solve_step], monom[solve_step], children[solve_step]))
 	return '\n'.join(all_steps) 
 
 
@@ -115,6 +119,7 @@ def formEqnString(predicates_list):
 	# one dictionary per predicate type
 	types, operator			= {}, {} 		# key is node id in all cases
 	monom					= defaultdict(list)
+        polynom                                 = {}
 	children 				= defaultdict(list)
 
 	# parse predicate list for info first
@@ -126,6 +131,8 @@ def formEqnString(predicates_list):
 
 		if field == 'type':
 			types[node] = ''.join(data[1:])
+		elif field == 'polynom':
+			polynom[node] = ''.join(data[1:])
 		elif field == 'operation':
 			operator[node] = ''.join(data[1:])
 		elif field == 'activechild':
@@ -135,12 +142,12 @@ def formEqnString(predicates_list):
 			coeff = data[1]
 			deg = field
 			monom[node].append((deg, coeff))
-	return eqnString(types, operator, monom, children)
+	return eqnString(types, operator, polynom, monom, children)
 
 # form the full equation string given dictionaries with data
-def eqnString(types, operator,monom, children, in_latex=False):
-	left	= formPolyString(types, operator,monom, children, 'id(1,1)')
-	right	= formPolyString(types, operator,monom, children, 'id(1,2)')
+def eqnString(types, operator,polynom, monom, children, in_latex=False):
+	left	= formPolyString(types, operator,polynom, monom, children, 'id(1,1)')
+	right	= formPolyString(types, operator,polynom, monom, children, 'id(1,2)')
 	if in_latex:
 		string =  '$$' + sp.latex( sp.sympify(left, evaluate=False)) + '=' + sp.latex( sp.sympify(right, evaluate=False)) + '$$'
 	else:
@@ -149,18 +156,19 @@ def eqnString(types, operator,monom, children, in_latex=False):
 	return string
 	
 
-def formPolyString(types, operator, monom, children, root):
+def formPolyString(types, operator, polynom, monom, children, root):
 	if types[root] == 'poly':
-		return '(' + makePolynomial(root, monom) + ')'
+		return '(' + makePolynomial(root, polynom, monom) + ')'
 
 	child_strings = []
 	for child in children[root]:
-		child_strings.append( formPolyString(types, operator, monom, children, child) )
+		child_strings.append( formPolyString(types, operator, polynom, monom, children, child) )
 	return '(' + op_symbols[operator[root]].join(child_strings) + ')'
 
-def makePolynomial(nodeName, monom):
-	all_terms = []
-	for (deg, coeff) in monom[nodeName]:
+def makePolynomial(nodeName, polynom, monom):
+	all_terms   =   []
+        poly_id     =   polynom[nodeName]
+	for (deg, coeff) in monom[poly_id]:
 		mono_term = ''
 		if coeff == '0':
 			mono_term = '0'
