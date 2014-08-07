@@ -117,15 +117,25 @@ _multipliedPoly(Poly1, Step)
 					:-	_multiplyPolys(Poly1, Poly2, Step).
 _multiplier(Poly2, Step) 
 					:-	_multiplyPolys(Poly1, Poly2, Step).
+_firstPoly(Poly, Step)	:-	_multipliedPoly(Node, Step),
+							_polyOf(Node, Poly, Step).
+_secondPoly(Poly, Step)	:-	_multiplier(Node, Step),
+							_polyOf(Node, Poly, Step).
 % generate one polynomial for each monom term of multiplier
 % TODO: warning, second layer must have enough nodes to deal with these polynomials
-_setTempToPoly(_id(temp, 2,Deg+1), Step)
-:-	_multiplier(Poly2, Step),
-	_hasTermWithDeg(Poly2, Deg, Step).
+_setTempToPoly(Temp, Step)
+	:-	_setTempToNewPoly(Temp, Step).	% TODO: move this elsewhere
+_allocatePolyToNode(Temp, Step)
+	:-	_setTempToNewPoly(Temp, Step).
+
+_setTempToNewPoly(_id(temp, 2,Deg+1), Step)
+:-	_secondPoly(Poly2, Step),
+	_polyProperty(Poly2, has_term_with_deg(Deg), Step).
 
 % result is a sum of polynomials, so set root node to 'add' operator
 _setTempChild(tempRoot, PolyChild, Step)
 	:-	_setTempToPoly(PolyChild, Step).
+
 _setTempOper(tempRoot, add, Step)
 					:-	_multiplier(Poly2, Step).
 
@@ -138,23 +148,21 @@ _tempResult(tempRoot, _nodeInfo(numchildren, Size), Step)
 % multiply each pair of monomials
 % each poly/coeff pair of Poly2 will become a separate standard poly
 _multTermsWith(_id(temp, 2, Deg2+1), Coeff2, Step)
-					:-	_multiplier(Poly2, Step),
-						_holds(Poly2, _nodeInfo(Deg2, Coeff2), Step),
-						_degree(Deg2), _coeff(Coeff2),
-						not _tempNode(Poly2).
+					:-	_secondPoly(Poly2, Step),
+						_holds(Poly2, _polyInfo(Deg2, Coeff2), Step).
 % multiply each assigned Poly1 term from above with the corresponding monomial
 % recall: NodeNum corresponds to degree of multiplier (see multTermsWith above)
 _multipliedTerm(Deg, Coeff, Step)
-					:-	_multipliedPoly(Poly1, Step),
-						_holds(Poly1, _nodeInfo(Deg, Coeff), Step),
-						_degree(Deg), _coeff(Coeff),
+					:-	_firstPoly(Poly1, Step),
+						_holds(Poly1, _polyInfo(Deg, Coeff), Step),
 						|Coeff| <= maxAssignableCoeff.
-_tempResult(_id(temp, 2, NodeNum), _nodeInfo(Deg + NodeNum - 1, Coeff * Multiplier), Step)
+_addTermToNewPoly(ProdPoly, Deg + NodeNum - 1, Coeff * Multiplier, Step)
 					:-	_multipliedTerm(Deg, Coeff, Step),
 						_coeff(Multiplier),
 						|Multiplier| <= maxAssignableCoeff, % XXX: won't allow two multiplications exceeding bounds
 						_coeff(Coeff * Multiplier),
-						_multTermsWith(_id(temp, 2, NodeNum), Multiplier, Step).
+						_multTermsWith(_id(temp, 2, NodeNum), Multiplier, Step),
+						_assignPolyToNode(_id(temp, 2, NodeNum), ProdPoly, Step).
 
 
 % save the result of polynom multiplication
