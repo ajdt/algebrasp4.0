@@ -187,6 +187,7 @@ def printEqns(all_soln):
 def printEqnSolns(all_soln):
 	for solution in all_soln:
 		print formSolutionString(solution['Value'])
+                print "\n"
 def main():
 	clasp_output = ''.join(sys.stdin.xreadlines())
 	decoded = json.loads(clasp_output)

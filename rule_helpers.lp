@@ -76,6 +76,7 @@ _setTempChild(_id(temp,1,1), _id(temp,2,2), Step)
 % populate children with proper values
 % TODO: refactor this, it's too complex and you'll likely end up reusing the code anyway
 % left child is a*d
+%
 _setTempOper(_id(temp,2,1), mul, Step)
 					:-	_action(addDiffFrac, Step). 
 _setTempChild(_id(temp,2,1), _id(temp,3,1), Step)
@@ -134,7 +135,8 @@ _setTempToNewPoly(_id(temp, 2,Deg+1), Step)
 
 % result is a sum of polynomials, so set root node to 'add' operator
 _setTempChild(tempRoot, PolyChild, Step)
-	:-	_setTempToPoly(PolyChild, Step).
+	:-	_setTempToPoly(PolyChild, Step),
+		_action(distribute, Step).
 
 _setTempOper(tempRoot, add, Step)
 					:-	_multiplier(Poly2, Step).
