@@ -196,13 +196,14 @@ _polyProperty(Poly, is_factorable, Step)
 				:-	_hasFactors(Poly, DCoeff, ECoeff, Step).
 %		factoring a quadratic
 1 { _factorsOfPoly(Poly, DCoeff, ECoeff, Step) : _hasFactors(Poly, DCoeff, ECoeff, Step) } 1
-					:-	_factorPoly(Poly, Step).
+					:-	_factorPoly(PolyNode, Step),
+						_polyOf(PolyNode, Poly, Step).
 						
 % set temp root to product of two binomials
 _setTempOper(_id(temp, 1,1), mul, Step)
-					:-	_factorPoly(Poly, Step).
+					:-	_factorPoly(PolyNode, Step).
 _setTempNumChildren(tempRoot, 2, Step)
-					:-	_factorPoly(Poly, Step).
+					:-	_factorPoly(PolyNode, Step).
 
 % set two temp nodes to be the first deg binomials of factored form 
 _tempToBinomial(_id(temp, 2, 1), DCoeff, Step)
@@ -216,20 +217,20 @@ _tempResult(tempRoot, _treeInfo(activechild, _id(temp, 2, ChildNo)), Step)
 						ChildNo = 1..2.
 % map the nodes. NOTE: This is a good bit of code to DRY up
 _mapNode(_id(temp, 2, ChildNo), Layer+1, Step)
-					:-	_factorPoly(Poly, Step),
-						_layerOf(Poly, Layer),
+					:-	_factorPoly(PolyNode, Step),
+						_layerOf(PolyNode, Layer),
 						ChildNo = 1..2.
 % copy over the factored form
-_setResultTo(Poly, Step)
-					:-	_factorPoly(Poly, Step).
+_setResultTo(PolyNode, Step)
+					:-	_factorPoly(PolyNode, Step).
 
 % dividing by leading coeff
-_setTempOper(tempRoot, mul, Step)
-					:-	_divideByLeadingCoeff(Poly, Step).
-_setTempToPoly(_id(temp, 2,1), Step)
-					:-	_divideByLeadingCoeff(Poly, Step).
-_setTempToPoly(_id(temp, 2,2), Step)
-					:-	_divideByLeadingCoeff(Poly, Step).
+%_setTempOper(tempRoot, mul, Step)
+%					:-	_divideByLeadingCoeff(Poly, Step).
+%_setTempToPoly(_id(temp, 2,1), Step)
+%					:-	_divideByLeadingCoeff(Poly, Step).
+%_setTempToPoly(_id(temp, 2,2), Step)
+%					:-	_divideByLeadingCoeff(Poly, Step).
 
 				% TODO: Restore this later
 				%_tempResult(_id(temp, 2,2), _nodeInfo(Deg, Coeff/ACoeff), Step)
@@ -240,18 +241,18 @@ _setTempToPoly(_id(temp, 2,2), Step)
 				%		ACoeff != 0,
 				%		_coeff(ACoeff),
 				%		_coeff(Coeff/ACoeff).
-_tempResult(_id(temp, 2,1), _nodeInfo(0, ACoeff), Step)
-					:-	_divideByLeadingCoeff(Poly, Step),
-						_squareMonom(Poly, ACoeff, Step),
-						_coeff(ACoeff).
-_tempResult(tempRoot, _treeInfo(activechild, _id(temp, 2, 1)), Step)
-					:-	_divideByLeadingCoeff(Poly, Step).
-_tempResult(tempRoot, _treeInfo(activechild, _id(temp, 2, 2)), Step)
-					:-	_divideByLeadingCoeff(Poly, Step).
+%_tempResult(_id(temp, 2,1), _nodeInfo(0, ACoeff), Step)
+%					:-	_divideByLeadingCoeff(Poly, Step),
+%						_squareMonom(Poly, ACoeff, Step),
+%						_coeff(ACoeff).
+%_tempResult(tempRoot, _treeInfo(activechild, _id(temp, 2, 1)), Step)
+%					:-	_divideByLeadingCoeff(Poly, Step).
+%_tempResult(tempRoot, _treeInfo(activechild, _id(temp, 2, 2)), Step)
+%					:-	_divideByLeadingCoeff(Poly, Step).
 
 %% TODO: this won't work, fix it
-_setResultTo(Poly, Step)
-					:-	_divideByLeadingCoeff(Poly, Step).
+%_setResultTo(Poly, Step)
+%					:-	_divideByLeadingCoeff(Poly, Step).
 
 
 
