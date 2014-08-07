@@ -209,8 +209,8 @@ _polyProperty(Node, Property, Step)
 #const one	= _id(poly, 1).
 _polyConst(zero ; one).
 
-_initially(zero, _polyInfo(1,0)).
-_initially(one, _polyInfo(1,1)).
+_initially(zero, _polyInfo(0,0)).
+_initially(one, _polyInfo(0,1)).
 _initially(Const, allocated)		:-	_polyConst(Const).
 
 % setting a treeNode to a constant poly

@@ -174,7 +174,7 @@ _copyNodeInfo(Parent, TempNode, Step)
 
 % factoring version 1
 _hasFactors(Poly, DCoeff, ECoeff, Step)
-					:-	_isQuadratic(Poly, Step),
+					:-	_polyProperty(Poly, is_quadratic, Step),
 						_linearMonom(Poly, BCoeff, Step),
 						_constMonom(Poly, CCoeff, Step),
 						_coeff(DCoeff),
@@ -183,6 +183,7 @@ _hasFactors(Poly, DCoeff, ECoeff, Step)
 						CCoeff == DCoeff * ECoeff,
 						_coeff(BCoeff),
 						_coeff(CCoeff).
+
 _polyProperty(Poly, is_factorable, Step)
 				:-	_hasFactors(Poly, DCoeff, ECoeff, Step).
 %		factoring a quadratic

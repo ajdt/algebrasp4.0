@@ -337,10 +337,13 @@ _tempResult(TempNode, _nodeInfo(numchildren, ChildCount), Step)
 					:-	_setTempNumChildren(TempNode, ChildCount, Step).
 
 % setting temp node to a binomial
-_tempResult(Node, _nodeInfo(0, Coeff), Step)
+_allocatePolyToNode(Node, Step)
 					:-	_tempToBinomial(Node, Coeff, Step).
-_tempResult(Node, _nodeInfo(1, 1), Step)
-					:-	_tempToBinomial(Node, Coeff, Step).
-_tempToPoly(Node, Step)
-					:-	_tempToBinomial(Node, Coeff, Step).
+					
+_addTermToNewPoly(Polynom, 1, Coeff, Step)			
+					:-	_tempToBinomial(Node, Coeff, Step),
+						_assignPolyToNode(Polynom, Node, Step).
+_addTermToNewPoly(Polynom, 0, 1, Step)			
+					:-	_tempToBinomial(Node, Coeff, Step),
+						_assignPolyToNode(Polynom, Node, Step).
 
