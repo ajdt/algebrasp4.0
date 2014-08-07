@@ -96,11 +96,17 @@ _update(Parent, _nodeInfo(numchildren, NumKids - 1), Step)
 _remove(Parent, _treeInfo(activechild, Term), Step)
 					:-	_deleteChildReferences(Parent, Term, Step).
 
-% deleting a monomial
-_remove(Polynomial, _nodeInfo(Deg, Coeff), Step)
-					:-	_deleteMonomial(Polynomial, Deg, Step),
-						_degree(Deg), _coeff(Coeff),
-						_holds(Polynomial, _nodeInfo(Deg, Coeff), Step).
+% deleting a monomial means creating fresh polynomial without the 'deleted' term
+_allocatePolyToNode(PolyNode, Step)
+	:-	_deleteMonomial(PolyNode, Deg, Step).
+_copyPolyExceptDeletedMonom(NewPoly, OldPoly, Deg, Step)
+					:-	_assignPolyToNode(NewPoly, Node, Step),
+						_holds(Node, _nodeInfo(polynom, OldPoly), Step),
+						_deleteMonomial(Node, Deg, Step).
+_addTermToNewPoly(NewPoly, PolyDeg, PolyCoeff, Step)
+					:-	_copyPolyExceptDeletedMonom(NewPoly, OldPoly, Deg, Step),
+						_holds(OldPoly, _polyInfo(PolyDeg, PolyCoeff), Step),
+						PolyDeg != Deg.
 
 % 'recursively' delete all children
 _applyNodeOp(Child, delete, Step)	% figure out better way to do this
