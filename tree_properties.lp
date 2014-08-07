@@ -324,8 +324,7 @@ _tempResult(Node, _nodeInfo(active, yes), Step)
 % copying: polynomial to temp node
 _tempResult(TempNode, _nodeInfo(polynom,Poly), Step)
 					:-	_copyPolyToTemp(TempNode, PolyNode, Step),
-						_holds(PolyNode, _nodeInfo(polynom,Poly), Step),
-						_degree(Field).
+						_holds(PolyNode, _nodeInfo(polynom,Poly), Step).
 % setting temp node to poly (no terms)
 _setTempToPoly(TempNode, Step)
 					:-	_copyPolyToTemp(TempNode, Poly, Step).

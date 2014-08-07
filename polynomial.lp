@@ -83,12 +83,14 @@ _remove(Poly, Info, Step)
 _introduce(Polynom, allocated, Step)
 			:-	_assignPolyToNode(Polynom, Node, Step).
 
-% update treeNode's polynom reference
+% update treeNode's polynom references (different for temp and regular nodes)
 _introduce(Node, _nodeInfo(polynom, Polynom), Step)
-			:-	_assignPolyToNode(Polynom, Node, Step).
+			:-	_assignPolyToNode(Polynom, Node, Step), not _tempNode(Node).
 _remove(Node, _nodeInfo(polynom, OldPoly), Step)
-			:-	_assignPolyToNode(Polynom, Node, Step),
+			:-	_assignPolyToNode(Polynom, Node, Step), not _tempNode(Node),
 				_holds(Node, _nodeInfo(polynom, OldPoly), Step).
+_tempResult(Node, _nodeInfo(polynom, Polynom), Step)
+			:-	_assignPolyToNode(Polynom, Node, Step), _tempNode(Node).
 % adding terms
 _introduce(Polynom, _polyInfo(Deg, Coeff), Step)
 			:-	_addTermToNewPoly(Polynom, Deg, Coeff, Step),

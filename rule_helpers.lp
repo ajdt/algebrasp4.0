@@ -248,28 +248,44 @@ _setResultTo(Poly, Step)
 
 
 					%	Add Terms
+_polyOf(Node, Poly, Step)	% TODO: put this rule elsewhere
+					:-	_holds(Node, _nodeInfo(polynom, Poly), Step).
+_leftAddTermsNode(LeftNode, Step)	:-	_addTerms(LeftNode, RightNode, Step).
+_rightAddTermsNode(RightNode, Step)	:-	_addTerms(LeftNode, RightNode, Step).
+_leftAddPoly(Poly, Step)		:-	_leftAddTermsNode(LeftNode, Step),
+										_polyOf(LeftNode, Poly, Step).
+_rightAddPoly(Poly, Step)		:-	_rightAddTermsNode(RightNode, Step),
+										_polyOf(RightNode, Poly, Step).
+						
 _setTempToPoly(tempRoot, Step)
 					:-	_addTerms(LeftPoly, RightPoly, Step).
-_tempResult(tempRoot, _nodeInfo(Deg, Coeff1 + Coeff2), Step)
-					:-	_addTerms(LeftPoly, RightPoly, Step),
-						_holds(LeftPoly, _nodeInfo(Deg, Coeff1), Step),
-						_holds(RightPoly, _nodeInfo(Deg, Coeff2), Step),
-						_degree(Deg),
+_allocatePolyToNode(tempRoot, Step)	% TODO: allocate to temp node instead!!!
+					:-	_addTerms(LeftPoly, RightPoly, Step).
+_sumPoly(Poly, Step)
+					:-	_assignedPolyToNode(Poly, tempRoot, Step),
+						_action(addCommTerms, Step).
+% perform the sum
+_addTermToNewPoly(SumPoly, Deg, Coeff1 + Coeff2, Step)
+					:-	_leftAddPoly(LeftPoly, Step),
+						_rightAddPoly(RightPoly, Step),
+						_sumPoly(SumPoly, Step),
+						_holds(LeftPoly, _polyInfo(Deg, Coeff1), Step),
+						_holds(RightPoly, _polyInfo(Deg, Coeff2), Step),
 						_coeff(Coeff1 + Coeff2).
 
 % incorporate monomials that don't have a common term
-_tempResult(tempRoot, _nodeInfo(Deg, Coeff), Step)
-					:-	_addTerms(LeftPoly, RightPoly, Step),
-						_holds(LeftPoly, _nodeInfo(Deg, Coeff), Step),
-						not	_hasTermWithDeg(RightPoly, Deg, Step),
-						_degree(Deg),
-						_coeff(Coeff).
-_tempResult(tempRoot, _nodeInfo(Deg, Coeff), Step)
-					:-	_addTerms(LeftPoly, RightPoly, Step),
-						_holds(RightPoly, _nodeInfo(Deg, Coeff), Step),
-						not	_hasTermWithDeg(LeftPoly, Deg, Step),
-						_degree(Deg),
-						_coeff(Coeff).
+_addTermToNewPoly(SumPoly, Deg, Coeff, Step)
+					:-	_leftAddPoly(LeftPoly, Step),
+						_rightAddPoly(RightPoly, Step),
+						_sumPoly(SumPoly, Step),
+						_holds(LeftPoly, _polyInfo(Deg, Coeff), Step),
+						not _polyProperty(RightPoly, has_term_with_deg(Deg), Step).
+_addTermToNewPoly(SumPoly, Deg, Coeff, Step)
+					:-	_leftAddPoly(LeftPoly, Step),
+						_rightAddPoly(RightPoly, Step),
+						_sumPoly(SumPoly, Step),
+						_holds(RightPoly, _polyInfo(Deg, Coeff), Step),
+						not _polyProperty(LeftPoly, has_term_with_deg(Deg), Step).
 
 % save the result
 _writeBinaryOp(LeftPoly, RightPoly, Step)
