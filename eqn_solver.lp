@@ -76,4 +76,8 @@ _solved(Step)	:-	_isConst(right_side, Step),	% condition: 	x = c
 #show _holds/3.
 #show _doAction/2.
 #show action/1.
-#show ruleParam/3.
+#show _factorPoly/2.
+#show _factorPoly/2.
+#show _squareMonom/3.
+#show _applicable/2.
+%#show ruleParam/3.

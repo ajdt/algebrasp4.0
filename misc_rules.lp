@@ -150,44 +150,44 @@ ruleParam(distribute, degree, 0)
 %================================================================================
 % factor (ax^2 + bx + c) --> (x + e) * (x + d)
 %================================================================================
-_applicable(_action(factor, _data(Poly)), Step)
-			:-	_polyProperty(Poly, is_quadratic, Step),
-				_squareMonom(Poly, ACoeff, Step),
+_applicable(_action(factor, _data(PolyNode)), Step)
+			:-	_holds(PolyNode, _nodeInfo(polynom, Poly), Step),
+				_polyProperty(Poly, is_quadratic, Step),
 				_polyProperty(Poly, is_factorable, Step),
-				ACoeff == 1,
-				ACoeff <=5,
-				ACoeff >= - 5,
-				_linearMonom(Poly, BCoeff, Step),
-				BCoeff <=5,
-				BCoeff >= - 5,
-				_constMonom(Poly, CCoeff, Step),
-				CCoeff <=5,
-				CCoeff >= - 5.
-_applicable(_action(factor2, _data(Poly, divideFirst)), Step)
-			:-	_quadWithCommonTerm(Poly, Step).
-
-_factorPoly(Poly, Step)
-			:-	_doAction(_action(factor, _data(Poly)), Step),
 				_squareMonom(Poly, ACoeff, Step),
-				ACoeff == 1.
-_divideByLeadingCoeff(Poly, Step)
-			:-	_doAction(_action(factor, _data(Poly, divideFirst)), Step).
-% TODO: create a separate predicate for this
-_factorNext(StdPoly, Step+1)
-			:-	_divideByLeadingCoeff(Poly, Step),
-				_termOf(Poly, StdPoly, Step+1),
-				_polyProperty(StdPoly, is_quadratic, Step+1).
-				%_isFactorable(StdPoly, Step+1).
+				_linearMonom(Poly, BCoeff, Step),
+				_constMonom(Poly, CCoeff, Step),
+				ACoeff == 1,
+				|ACoeff| <=5,
+				|BCoeff| <=5,
+				|CCoeff| <=5.
+%_applicable(_action(factor2, _data(Poly, divideFirst)), Step)
+			%:-	_quadWithCommonTerm(Poly, Step).
+
 %
-_doAction(_action(factor, _data(Poly)), Step)
-			:-	_factorNext(Poly, Step),
-				_step(Step).
-_applicable(_action(factor, _data(Poly)), Step)
-			:-	_factorNext(Poly, Step),
-				_step(Step).
-% rule features -- 
-% 	perfect square, factor out const, b term is zero?, c term is zero?
-#show _divideByLeadingCoeff/2.
+%_factorPoly(Poly, Step)
+%			:-	_doAction(_action(factor, _data(PolyNode)), Step),
+%				_holds(PolyNode, _nodeInfo(polynom, Poly), Step).
+%				%_squareMonom(Poly, ACoeff, Step).
+%				%ACoeff == 1.
+%_divideByLeadingCoeff(Poly, Step)
+%			:-	_doAction(_action(factor, _data(Poly, divideFirst)), Step).
+%% TODO: create a separate predicate for this
+%_factorNext(StdPoly, Step+1)
+%			:-	_divideByLeadingCoeff(Poly, Step),
+%				_termOf(Poly, StdPoly, Step+1),
+%				_polyProperty(StdPoly, is_quadratic, Step+1).
+%				%_isFactorable(StdPoly, Step+1).
+%%
+%_doAction(_action(factor, _data(Poly)), Step)
+%			:-	_factorNext(Poly, Step),
+%				_step(Step).
+%_applicable(_action(factor, _data(Poly)), Step)
+%			:-	_factorNext(Poly, Step),
+%				_step(Step).
+%% rule features -- 
+%% 	perfect square, factor out const, b term is zero?, c term is zero?
+%#show _divideByLeadingCoeff/2.
 #show _tempResult/3.
 #show _mapto/3.
 #show _mapNodeRec/3.
