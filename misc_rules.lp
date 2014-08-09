@@ -164,12 +164,11 @@ _applicable(_action(factor, _data(PolyNode)), Step)
 %_applicable(_action(factor2, _data(Poly, divideFirst)), Step)
 			%:-	_quadWithCommonTerm(Poly, Step).
 
-%
-%_factorPoly(Poly, Step)
-%			:-	_doAction(_action(factor, _data(PolyNode)), Step),
-%				_holds(PolyNode, _nodeInfo(polynom, Poly), Step).
-%				%_squareMonom(Poly, ACoeff, Step).
-%				%ACoeff == 1.
+
+_factorNode(PolyNode, Step)
+			:-	_doAction(_action(factor, _data(PolyNode)), Step).
+				%_squareMonom(PolyNode, ACoeff, Step).
+				%ACoeff == 1.
 %_divideByLeadingCoeff(Poly, Step)
 %			:-	_doAction(_action(factor, _data(Poly, divideFirst)), Step).
 %% TODO: create a separate predicate for this
@@ -185,8 +184,8 @@ _applicable(_action(factor, _data(PolyNode)), Step)
 %_applicable(_action(factor, _data(Poly)), Step)
 %			:-	_factorNext(Poly, Step),
 %				_step(Step).
-%% rule features -- 
-%% 	perfect square, factor out const, b term is zero?, c term is zero?
+% rule features -- 
+% 	perfect square, factor out const, b term is zero?, c term is zero?
 %#show _divideByLeadingCoeff/2.
 #show _tempResult/3.
 #show _mapto/3.

@@ -197,34 +197,40 @@ _hasFactors(Poly, DCoeff, ECoeff, Step)
 _polyProperty(Poly, is_factorable, Step)
 				:-	_hasFactors(Poly, DCoeff, ECoeff, Step).
 %		factoring a quadratic
-1 { _factorsOfPoly(Poly, DCoeff, ECoeff, Step) : _hasFactors(Poly, DCoeff, ECoeff, Step) } 1
-					:-	_factorPoly(PolyNode, Step),
+_polynomToFactor(Poly, Step)
+					:-	_factorNode(PolyNode, Step),
 						_polyOf(PolyNode, Poly, Step).
+1 { _factorsOfPoly(Poly, DCoeff, ECoeff, Step) : _hasFactors(Poly, DCoeff, ECoeff, Step) } 1
+					:-	_polynomToFactor(Poly, Step).
 						
 % set temp root to product of two binomials
 _setTempOper(_id(temp, 1,1), mul, Step)
-					:-	_factorPoly(PolyNode, Step).
+					:-	_action(factor, Step).
 _setTempNumChildren(tempRoot, 2, Step)
-					:-	_factorPoly(PolyNode, Step).
+					:-	_action(factor, Step).
 
 % set two temp nodes to be the first deg binomials of factored form 
 _tempToBinomial(_id(temp, 2, 1), DCoeff, Step)
 					:-	_factorsOfPoly(Poly, ECoeff, DCoeff, Step).
 _tempToBinomial(_id(temp, 2, 2), ECoeff, Step)
 					:-	_factorsOfPoly(Poly, ECoeff, DCoeff, Step).
-
+% set the miscellaneous polynomial features
+_setTempToPoly(_id(temp,2,1), Step)
+					:-	_action(factor, Step).
+_setTempToPoly(_id(temp,2,2), Step)
+					:-	_action(factor, Step).
 % set the parent/child pointers
 _tempResult(tempRoot, _treeInfo(activechild, _id(temp, 2, ChildNo)), Step)
-					:-	_factorPoly(Poly, Step),
+					:-	_polynomToFactor(Poly, Step),
 						ChildNo = 1..2.
 % map the nodes. NOTE: This is a good bit of code to DRY up
 _mapNode(_id(temp, 2, ChildNo), Layer+1, Step)
-					:-	_factorPoly(PolyNode, Step),
+					:-	_factorNode(PolyNode, Step),
 						_layerOf(PolyNode, Layer),
 						ChildNo = 1..2.
-% copy over the factored form
+% copy over the factored form			
 _setResultTo(PolyNode, Step)
-					:-	_factorPoly(PolyNode, Step).
+					:-	_factorNode(PolyNode, Step).
 
 % dividing by leading coeff
 %_setTempOper(tempRoot, mul, Step)
