@@ -345,10 +345,10 @@ _tempResult(TempNode, _nodeInfo(numchildren, ChildCount), Step)
 _allocatePolyToNode(Node, Step)
 					:-	_tempToBinomial(Node, Coeff, Step).
 					
-_addTermToNewPoly(Polynom, 1, Coeff, Step)			
+_addTermToNewPoly(Polynom, 0, Coeff, Step)			
 					:-	_tempToBinomial(Node, Coeff, Step),
 						_assignPolyToNode(Polynom, Node, Step).
-_addTermToNewPoly(Polynom, 0, 1, Step)			
+_addTermToNewPoly(Polynom, 1, 1, Step)			
 					:-	_tempToBinomial(Node, Coeff, Step),
 						_assignPolyToNode(Polynom, Node, Step).
 
