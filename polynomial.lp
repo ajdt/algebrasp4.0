@@ -51,19 +51,19 @@ _polyNotAllocatedTwice(Poly, Step)
 % pick exactly one monomial of given order, and at most one monomial for each 
 % lesser degree
 1 { _assignPolyToNode(Poly, Node)	:	_polynomial(Poly), not _polyConst(Poly)	} 1
-			:-	_makePolyWithOrder(Node, Order).
+			:-	_assignToPolyWithOrder(Node, Order).
+_initPolyWithOrder(Poly, Order)
+			:-	_assignToPolyWithOrder(Node, Order),
+_assignPolyToNode(Poly, NOde).
 
-1 { _hasMonom(Node, Order, Coeff) : _coeff(Coeff), _baseMonom(Coeff,Order) } 1 
-			:-	_makePolyWithOrder(Node, Order).
-0 { _hasMonom(Node, Deg, Coeff) : _coeff(Coeff), _baseMonom(Coeff,Deg) } 1 
-			:-	_makePolyWithOrder(Node, Order), _degree(Deg), Deg < Order.
+1 { _initially(Poly, _polyInfo(Order, Coeff)) : _coeff(Coeff), |Coeff| <= maxInitialCoeff, |Coeff| > 0} 1 
+			:-	_initPolyWithOrder(Poly, Order).
+0 { _initially(Poly, _polyInfo(Deg, Coeff)) : _coeff(Coeff), |Coeff| <= maxInitialCoeff} 1 
+			:-	_initPolyWithOrder(Poly, Order), _degree(Deg), Deg < Order.
 
 % TODO: change this later, so hasMonom(...) directly adds monomials to polynomials
 _initially(Poly, allocated)
 			:-	_assignPolyToNode(Poly, Node).
-_initially(Poly, _polyInfo(Deg, Coeff))
-			:-	_hasMonom(Node, Deg, Coeff),
-				_assignPolyToNode(Poly, Node).
 % garbage collecting polynomials
 _garbageCollectPoly(Poly, Step)				%	apply GC to every poly that doesn't have any pointers to it anymore
 			:-	_polynomial(Poly),

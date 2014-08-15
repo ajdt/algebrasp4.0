@@ -98,7 +98,7 @@ _numPolyTerms(1..3).
 _maxNumPolyTerms(1..9).
 % NOTE: degree and leading coef are decided here, so that we can create leadingCoef, and degree predicates for 
 % poly nodes if necessary
-1 { _makePolyWithOrder(Node, Order) : _degree(Order) , Order <= maxAssignableDegree } 1 	
+1 { _assignToPolyWithOrder(Node, Order) : _degree(Order) , Order <= maxAssignableDegree } 1 	
 					:-	_initially(Node, _nodeInfo(type, poly)).
 
 _initially(Node, _nodeInfo(polynom, Poly))	
